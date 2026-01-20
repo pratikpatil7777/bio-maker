@@ -1,6 +1,7 @@
 {
-  "name": "biodata-website",
-  "version": "0.1.0",
+  "name": "pratik-biodata",
+  "version": "1.0.0",
+  "description": "Marriage Biodata Website for Pratik Ravindra Patil - Krishna/Spiritual theme",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +10,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "html2pdf.js": "^0.14.0",
     "next": "16.1.3",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
