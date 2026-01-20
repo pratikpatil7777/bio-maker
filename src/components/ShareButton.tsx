@@ -42,7 +42,8 @@ export default function ShareButton({
       };
 
       // Generate PDF as blob
-      const pdfBlob = await (html2pdf() as ReturnType<typeof html2pdf>)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pdfBlob = await (html2pdf() as any)
         .set(opt)
         .from(element)
         .toPdf()
