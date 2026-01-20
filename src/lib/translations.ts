@@ -65,7 +65,7 @@ export const translations = {
 
     // Assets
     farmLand: "Farm Land",
-    realEstate: "Real Estate",
+    property: "Property",
 
     // Contact
     mobile: "Mobile",
@@ -153,7 +153,7 @@ export const translations = {
 
     // Assets
     farmLand: "शेतजमीन",
-    realEstate: "स्थावर मालमत्ता",
+    property: "मालमत्ता",
 
     // Contact
     mobile: "मोबाईल",

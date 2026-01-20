@@ -61,7 +61,7 @@ export default function AssetsSection({
               className={`font-medium text-[#555] w-[190px] shrink-0 ${isMarathi ? 'marathi-text' : ''}`}
               style={{ fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : 'inherit' }}
             >
-              {t.realEstate}
+              {t.property}
             </span>
             <span className="w-[20px] shrink-0 text-center text-[#555]">:</span>
             <EditableField

@@ -219,8 +219,8 @@ export const defaultData: BiodataData = {
     ],
   },
   assets: {
-    farmLand: "8 Acres (Jaavde 5 Acres, Brahmanpuri 3 Acres)",
-    farmLandMarathi: "८ एकर (जावडे ५ एकर, ब्राह्मणपुरी ३ एकर)",
+    farmLand: "8 Acres",
+    farmLandMarathi: "८ एकर",
     additionalAssets: "Residential plots in Shahada & Nandurbar, Maharashtra",
     additionalAssetsMarathi: "निवासी भूखंड शहादा आणि नंदुरबार, महाराष्ट्र",
   },
