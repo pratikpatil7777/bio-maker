@@ -235,7 +235,7 @@ export const defaultData: BiodataData = {
     galleryPhotos: [],
   },
   photoGallery: {
-    url: "https://drive.google.com/file/d/1K9Mn5bnkYyXDYoVKD9xHkVAY_baGV0qE/view?usp=sharing",
+    url: "https://drive.google.com/drive/folders/1TA0MJt6jao4V4whHBg0A5ULpk8HWitXX?ths=true",
     showQR: true,
   },
 };
