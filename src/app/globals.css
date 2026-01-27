@@ -586,3 +586,142 @@ select,
 .panel-card {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
+
+/* ============================================
+   ANIMATED BACKGROUND ELEMENTS
+   For marriage-themed floating decorations
+   ============================================ */
+
+/* Floating lotus petals animation */
+@keyframes float-slow {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 20s linear infinite;
+}
+
+/* Floating particles animation */
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-30px) translateX(15px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-40px) translateX(20px);
+    opacity: 0.7;
+  }
+}
+
+.animate-float-particle {
+  animation: float-particle 10s ease-in-out infinite;
+}
+
+/* Very slow spin for mandala patterns */
+@keyframes spin-very-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-very-slow {
+  animation: spin-very-slow 60s linear infinite;
+}
+
+@keyframes spin-very-slow-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-very-slow-reverse {
+  animation: spin-very-slow-reverse 45s linear infinite;
+}
+
+/* Alert Dialog animations */
+@keyframes dialog-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialog-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: dialog-fade-in 0.2s ease-out;
+}
+
+.animate-scale-in {
+  animation: dialog-scale-in 0.25s ease-out;
+}
+
+/* ============================================
+   CUSTOM DECORATIVE CURSOR
+   3D Peacock Feather - Krishna's Divine Symbol
+   Only applied to biodata form buttons
+   ============================================ */
+
+/* Peacock Feather Cursor using inline data URI for maximum compatibility */
+:root {
+  --cursor-peacock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M6 0L7.5 8L6 11L4.5 8Z' fill='%238B4513'/%3E%3Cellipse cx='6' cy='16' rx='5.5' ry='8' fill='%231b5e20'/%3E%3Cellipse cx='6' cy='15.5' rx='4.5' ry='6.5' fill='%232e7d32'/%3E%3Cellipse cx='6' cy='15' rx='3.5' ry='5' fill='%234caf50'/%3E%3Cellipse cx='6' cy='14' rx='2.8' ry='4' fill='%2300bcd4'/%3E%3Cellipse cx='6' cy='13.5' rx='2' ry='3' fill='%231565c0'/%3E%3Cellipse cx='6' cy='13' rx='1.3' ry='2' fill='%230d47a1'/%3E%3Ccircle cx='6' cy='12.5' r='1.2' fill='%23000'/%3E%3Cellipse cx='6.5' cy='12' rx='0.5' ry='0.35' fill='%23fff' opacity='0.9'/%3E%3Cpath d='M4 24 L6 32 L8 24' fill='%231b5e20' opacity='0.7'/%3E%3C/svg%3E") 6 0, pointer;
+  --cursor-peacock-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 0L6.2 7L5 9.5L3.8 7Z' fill='%235D3A1A'/%3E%3Cellipse cx='5' cy='13.5' rx='4.5' ry='6.5' fill='%231b5e20'/%3E%3Cellipse cx='5' cy='13' rx='3.7' ry='5.3' fill='%232e7d32'/%3E%3Cellipse cx='5' cy='12.5' rx='2.9' ry='4' fill='%23388e3c'/%3E%3Cellipse cx='5' cy='12' rx='2.3' ry='3.2' fill='%230097a7'/%3E%3Cellipse cx='5' cy='11.5' rx='1.6' ry='2.4' fill='%231565c0'/%3E%3Cellipse cx='5' cy='11' rx='1' ry='1.6' fill='%230d47a1'/%3E%3Ccircle cx='5' cy='10.5' r='0.9' fill='%23000'/%3E%3Cellipse cx='5.4' cy='10.2' rx='0.35' ry='0.25' fill='%23fff' opacity='0.8'/%3E%3Cpath d='M3.5 20 L5 28 L6.5 20' fill='%231b5e20' opacity='0.6'/%3E%3C/svg%3E") 5 0, pointer;
+}
+
+/* Apply peacock cursor ONLY to biodata form buttons */
+.biodata-container button.biodata-btn,
+.biodata-container .biodata-btn,
+.biodata-page button.biodata-btn,
+.biodata-page .biodata-btn {
+  cursor: var(--cursor-peacock) !important;
+}
+
+/* Hover state for biodata form buttons */
+.biodata-container button.biodata-btn:hover,
+.biodata-container .biodata-btn:hover,
+.biodata-page button.biodata-btn:hover,
+.biodata-page .biodata-btn:hover {
+  cursor: var(--cursor-peacock) !important;
+}
+
+/* Active/pressed state for biodata form buttons */
+.biodata-container button.biodata-btn:active,
+.biodata-container .biodata-btn:active,
+.biodata-page button.biodata-btn:active,
+.biodata-page .biodata-btn:active {
+  cursor: var(--cursor-peacock-active) !important;
+}

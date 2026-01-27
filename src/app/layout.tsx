@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { DarkModeProvider } from "@/lib/DarkModeContext";
+import { AlertProvider } from "@/components/AlertDialog";
 
 export const metadata: Metadata = {
   title: "Marriage Biodata Builder",
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         <DarkModeProvider>
-          {children}
+          <AlertProvider>
+            {children}
+          </AlertProvider>
         </DarkModeProvider>
       </body>
     </html>

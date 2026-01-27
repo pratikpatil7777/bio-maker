@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Language } from '@/lib/translations';
 import { BiodataData, defaultData } from '@/lib/defaultData';
+import { useAlert } from './AlertDialog';
 
 interface DataBackupProps {
   language: Language;
@@ -31,6 +32,7 @@ export default function DataBackup({
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMarathi = language === 'mr';
+  const { showConfirm, showSuccess, showError } = useAlert();
 
   const handleExport = () => {
     const backup: BackupData = {
@@ -73,22 +75,31 @@ export default function DataBackup({
       }
 
       // Confirm restore
-      const confirmed = confirm(
+      const confirmed = await showConfirm(
         isMarathi
           ? 'सध्याचा डेटा बॅकअप डेटाने बदलला जाईल. पुढे जायचे?'
-          : 'Current data will be replaced with backup data. Continue?'
+          : 'Current data will be replaced with backup data. Continue?',
+        {
+          title: isMarathi ? 'बॅकअप पुनर्संचयित करा?' : 'Restore Backup?',
+          confirmText: isMarathi ? 'पुनर्संचयित करा' : 'Restore',
+          cancelText: isMarathi ? 'रद्द करा' : 'Cancel',
+        }
       );
 
       if (confirmed) {
         onRestore(backup.data, backup.themeId, backup.borderId);
-        alert(isMarathi ? 'डेटा यशस्वीरित्या पुनर्संचयित केला!' : 'Data restored successfully!');
+        await showSuccess(
+          isMarathi ? 'डेटा यशस्वीरित्या पुनर्संचयित केला!' : 'Data restored successfully!',
+          isMarathi ? 'यशस्वी' : 'Success'
+        );
       }
     } catch (error) {
       console.error('Import error:', error);
-      alert(
+      await showError(
         isMarathi
           ? 'बॅकअप फाइल वाचता आली नाही. कृपया वैध JSON फाइल निवडा.'
-          : 'Could not read backup file. Please select a valid JSON file.'
+          : 'Could not read backup file. Please select a valid JSON file.',
+        isMarathi ? 'त्रुटी' : 'Error'
       );
     } finally {
       setIsImporting(false);
@@ -150,10 +161,10 @@ export default function DataBackup({
       {showMenu && !isImporting && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+          <div className="fixed inset-0 z-[1000]" onClick={() => setShowMenu(false)} />
 
           {/* Menu */}
-          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 min-w-[180px]">
+          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[1001] min-w-[180px]">
             {/* Export */}
             <button
               onClick={handleExport}

@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { DynamicBiodataData, BiodataBackup, Language } from '@/lib/types';
+import { useAlert } from './AlertDialog';
 
 interface DataBackupNewProps {
   language: Language;
@@ -13,6 +14,7 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMarathi = language === 'mr';
+  const { showError, showWarning, showConfirm } = useAlert();
 
   const handleExport = () => {
     const backup: BiodataBackup = {
@@ -38,43 +40,58 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const content = event.target?.result as string;
         const backup = JSON.parse(content) as BiodataBackup;
 
         // Validate the backup structure
         if (!backup.data || !backup.version) {
-          alert(isMarathi
-            ? 'अवैध बॅकअप फाइल. कृपया योग्य फाइल निवडा.'
-            : 'Invalid backup file. Please select a valid backup file.');
+          await showError(
+            isMarathi
+              ? 'अवैध बॅकअप फाइल. कृपया योग्य फाइल निवडा.'
+              : 'Invalid backup file. Please select a valid backup file.',
+            isMarathi ? 'अवैध फाइल' : 'Invalid File'
+          );
           return;
         }
 
         // Check version compatibility
         if (backup.version.startsWith('1.')) {
-          alert(isMarathi
-            ? 'ही जुन्या आवृत्तीची बॅकअप फाइल आहे. कृपया नवीन बॅकअप बनवा.'
-            : 'This is an old version backup file. Please create a new backup.');
+          await showWarning(
+            isMarathi
+              ? 'ही जुन्या आवृत्तीची बॅकअप फाइल आहे. कृपया नवीन बॅकअप बनवा.'
+              : 'This is an old version backup file. Please create a new backup.',
+            isMarathi ? 'जुनी आवृत्ती' : 'Old Version'
+          );
           return;
         }
 
         const confirmMessage = isMarathi
-          ? `तुम्हाला खात्री आहे का? सध्याचा सर्व डेटा या बॅकअपने बदलला जाईल.\n\nबॅकअप तारीख: ${new Date(backup.exportDate).toLocaleDateString()}\nनाव: ${backup.data.name || 'उपलब्ध नाही'}`
-          : `Are you sure? All current data will be replaced with this backup.\n\nBackup date: ${new Date(backup.exportDate).toLocaleDateString()}\nName: ${backup.data.name || 'Not available'}`;
+          ? `सध्याचा सर्व डेटा या बॅकअपने बदलला जाईल.\n\nबॅकअप तारीख: ${new Date(backup.exportDate).toLocaleDateString()}\nनाव: ${backup.data.name || 'उपलब्ध नाही'}`
+          : `All current data will be replaced with this backup.\n\nBackup date: ${new Date(backup.exportDate).toLocaleDateString()}\nName: ${backup.data.name || 'Not available'}`;
 
-        if (confirm(confirmMessage)) {
+        const confirmed = await showConfirm(confirmMessage, {
+          title: isMarathi ? 'बॅकअप पुनर्संचयित करा?' : 'Restore Backup?',
+          confirmText: isMarathi ? 'पुनर्संचयित करा' : 'Restore',
+          cancelText: isMarathi ? 'रद्द करा' : 'Cancel',
+        });
+
+        if (confirmed) {
           onRestore(backup.data);
         }
       } catch (error) {
-        alert(isMarathi
-          ? 'फाइल वाचताना त्रुटी आली. कृपया वैध JSON फाइल निवडा.'
-          : 'Error reading file. Please select a valid JSON file.');
+        await showError(
+          isMarathi
+            ? 'फाइल वाचताना त्रुटी आली. कृपया वैध JSON फाइल निवडा.'
+            : 'Error reading file. Please select a valid JSON file.',
+          isMarathi ? 'त्रुटी' : 'Error'
+        );
       }
     };
     reader.readAsText(file);
@@ -88,14 +105,14 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
     <div className="relative">
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-[#555] dark:text-slate-200 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-600 transition-all cursor-pointer"
+        className="group/backup h-9 flex items-center gap-2 px-3 text-xs font-medium rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 hover:border-[#D4AF37]/60 dark:hover:border-[#D4AF37]/60 hover:shadow-md shadow-sm transition-all duration-300 cursor-pointer"
         title={isMarathi ? 'डेटा बॅकअप' : 'Data Backup'}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        <svg className="w-4 h-4 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
         </svg>
         <span className="hidden sm:inline">{isMarathi ? 'बॅकअप' : 'Backup'}</span>
-        <svg className={`w-3 h-3 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -104,12 +121,12 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[1000]"
             onClick={() => setIsMenuOpen(false)}
           />
 
           {/* Dropdown Menu */}
-          <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg z-50 overflow-hidden">
+          <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg z-[1001] overflow-hidden">
             <button
               onClick={handleExport}
               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-700 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"

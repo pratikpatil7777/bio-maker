@@ -19,22 +19,25 @@ export default function ThemeSelector({
   const isMarathi = language === 'mr';
 
   return (
-    <div className="relative">
-      {/* Theme Button */}
+    <div className="relative group/theme">
+      {/* Theme Button - Unified styling */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 shadow-sm cursor-pointer"
+        className="h-9 flex items-center gap-2 px-3 rounded-lg font-medium text-xs transition-all duration-300 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37]/60 dark:hover:border-[#D4AF37]/60 hover:shadow-md shadow-sm cursor-pointer"
       >
-        {/* Current theme swatch */}
-        <div
-          className="w-4 h-4 rounded-full border border-white dark:border-slate-500 shadow-sm"
-          style={{
-            background: `linear-gradient(135deg, ${currentTheme.preview[0]} 0%, ${currentTheme.preview[1]} 100%)`,
-          }}
-        />
-        <span className="text-[#555] dark:text-slate-200">{isMarathi ? 'थीम' : 'Theme'}</span>
+        {/* Theme swatch with decorative ring */}
+        <div className="relative">
+          <div
+            className="w-5 h-5 rounded-full shadow-inner"
+            style={{
+              background: `linear-gradient(135deg, ${currentTheme.preview[0]} 0%, ${currentTheme.preview[1]} 100%)`,
+              boxShadow: `0 0 0 2px white, 0 0 0 3px ${currentTheme.preview[0]}40`,
+            }}
+          />
+        </div>
+        <span className="text-gray-700 dark:text-slate-200 hidden sm:inline">{isMarathi ? 'थीम' : 'Theme'}</span>
         <svg
-          className={`w-3 h-3 text-[#777] dark:text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 text-gray-400 dark:text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -42,15 +45,19 @@ export default function ThemeSelector({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
+      {/* Tooltip for mobile */}
+      <span className="sm:hidden absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover/theme:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+        {isMarathi ? 'थीम' : 'Theme'}
+      </span>
 
       {/* Dropdown */}
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="fixed inset-0 z-[1000]" onClick={() => setIsOpen(false)} />
 
           {/* Menu */}
-          <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50 min-w-[200px]">
+          <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[200px]">
             <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-700">
               <p className="text-[10px] uppercase tracking-wider text-[#999] dark:text-slate-400 font-semibold">
                 {isMarathi ? 'थीम निवडा' : 'Select Theme'}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <!-- Feather stem -->
+  <path d="M5 0L6.2 7L5 9.5L3.8 7Z" fill="#5D3A1A"/>
+
+  <!-- Outer feather -->
+  <ellipse cx="5" cy="13.5" rx="4.5" ry="6.5" fill="#1b5e20"/>
+
+  <!-- Second layer -->
+  <ellipse cx="5" cy="13" rx="3.7" ry="5.3" fill="#2e7d32"/>
+
+  <!-- Third layer -->
+  <ellipse cx="5" cy="12.5" rx="2.9" ry="4" fill="#388e3c"/>
+
+  <!-- Peacock blue ring -->
+  <ellipse cx="5" cy="12" rx="2.3" ry="3.2" fill="#0097a7"/>
+
+  <!-- Deep blue ring -->
+  <ellipse cx="5" cy="11.5" rx="1.6" ry="2.4" fill="#1565c0"/>
+
+  <!-- Inner dark -->
+  <ellipse cx="5" cy="11" rx="1" ry="1.6" fill="#0d47a1"/>
+
+  <!-- Black center -->
+  <circle cx="5" cy="10.5" r="0.9" fill="#000"/>
+
+  <!-- Highlight -->
+  <ellipse cx="5.4" cy="10.2" rx="0.35" ry="0.25" fill="#fff" opacity="0.8"/>
+
+  <!-- Bottom -->
+  <path d="M3.5 20 L5 28 L6.5 20" fill="#1b5e20" opacity="0.6"/>
+</svg>

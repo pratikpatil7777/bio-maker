@@ -239,11 +239,11 @@ export default function AttributeRow({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
         {showAddButton && (
           <button
             onClick={onAddBelow}
-            className="p-1 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded"
+            className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
             title={isMarathi ? 'खाली जोडा' : 'Add below'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,11 +253,11 @@ export default function AttributeRow({
         )}
         <button
           onClick={onDelete}
-          className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+          className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
           title={isMarathi ? 'काढून टाका' : 'Remove'}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>

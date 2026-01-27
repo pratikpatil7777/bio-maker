@@ -19,6 +19,103 @@ interface EmptyStateProps {
   onUseTemplate: () => void;
 }
 
+// Floating decorative elements for background
+const FloatingElements = ({ isDark }: { isDark: boolean }) => (
+  <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    {/* Floating Lotus Petals */}
+    {[...Array(6)].map((_, i) => (
+      <div
+        key={`petal-${i}`}
+        className="absolute animate-float-slow"
+        style={{
+          left: `${10 + i * 15}%`,
+          top: `${-10 + (i % 3) * 5}%`,
+          animationDelay: `${i * 2}s`,
+          animationDuration: `${15 + i * 3}s`,
+        }}
+      >
+        <svg
+          width="30"
+          height="40"
+          viewBox="0 0 30 40"
+          className={`${isDark ? 'text-amber-500/10' : 'text-amber-400/20'}`}
+          style={{ transform: `rotate(${i * 30}deg)` }}
+        >
+          <path
+            d="M15 0C15 0 25 15 25 25C25 35 20 40 15 40C10 40 5 35 5 25C5 15 15 0 15 0Z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+    ))}
+
+    {/* Floating Golden Particles */}
+    {[...Array(12)].map((_, i) => (
+      <div
+        key={`particle-${i}`}
+        className="absolute rounded-full animate-float-particle"
+        style={{
+          width: `${4 + (i % 3) * 2}px`,
+          height: `${4 + (i % 3) * 2}px`,
+          left: `${5 + i * 8}%`,
+          top: `${20 + (i % 4) * 20}%`,
+          background: isDark
+            ? `radial-gradient(circle, rgba(251,191,36,0.3) 0%, transparent 70%)`
+            : `radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)`,
+          animationDelay: `${i * 0.8}s`,
+          animationDuration: `${8 + (i % 4) * 2}s`,
+        }}
+      />
+    ))}
+
+    {/* Subtle Paisley Patterns */}
+    <svg
+      className={`absolute top-20 left-10 w-32 h-32 animate-spin-very-slow ${isDark ? 'text-amber-500/5' : 'text-amber-400/10'}`}
+      viewBox="0 0 100 100"
+    >
+      <path
+        d="M50 10C50 10 70 30 70 50C70 65 60 70 50 70C40 70 30 65 30 50C30 30 50 10 50 10Z"
+        fill="currentColor"
+      />
+      <circle cx="50" cy="45" r="8" fill="currentColor" opacity="0.5" />
+    </svg>
+
+    <svg
+      className={`absolute bottom-32 right-20 w-40 h-40 animate-spin-very-slow-reverse ${isDark ? 'text-amber-500/5' : 'text-amber-400/10'}`}
+      viewBox="0 0 100 100"
+    >
+      <path
+        d="M50 10C50 10 70 30 70 50C70 65 60 70 50 70C40 70 30 65 30 50C30 30 50 10 50 10Z"
+        fill="currentColor"
+      />
+      <circle cx="50" cy="45" r="8" fill="currentColor" opacity="0.5" />
+    </svg>
+
+    {/* Corner Mandala Accents */}
+    <div className={`absolute top-0 left-0 w-48 h-48 ${isDark ? 'opacity-5' : 'opacity-10'}`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full text-amber-500">
+        <circle cx="0" cy="0" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        <circle cx="0" cy="0" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        {[0, 45, 90].map((angle) => (
+          <line key={angle} x1="0" y1="0" x2="50" y2="0" stroke="currentColor" strokeWidth="0.3" transform={`rotate(${angle})`} />
+        ))}
+      </svg>
+    </div>
+
+    <div className={`absolute bottom-0 right-0 w-48 h-48 ${isDark ? 'opacity-5' : 'opacity-10'}`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full text-amber-500">
+        <circle cx="100" cy="100" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        <circle cx="100" cy="100" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        {[180, 225, 270].map((angle) => (
+          <line key={angle} x1="100" y1="100" x2="50" y2="100" stroke="currentColor" strokeWidth="0.3" transform={`rotate(${angle} 100 100)`} />
+        ))}
+      </svg>
+    </div>
+  </div>
+);
+
 export default function EmptyState({
   language,
   onLanguageChange,
@@ -34,14 +131,17 @@ export default function EmptyState({
 
   return (
     <main
-      className="min-h-screen py-8 px-4 transition-colors duration-300"
+      className="min-h-screen py-8 px-4 transition-colors duration-300 relative overflow-hidden"
       style={{
         background: isDark
           ? 'linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)'
           : 'linear-gradient(to bottom right, #FFFEF0, #FFF9E6, #FFF5D6)'
       }}
     >
-      <div className="max-w-4xl mx-auto">
+      {/* Animated Background */}
+      <FloatingElements isDark={isDark} />
+
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Dark Mode Toggle - Top Right */}
         <div className="flex justify-end mb-4">
           <DarkModeToggle />
@@ -85,7 +185,7 @@ export default function EmptyState({
           <div className={`inline-flex rounded-lg border p-1 shadow-sm ${isDark ? 'border-slate-600 bg-slate-800' : 'border-amber-200 bg-white'}`}>
             <button
               onClick={() => onLanguageChange('en')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
                 language === 'en'
                   ? 'bg-amber-500 text-white shadow'
                   : isDark ? 'text-amber-300 hover:bg-slate-700' : 'text-amber-700 hover:bg-amber-50'
@@ -95,7 +195,7 @@ export default function EmptyState({
             </button>
             <button
               onClick={() => onLanguageChange('mr')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all cursor-pointer ${
                 language === 'mr'
                   ? 'bg-amber-500 text-white shadow'
                   : isDark ? 'text-amber-300 hover:bg-slate-700' : 'text-amber-700 hover:bg-amber-50'
@@ -110,8 +210,10 @@ export default function EmptyState({
         {/* Theme Selection */}
         <div className={`rounded-2xl shadow-lg p-6 mb-6 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
           <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-600'}`}>
-              🎨
+            <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30' : 'bg-gradient-to-br from-amber-100 to-orange-100'}`}>
+              <svg className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9zM6.5 13c-.83 0-1.5-.67-1.5-1.5S5.67 10 6.5 10s1.5.67 1.5 1.5S7.33 13 6.5 13zm3-4C8.67 9 8 8.33 8 7.5S8.67 6 9.5 6s1.5.67 1.5 1.5S10.33 9 9.5 9zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 6 14.5 6s1.5.67 1.5 1.5S15.33 9 14.5 9zm3 4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+              </svg>
             </span>
             {isMarathi ? 'थीम निवडा' : 'Choose Your Theme'}
           </h2>
@@ -120,7 +222,7 @@ export default function EmptyState({
               <button
                 key={theme.id}
                 onClick={() => onThemeChange(theme)}
-                className={`relative p-3 rounded-xl border-2 transition-all ${
+                className={`relative p-3 rounded-xl border-2 transition-all cursor-pointer ${
                   currentTheme.id === theme.id
                     ? 'border-amber-500 shadow-lg scale-105'
                     : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
@@ -149,8 +251,12 @@ export default function EmptyState({
         {/* Border Selection */}
         <div className={`rounded-2xl shadow-lg p-6 mb-6 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
           <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-600'}`}>
-              🖼️
+            <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30' : 'bg-gradient-to-br from-amber-100 to-orange-100'}`}>
+              <svg className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <rect x="6" y="6" width="12" height="12" rx="1" strokeDasharray="2 2" />
+                <path d="M3 7h2M3 12h2M3 17h2M19 7h2M19 12h2M19 17h2M7 3v2M12 3v2M17 3v2M7 19v2M12 19v2M17 19v2" strokeWidth="1" />
+              </svg>
             </span>
             {isMarathi ? 'बॉर्डर डिझाइन निवडा' : 'Choose Border Design'}
           </h2>
@@ -159,7 +265,7 @@ export default function EmptyState({
               <button
                 key={border.id}
                 onClick={() => onBorderChange(border)}
-                className={`relative p-2 rounded-xl border-2 transition-all ${
+                className={`relative p-2 rounded-xl border-2 transition-all cursor-pointer ${
                   currentBorder.id === border.id
                     ? 'border-amber-500 shadow-lg scale-105'
                     : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
@@ -187,37 +293,6 @@ export default function EmptyState({
           </div>
         </div>
 
-        {/* Preview Card */}
-        <div className={`rounded-2xl shadow-lg p-6 mb-8 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-          <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-600'}`}>
-              👁️
-            </span>
-            {isMarathi ? 'पूर्वावलोकन' : 'Preview'}
-          </h2>
-          <div className="flex justify-center">
-            <div
-              className="relative w-48 h-64 rounded-lg shadow-lg overflow-hidden"
-              style={{ backgroundColor: currentTheme.colors.background }}
-            >
-              <BorderRenderer
-                borderId={currentBorder.id}
-                primaryColor={currentTheme.colors.primary}
-                secondaryColor={currentTheme.colors.secondary}
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                <div className="w-8 h-8 rounded-full mb-2" style={{ backgroundColor: currentTheme.colors.primary, opacity: 0.3 }} />
-                <div className="w-20 h-2 rounded mb-3" style={{ backgroundColor: currentTheme.colors.headerText, opacity: 0.3 }} />
-                <div className="space-y-1.5 w-full px-4">
-                  <div className="w-full h-1.5 rounded" style={{ backgroundColor: currentTheme.colors.primary, opacity: 0.2 }} />
-                  <div className="w-3/4 h-1.5 rounded" style={{ backgroundColor: currentTheme.colors.primary, opacity: 0.2 }} />
-                  <div className="w-5/6 h-1.5 rounded" style={{ backgroundColor: currentTheme.colors.primary, opacity: 0.2 }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Start Options */}
         <div className={`rounded-2xl shadow-lg p-8 mb-8 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
           <h2 className={`text-xl font-semibold mb-6 text-center ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
@@ -228,12 +303,13 @@ export default function EmptyState({
             {/* Start from Scratch */}
             <button
               onClick={onStartBuilding}
-              className={`group relative p-6 rounded-xl border-2 transition-all text-left ${isDark ? 'border-slate-600 hover:border-amber-500 hover:bg-slate-700/50' : 'border-gray-200 hover:border-amber-400 hover:shadow-lg'}`}
+              className={`group relative p-6 rounded-2xl border-2 transition-all text-left shadow-sm hover:shadow-xl cursor-pointer ${isDark ? 'border-slate-600 hover:border-amber-500 hover:bg-slate-700/50' : 'border-gray-200 hover:border-amber-400'}`}
             >
               <div className="flex items-start gap-4">
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform ${isDark ? 'bg-gradient-to-br from-amber-500/30 to-amber-600/30' : 'bg-gradient-to-br from-amber-100 to-amber-200'}`}>
-                  <svg className={`w-7 h-7 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform ${isDark ? 'bg-gradient-to-br from-slate-600 to-slate-700' : 'bg-gradient-to-br from-gray-100 to-gray-200'}`}>
+                  <svg className={`w-7 h-7 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" opacity="0.3"/>
                   </svg>
                 </div>
                 <div>
@@ -248,8 +324,8 @@ export default function EmptyState({
                 </div>
               </div>
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
                 </svg>
               </div>
             </button>
@@ -257,15 +333,16 @@ export default function EmptyState({
             {/* Use Reference Template */}
             <button
               onClick={onUseTemplate}
-              className={`group relative p-6 rounded-xl border-2 transition-all text-left ${isDark ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-slate-800 hover:border-amber-400' : 'border-amber-300 bg-gradient-to-br from-amber-50 to-white hover:border-amber-500 hover:shadow-lg'}`}
+              className={`group relative p-6 rounded-2xl border-2 transition-all text-left shadow-md hover:shadow-xl cursor-pointer ${isDark ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-slate-800 hover:border-amber-400' : 'border-amber-300 bg-gradient-to-br from-amber-50 to-white hover:border-amber-500'}`}
             >
-              <div className="absolute -top-3 -right-3 px-3 py-1 bg-amber-500 text-white text-xs font-semibold rounded-full shadow">
+              <div className="absolute -top-3 -right-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
                 {isMarathi ? 'शिफारस' : 'Recommended'}
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                    <path d="M8 15.01V17h1.99l5.88-5.88-1.99-1.99L8 15.01zm7.66-4.95l-1.41-1.41-.71.71 1.41 1.41.71-.71z" opacity="0.8"/>
                   </svg>
                 </div>
                 <div>
@@ -280,56 +357,13 @@ export default function EmptyState({
                 </div>
               </div>
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
                 </svg>
               </div>
             </button>
           </div>
 
-          {/* Template Preview Info */}
-          <div className={`mt-6 p-4 rounded-xl border ${isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200'}`}>
-            <h4 className={`font-medium mb-2 flex items-center gap-2 ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {isMarathi ? 'टेम्पलेटमध्ये काय आहे?' : 'What\'s in the template?'}
-            </h4>
-            <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 text-xs ${isDark ? 'text-amber-300/80' : 'text-amber-700'}`}>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'वैयक्तिक माहिती' : 'Personal Details'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'ज्योतिष माहिती' : 'Astrological Info'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'शिक्षण व करिअर' : 'Education & Career'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'कौटुंबिक माहिती' : 'Family Details'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'भावंडे' : 'Siblings'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'मालमत्ता' : 'Assets'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? 'संपर्क माहिती' : 'Contact Info'}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                {isMarathi ? '+ बरेच काही' : '+ More'}
-              </span>
-            </div>
-          </div>
         </div>
 
         <p className={`text-center text-sm mb-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -340,13 +374,13 @@ export default function EmptyState({
 
         {/* Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className={`rounded-xl p-5 text-center ${isDark ? 'bg-slate-800/60' : 'bg-white/80'}`}>
-            <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${isDark ? 'bg-green-500/20' : 'bg-green-100'}`}>
-              <svg className={`w-6 h-6 ${isDark ? 'text-green-400' : 'text-green-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
+            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30' : 'bg-gradient-to-br from-emerald-100 to-teal-100'}`}>
+              <svg className={`w-7 h-7 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
               </svg>
             </div>
-            <h3 className={`font-semibold mb-1 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               {isMarathi ? 'पूर्णपणे सानुकूल' : 'Fully Customizable'}
             </h3>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -355,13 +389,13 @@ export default function EmptyState({
                 : 'Add only the fields you need'}
             </p>
           </div>
-          <div className={`rounded-xl p-5 text-center ${isDark ? 'bg-slate-800/60' : 'bg-white/80'}`}>
-            <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-              <svg className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
+            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-rose-500/30 to-pink-500/30' : 'bg-gradient-to-br from-rose-100 to-pink-100'}`}>
+              <svg className={`w-7 h-7 ${isDark ? 'text-rose-400' : 'text-rose-600'}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
               </svg>
             </div>
-            <h3 className={`font-semibold mb-1 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               {isMarathi ? 'PDF डाउनलोड' : 'PDF Download'}
             </h3>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -370,13 +404,13 @@ export default function EmptyState({
                 : 'Download in A4 size'}
             </p>
           </div>
-          <div className={`rounded-xl p-5 text-center ${isDark ? 'bg-slate-800/60' : 'bg-white/80'}`}>
-            <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
-              <svg className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
+            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-violet-500/30 to-purple-500/30' : 'bg-gradient-to-br from-violet-100 to-purple-100'}`}>
+              <svg className={`w-7 h-7 ${isDark ? 'text-violet-400' : 'text-violet-600'}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
               </svg>
             </div>
-            <h3 className={`font-semibold mb-1 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
               {isMarathi ? 'द्विभाषिक' : 'Bilingual'}
             </h3>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

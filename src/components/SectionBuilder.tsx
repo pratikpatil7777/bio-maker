@@ -236,12 +236,12 @@ export default function SectionBuilder({
         </div>
 
         {/* Section Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover/section:opacity-100 transition-opacity">
+        <div className="flex items-center gap-0.5 opacity-0 group-hover/section:opacity-100 transition-opacity">
           {/* Move Up */}
           {!isFirst && onMoveUp && (
             <button
               onClick={onMoveUp}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
               title={isMarathi ? 'वर हलवा' : 'Move up'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,7 +254,7 @@ export default function SectionBuilder({
           {!isLast && onMoveDown && (
             <button
               onClick={onMoveDown}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
               title={isMarathi ? 'खाली हलवा' : 'Move down'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +266,7 @@ export default function SectionBuilder({
           {/* Add Section Below */}
           <button
             onClick={onAddSectionBelow}
-            className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded"
+            className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
             title={isMarathi ? 'खाली विभाग जोडा' : 'Add section below'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,11 +277,11 @@ export default function SectionBuilder({
           {/* Delete Section */}
           <button
             onClick={onDelete}
-            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+            className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
             title={isMarathi ? 'विभाग काढून टाका' : 'Remove section'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -309,7 +309,7 @@ export default function SectionBuilder({
       {section.attributes.length === 0 && (
         <button
           onClick={() => handleAddAttribute()}
-          className="w-full mt-2 py-2 text-sm text-amber-600 hover:text-amber-800 hover:bg-amber-50 border border-dashed border-amber-300 rounded-md flex items-center justify-center gap-2 transition-colors"
+          className="biodata-btn w-full mt-2 py-2.5 text-sm text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 border border-dashed border-amber-300 rounded-lg flex items-center justify-center gap-2 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -322,9 +322,9 @@ export default function SectionBuilder({
       {section.attributes.length > 0 && (
         <button
           onClick={() => handleAddAttribute()}
-          className="w-full mt-2 py-1.5 text-xs text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded flex items-center justify-center gap-1 transition-colors opacity-0 group-hover/section:opacity-100"
+          className="biodata-btn w-full mt-2 py-1.5 text-xs text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded-lg flex items-center justify-center gap-1.5 transition-colors opacity-0 group-hover/section:opacity-100"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span>{isMarathi ? 'आणखी विशेषता जोडा' : 'Add more attributes'}</span>

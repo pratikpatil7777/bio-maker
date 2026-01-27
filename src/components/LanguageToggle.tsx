@@ -10,23 +10,26 @@ interface LanguageToggleProps {
 
 export default function LanguageToggle({ language, onLanguageChange }: LanguageToggleProps) {
   return (
-    <div className="flex items-center gap-2">
-      {/* Globe Icon */}
-      <div className="text-[#D4AF37]">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-        </svg>
-      </div>
+    <div className="h-9 flex items-center">
+      {/* Language Toggle - Unified Pill Design */}
+      <div className="relative h-9 inline-flex items-center bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 shadow-sm">
+        {/* Sliding Background Indicator */}
+        <div
+          className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-[#D4AF37] to-[#B8860B] rounded-md transition-all duration-300 ease-out ${
+            language === 'mr' ? 'left-[calc(50%+2px)]' : 'left-1'
+          }`}
+          style={{
+            boxShadow: '0 2px 6px rgba(212, 175, 55, 0.35)',
+          }}
+        />
 
-      {/* Language Toggle - Pill Style */}
-      <div className="relative inline-flex bg-gray-100 dark:bg-slate-700 rounded-full border border-gray-200 dark:border-slate-600 overflow-hidden">
         {/* English Button */}
         <button
           onClick={() => onLanguageChange('en')}
-          className={`relative z-10 px-3 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer ${
+          className={`relative z-10 h-7 px-3 text-xs font-bold transition-all duration-300 cursor-pointer rounded-md min-w-[40px] ${
             language === 'en'
-              ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white rounded-full shadow-md'
-              : 'text-[#555] dark:text-slate-300 hover:text-[#333] dark:hover:text-white bg-transparent'
+              ? 'text-white'
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
           }`}
         >
           EN
@@ -35,10 +38,10 @@ export default function LanguageToggle({ language, onLanguageChange }: LanguageT
         {/* Marathi Button */}
         <button
           onClick={() => onLanguageChange('mr')}
-          className={`relative z-10 px-3 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer ${
+          className={`relative z-10 h-7 px-3 text-xs font-bold transition-all duration-300 cursor-pointer rounded-md min-w-[40px] ${
             language === 'mr'
-              ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white rounded-full shadow-md'
-              : 'text-[#555] dark:text-slate-300 hover:text-[#333] dark:hover:text-white bg-transparent'
+              ? 'text-white'
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
           }`}
           style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}
         >

@@ -13,7 +13,7 @@ export default function DarkModeToggle({ className = '' }: DarkModeToggleProps) 
   return (
     <button
       onClick={toggleTheme}
-      className={`relative w-16 h-8 rounded-full transition-all duration-500 ease-in-out overflow-hidden group ${className}`}
+      className={`relative w-16 h-8 rounded-full transition-all duration-500 ease-in-out overflow-hidden group cursor-pointer ${className}`}
       style={{
         background: isDark
           ? 'linear-gradient(to right, #0f172a, #1e293b)'
@@ -84,17 +84,17 @@ export default function DarkModeToggle({ className = '' }: DarkModeToggleProps) 
   );
 }
 
-// Compact version for toolbar
+// Compact version for toolbar - Unified with other buttons
 export function DarkModeToggleCompact({ className = '' }: DarkModeToggleProps) {
   const { isDark, toggleTheme } = useDarkMode();
 
   return (
     <button
       onClick={toggleTheme}
-      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 cursor-pointer ${
+      className={`h-9 flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-lg transition-all duration-300 cursor-pointer border shadow-sm hover:shadow-md ${
         isDark
-          ? 'bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700'
-          : 'bg-white text-amber-600 border border-gray-200 hover:bg-amber-50 shadow-sm'
+          ? 'bg-slate-700 text-amber-400 border-slate-600 hover:bg-slate-600'
+          : 'bg-white text-amber-600 border-gray-200 hover:bg-amber-50 hover:border-amber-200'
       } ${className}`}
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -127,10 +127,6 @@ export function DarkModeToggleCompact({ className = '' }: DarkModeToggleProps) {
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
       </div>
-
-      <span className="hidden sm:inline">
-        {isDark ? 'Light' : 'Dark'}
-      </span>
     </button>
   );
 }

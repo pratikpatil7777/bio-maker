@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { useAlert } from './AlertDialog';
 
 interface PhotoSectionProps {
   mainPhoto: string;
@@ -20,6 +21,7 @@ export default function PhotoSection({
   backgroundColor = '#FFFEF0',
 }: PhotoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showWarning } = useAlert();
 
   const handlePhotoClick = () => {
     if (isEditMode && fileInputRef.current) {
@@ -27,12 +29,12 @@ export default function PhotoSection({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Photo size should be less than 5MB');
+        await showWarning('Photo size should be less than 5MB', 'File Too Large');
         return;
       }
 

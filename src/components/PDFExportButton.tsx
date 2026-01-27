@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { translations, Language } from '@/lib/translations';
+import { useAlert } from './AlertDialog';
 
 interface PDFExportButtonProps {
   language: Language;
@@ -38,6 +39,7 @@ export default function PDFExportButton({
   const t = translations[language];
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState<string>('');
+  const { showError } = useAlert();
 
   const handleExport = useCallback(async () => {
     if (!targetRef.current) return;
@@ -133,25 +135,26 @@ export default function PDFExportButton({
 
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert(
+      await showError(
         language === 'mr'
           ? 'PDF तयार करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.'
-          : 'Failed to generate PDF. Please try again.'
+          : 'Failed to generate PDF. Please try again.',
+        language === 'mr' ? 'त्रुटी' : 'Error'
       );
     } finally {
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language]);
+  }, [targetRef, fileName, language, showError]);
 
   return (
     <button
       onClick={handleExport}
       disabled={isGenerating}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all ${
+      className={`h-9 flex items-center gap-1.5 px-4 rounded-lg font-semibold text-xs transition-all duration-300 ${
         isGenerating
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'bg-[#800020] text-white hover:bg-[#600018] shadow-md hover:shadow-lg cursor-pointer'
+          ? 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed'
+          : 'bg-gradient-to-r from-[#800020] to-[#600018] text-white shadow-lg hover:shadow-xl hover:scale-[1.02] cursor-pointer'
       }`}
     >
       {isGenerating ? (

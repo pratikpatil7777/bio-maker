@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Language } from '@/lib/translations';
+import { useAlert } from './AlertDialog';
 
 interface ShareButtonProps {
   language: Language;
@@ -16,6 +17,7 @@ export default function ShareButton({
 }: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const { showSuccess, showError } = useAlert();
 
   const generatePDFBlob = async (): Promise<Blob | null> => {
     if (!targetRef.current) return null;
@@ -93,12 +95,12 @@ export default function ShareButton({
         a.download = `${fileName}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
-        alert('PDF downloaded! You can now share it via WhatsApp or any other app.');
+        await showSuccess('PDF downloaded! You can now share it via WhatsApp or any other app.', 'Download Complete');
       }
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         console.error('Error sharing:', error);
-        alert('Failed to share. Please try downloading the PDF instead.');
+        await showError('Failed to share. Please try downloading the PDF instead.', 'Share Failed');
       }
     } finally {
       setIsSharing(false);
@@ -132,7 +134,7 @@ export default function ShareButton({
       }, 500);
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to prepare for sharing. Please try again.');
+      await showError('Failed to prepare for sharing. Please try again.', 'Error');
     } finally {
       setIsSharing(false);
     }
@@ -143,10 +145,10 @@ export default function ShareButton({
       <button
         onClick={() => setShowOptions(!showOptions)}
         disabled={isSharing}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all ${
+        className={`h-9 flex items-center gap-1.5 px-4 rounded-lg font-semibold text-xs transition-all duration-300 ${
           isSharing
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-[#25D366] text-white hover:bg-[#1fb855] shadow-md hover:shadow-lg cursor-pointer'
+            ? 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed'
+            : 'bg-gradient-to-r from-[#25D366] to-[#1fb855] text-white shadow-lg hover:shadow-xl hover:scale-[1.02] cursor-pointer'
         }`}
       >
         {isSharing ? (
@@ -172,12 +174,12 @@ export default function ShareButton({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[1000]"
             onClick={() => setShowOptions(false)}
           />
 
           {/* Menu */}
-          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50 min-w-[180px]">
+          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[180px]">
             {/* Web Share (if supported) or General Share */}
             <button
               onClick={handleWebShare}
