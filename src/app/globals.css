@@ -4,7 +4,7 @@
 @import "tailwindcss";
 
 /* Configure dark mode to use class selector instead of prefers-color-scheme */
-@custom-variant dark (&:is(.dark *));
+@variant dark (&:where(.dark, .dark *));
 
 :root {
   /* Krishna / Spiritual Theme Colors */
@@ -523,9 +523,40 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Keep biodata container always light (it's the paper) */
+/* Force all elements inside biodata to use light mode colors */
 .dark .biodata-container,
-.dark .biodata-page {
-  /* Paper stays light - these should NOT change */
+.dark .biodata-page,
+.dark .biodata-container *,
+.dark .biodata-page * {
+  /* Reset dark mode for biodata content */
+}
+
+/* Biodata form elements stay light themed */
+.dark .biodata-container input,
+.dark .biodata-container select,
+.dark .biodata-container textarea,
+.dark .biodata-container button,
+.dark .biodata-page input,
+.dark .biodata-page select,
+.dark .biodata-page textarea,
+.dark .biodata-page button {
+  background-color: white !important;
+  color: #333 !important;
+  border-color: #d97706 !important;
+}
+
+.dark .biodata-container input::placeholder,
+.dark .biodata-page input::placeholder {
+  color: #999 !important;
+}
+
+/* Biodata dropdown menus stay light */
+.dark .biodata-container [class*="dropdown"],
+.dark .biodata-container [class*="bg-white"],
+.dark .biodata-page [class*="dropdown"],
+.dark .biodata-page [class*="bg-white"] {
+  background-color: white !important;
+  color: #333 !important;
 }
 
 /* Dark mode panel cards */
@@ -534,10 +565,10 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--ui-border);
 }
 
-/* Dark mode text colors for labels */
-.dark .text-gray-500,
-.dark .text-gray-600,
-.dark .text-gray-700 {
+/* Dark mode text colors for labels - only outside biodata */
+.dark .no-print .text-gray-500,
+.dark .no-print .text-gray-600,
+.dark .no-print .text-gray-700 {
   color: var(--ui-text-muted) !important;
 }
 
