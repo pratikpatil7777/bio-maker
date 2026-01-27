@@ -22,6 +22,39 @@
   /* Background */
   --background: #FFFEF0;
   --foreground: #333333;
+
+  /* Dark Mode Variables (UI only - not the biodata paper) */
+  --ui-bg: #FFFEF0;
+  --ui-bg-alt: #FFF9E6;
+  --ui-text: #333333;
+  --ui-text-muted: #666666;
+  --ui-border: #E8DFC4;
+  --ui-card-bg: #FFFFFF;
+  --ui-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode - Only affects UI wrapper, NOT the biodata paper */
+.dark {
+  --ui-bg: #0f172a;
+  --ui-bg-alt: #1e293b;
+  --ui-text: #f1f5f9;
+  --ui-text-muted: #94a3b8;
+  --ui-border: #334155;
+  --ui-card-bg: #1e293b;
+  --ui-shadow: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark mode scrollbar */
+.dark::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 @theme inline {
@@ -182,7 +215,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: white;
 }
 
-/* Print styles */
+/* Print styles - Multi-page support */
 @media print {
   @page {
     size: A4;
@@ -192,8 +225,6 @@ h1, h2, h3, h4, h5, h6 {
   html, body {
     margin: 0;
     padding: 0;
-    height: 297mm;
-    overflow: hidden;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -202,15 +233,31 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
 
-  .biodata-container {
+  /* Each page wrapper */
+  .biodata-page {
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
     margin: 0;
     padding: 0;
-    page-break-after: avoid;
+    page-break-after: always;
     page-break-inside: avoid;
-    break-after: avoid;
-    break-inside: avoid;
+    break-after: page;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .biodata-page:last-child {
+    page-break-after: auto;
+  }
+
+  /* Hide page break indicator line in print */
+  .page-break-indicator {
+    display: none !important;
+  }
+
+  /* Hide page counter in print */
+  .page-counter {
+    display: none !important;
   }
 
   .decorative-border {
@@ -279,24 +326,100 @@ h1, h2, h3, h4, h5, h6 {
   animation: subtleGlow 3s ease-in-out infinite;
 }
 
-/* Biodata container for A4 single page */
+/* Biodata container - Multi-page support */
 .biodata-container {
   width: 210mm;
-  height: 297mm;
-  max-height: 297mm;
+  min-height: 297mm;
   padding: 0;
   margin: 0 auto;
-  overflow: hidden;
   box-sizing: border-box;
-  position: relative;
+  /* Content can flow beyond min-height, border wrapper handles visual containment */
+}
+
+/* Single page mode (for backwards compatibility) */
+.biodata-container.single-page {
+  height: 297mm;
+  max-height: 297mm;
+  overflow: hidden;
 }
 
 /* Inner content wrapper with consistent padding */
 .biodata-inner-content {
   padding: 10px 37px;
-  height: 100%;
+  min-height: calc(297mm - 20px);
   box-sizing: border-box;
   margin: 0;
+}
+
+/* Page break indicator - visual guide showing where page ends */
+.page-break-indicator {
+  position: relative;
+  width: 100%;
+  height: 0;
+  margin: 8px 0;
+  border: none;
+}
+
+.page-break-indicator::before {
+  content: '';
+  position: absolute;
+  left: -37px;
+  right: -37px;
+  top: 0;
+  border-top: 2px dashed var(--theme-primary, #D4AF37);
+  opacity: 0.5;
+}
+
+.page-break-indicator::after {
+  content: 'Page Break';
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  background: var(--theme-background, #FFFEF0);
+  padding: 2px 12px;
+  font-size: 10px;
+  color: var(--theme-primary, #D4AF37);
+  border: 1px dashed var(--theme-primary, #D4AF37);
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* Page counter floating indicator */
+.page-counter {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, var(--theme-primary, #D4AF37), var(--theme-primary-dark, #B8860B));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-counter svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Content overflow warning */
+.content-overflow-warning {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border: 1px solid #F59E0B;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #92400E;
 }
 
 /* Reset margins only inside biodata */
@@ -330,4 +453,102 @@ h1, h2, h3, h4, h5, h6 {
 /* Compact row spacing */
 .row-compact {
   gap: 2px;
+}
+
+/* ============================================
+   DARK MODE STYLES (UI Only)
+   The biodata paper itself stays light themed
+   ============================================ */
+
+/* Dark mode body background */
+.dark body {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+/* Dark mode main wrapper */
+.dark main {
+  background: var(--ui-bg) !important;
+}
+
+/* Dark mode control panel buttons */
+.dark .no-print button:not(.biodata-container button) {
+  background-color: var(--ui-card-bg);
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+.dark .no-print button:not(.biodata-container button):hover {
+  background-color: var(--ui-bg-alt);
+}
+
+/* Dark mode dropdowns and inputs */
+.dark .no-print select,
+.dark .no-print input:not(.biodata-container input) {
+  background-color: var(--ui-card-bg);
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+/* Dark mode photo gallery URL bar */
+.dark .no-print .bg-gradient-to-r {
+  background: linear-gradient(to right, var(--ui-bg-alt), var(--ui-card-bg)) !important;
+  border-color: var(--ui-border) !important;
+}
+
+.dark .no-print .bg-gradient-to-r input {
+  color: var(--ui-text) !important;
+}
+
+.dark .no-print .bg-gradient-to-r input::placeholder {
+  color: var(--ui-text-muted) !important;
+}
+
+/* Dark mode copyright text */
+.dark .no-print.text-center {
+  color: var(--ui-text-muted);
+}
+
+/* Dark mode golden glow effect */
+.dark .golden-glow {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Dark mode empty state */
+.dark .empty-state-wrapper {
+  background: var(--ui-bg);
+}
+
+/* Keep biodata container always light (it's the paper) */
+.dark .biodata-container,
+.dark .biodata-page {
+  /* Paper stays light - these should NOT change */
+}
+
+/* Dark mode panel cards */
+.dark .panel-card {
+  background: var(--ui-card-bg);
+  border-color: var(--ui-border);
+}
+
+/* Dark mode text colors for labels */
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700 {
+  color: var(--ui-text-muted) !important;
+}
+
+/* Dark mode page gap background */
+.dark .biodata-pages-container {
+  gap: 2rem;
+}
+
+/* Smooth transition for dark mode */
+body,
+main,
+button,
+input,
+select,
+.panel-card {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }

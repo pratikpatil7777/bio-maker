@@ -1,79 +1,148 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { translations, Language } from '@/lib/translations';
 
 interface PDFExportButtonProps {
   language: Language;
   targetRef: React.RefObject<HTMLDivElement | null>;
   fileName?: string;
+  pageCount?: number;
 }
+
+// A4 dimensions
+const A4_WIDTH_MM = 210;
+const A4_HEIGHT_MM = 297;
+
+// Helper to wait for all images in an element to load
+const waitForImages = (element: HTMLElement): Promise<void> => {
+  const images = element.querySelectorAll('img');
+  const imagePromises = Array.from(images).map((img) => {
+    if (img.complete) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      // Timeout fallback
+      setTimeout(resolve, 2000);
+    });
+  });
+  return Promise.all(imagePromises).then(() => {});
+};
 
 export default function PDFExportButton({
   language,
   targetRef,
-  fileName = 'Pratik_Ravindra_Patil_Biodata',
+  fileName = 'Marriage_Biodata',
+  pageCount = 1,
 }: PDFExportButtonProps) {
   const t = translations[language];
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState<string>('');
 
-  const handleExport = async () => {
+  const handleExport = useCallback(async () => {
     if (!targetRef.current) return;
 
     setIsGenerating(true);
+    setProgress(language === 'mr' ? 'तयारी करत आहे...' : 'Preparing...');
 
     try {
-      // Dynamically import html2pdf to avoid SSR issues
-      const html2pdf = (await import('html2pdf.js')).default;
+      const [html2canvasModule, jsPDFModule] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const html2canvas = html2canvasModule.default;
+      const { jsPDF } = jsPDFModule;
 
-      const element = targetRef.current;
+      const container = targetRef.current;
 
-      const opt = {
-        margin: 0,
-        filename: `${fileName}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: {
-          scale: 3,
+      // Find all pages in the paged view
+      const pages = container.querySelectorAll('.biodata-page');
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
+
+      if (pages.length > 0) {
+        // Wait for all images to be loaded first
+        await waitForImages(container);
+
+        // Small delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // PAGED VIEW: Capture each page separately
+        for (let i = 0; i < pages.length; i++) {
+          const page = pages[i] as HTMLElement;
+
+          setProgress(
+            language === 'mr'
+              ? `पृष्ठ ${i + 1}/${pages.length} कॅप्चर करत आहे...`
+              : `Capturing page ${i + 1} of ${pages.length}...`
+          );
+
+          if (i > 0) {
+            pdf.addPage('a4', 'portrait');
+          }
+
+          // Scroll page into view to ensure it's rendered
+          page.scrollIntoView({ behavior: 'instant', block: 'start' });
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          // Capture using element's actual dimensions
+          const canvas = await html2canvas(page, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: '#FFFEF0', // Explicit background color
+            imageTimeout: 5000,
+            removeContainer: true,
+          });
+
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          pdf.addImage(imgData, 'JPEG', 0, 0, A4_WIDTH_MM, A4_HEIGHT_MM);
+        }
+
+        // Scroll back to top
+        window.scrollTo(0, 0);
+      } else {
+        // EDIT MODE or single container: Capture entire element
+        setProgress(language === 'mr' ? 'कॅप्चर करत आहे...' : 'Capturing...');
+
+        const canvas = await html2canvas(container, {
+          scale: 2,
           useCORS: true,
           allowTaint: true,
-          letterRendering: true,
           logging: false,
-          imageTimeout: 0,
-        },
-        jsPDF: {
-          unit: 'mm' as const,
-          format: 'a4' as const,
-          orientation: 'portrait' as const,
-          compress: true,
-        },
-      };
+          backgroundColor: null,
+        });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (html2pdf() as any)
-        .set(opt)
-        .from(element)
-        .toPdf()
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .get('pdf')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((pdfDoc: any) => {
-          // Remove any extra blank pages
-          const totalPages = pdfDoc.internal.pages.length - 1;
-          if (totalPages > 1) {
-            for (let i = totalPages; i > 1; i--) {
-              pdfDoc.deletePage(i);
-            }
-          }
-          return pdfDoc;
-        })
-        .save();
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgWidth = A4_WIDTH_MM;
+        const imgHeight = (canvas.height * A4_WIDTH_MM) / canvas.width;
+
+        // Add image, cropping to A4 if needed
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, A4_HEIGHT_MM));
+      }
+
+      setProgress(language === 'mr' ? 'सेव्ह करत आहे...' : 'Saving...');
+      pdf.save(`${fileName}.pdf`);
+
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      alert(
+        language === 'mr'
+          ? 'PDF तयार करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.'
+          : 'Failed to generate PDF. Please try again.'
+      );
     } finally {
       setIsGenerating(false);
+      setProgress('');
     }
-  };
+  }, [targetRef, fileName, language]);
 
   return (
     <button
@@ -107,16 +176,13 @@ export default function PDFExportButton({
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span>Generating...</span>
+          <span className="max-w-[120px] truncate">
+            {progress || (language === 'mr' ? 'तयार करत आहे...' : 'Generating...')}
+          </span>
         </>
       ) : (
         <>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -125,6 +191,11 @@ export default function PDFExportButton({
             />
           </svg>
           <span>{t.downloadPDF}</span>
+          {pageCount > 1 && (
+            <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded text-[10px]">
+              {pageCount} {language === 'mr' ? 'पाने' : 'pages'}
+            </span>
+          )}
         </>
       )}
     </button>

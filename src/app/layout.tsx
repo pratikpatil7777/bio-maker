@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DarkModeProvider } from "@/lib/DarkModeContext";
 
 export const metadata: Metadata = {
-  title: "Pratik Ravindra Patil - Marriage Biodata",
-  description: "Marriage Biodata of Pratik Ravindra Patil - Full Stack Developer based in New York City, USA",
-  keywords: ["marriage biodata", "Pratik Patil", "biodata", "matrimony"],
+  title: "Marriage Biodata Builder",
+  description: "Create beautiful marriage biodata with customizable themes, borders, and layouts. Export as PDF.",
+  keywords: ["marriage biodata", "biodata maker", "biodata builder", "matrimony", "wedding biodata"],
 };
 
 export default function RootLayout({
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <DarkModeProvider>
+          {children}
+        </DarkModeProvider>
       </body>
     </html>
   );

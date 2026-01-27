@@ -15,9 +15,9 @@ export default function Header({ language, name, nameMarathi }: HeaderProps) {
   const displayName = language === 'en' ? name : nameMarathi;
 
   return (
-    <header className="text-center pb-2">
+    <header className="text-center" style={{ paddingBottom: '8px' }}>
       {/* Krishna Icon */}
-      <div className="flex justify-center mb-2">
+      <div className="flex justify-center" style={{ marginBottom: '8px' }}>
         <KrishnaIcon className="w-24 h-auto md:w-28" />
       </div>
 
@@ -28,7 +28,8 @@ export default function Header({ language, name, nameMarathi }: HeaderProps) {
         }`}
         style={{
           fontFamily: language === 'mr' ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
-          color: 'var(--theme-header-text, #800020)'
+          color: 'var(--theme-header-text, #800020)',
+          marginBottom: '0',
         }}
       >
         {displayName}
