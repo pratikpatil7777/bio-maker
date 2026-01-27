@@ -123,7 +123,7 @@ export default function EmptyState({
                 className={`relative p-3 rounded-xl border-2 transition-all ${
                   currentTheme.id === theme.id
                     ? 'border-amber-500 shadow-lg scale-105'
-                    : 'border-gray-200 hover:border-amber-300 hover:shadow'
+                    : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
                 }`}
               >
                 {currentTheme.id === theme.id && (
@@ -162,7 +162,7 @@ export default function EmptyState({
                 className={`relative p-2 rounded-xl border-2 transition-all ${
                   currentBorder.id === border.id
                     ? 'border-amber-500 shadow-lg scale-105'
-                    : 'border-gray-200 hover:border-amber-300 hover:shadow'
+                    : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
                 }`}
               >
                 {currentBorder.id === border.id && (

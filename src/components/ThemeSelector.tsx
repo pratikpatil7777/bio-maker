@@ -23,18 +23,18 @@ export default function ThemeSelector({
       {/* Theme Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all bg-white border border-gray-200 hover:border-gray-300 shadow-sm cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 shadow-sm cursor-pointer"
       >
         {/* Current theme swatch */}
         <div
-          className="w-4 h-4 rounded-full border border-white shadow-sm"
+          className="w-4 h-4 rounded-full border border-white dark:border-slate-500 shadow-sm"
           style={{
             background: `linear-gradient(135deg, ${currentTheme.preview[0]} 0%, ${currentTheme.preview[1]} 100%)`,
           }}
         />
-        <span className="text-[#555]">{isMarathi ? 'थीम' : 'Theme'}</span>
+        <span className="text-[#555] dark:text-slate-200">{isMarathi ? 'थीम' : 'Theme'}</span>
         <svg
-          className={`w-3 h-3 text-[#777] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 text-[#777] dark:text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -50,9 +50,9 @@ export default function ThemeSelector({
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           {/* Menu */}
-          <div className="absolute left-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 min-w-[200px]">
-            <div className="px-3 py-2 border-b border-gray-100">
-              <p className="text-[10px] uppercase tracking-wider text-[#999] font-semibold">
+          <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50 min-w-[200px]">
+            <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-700">
+              <p className="text-[10px] uppercase tracking-wider text-[#999] dark:text-slate-400 font-semibold">
                 {isMarathi ? 'थीम निवडा' : 'Select Theme'}
               </p>
             </div>
@@ -67,8 +67,8 @@ export default function ThemeSelector({
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer ${
                     currentTheme.id === theme.id
-                      ? 'bg-gray-100'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-gray-100 dark:bg-slate-700'
+                      : 'hover:bg-gray-50 dark:hover:bg-slate-700'
                   }`}
                 >
                   {/* Theme swatch */}
@@ -82,7 +82,7 @@ export default function ThemeSelector({
 
                   {/* Theme name */}
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-[#333]">
+                    <p className="text-sm font-medium text-[#333] dark:text-slate-200">
                       {isMarathi ? theme.nameMarathi : theme.name}
                     </p>
                   </div>

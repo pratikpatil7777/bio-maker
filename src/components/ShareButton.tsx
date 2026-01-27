@@ -177,14 +177,14 @@ export default function ShareButton({
           />
 
           {/* Menu */}
-          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 min-w-[180px]">
+          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50 min-w-[180px]">
             {/* Web Share (if supported) or General Share */}
             <button
               onClick={handleWebShare}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-gray-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
               </div>
@@ -194,7 +194,7 @@ export default function ShareButton({
             {/* WhatsApp */}
             <button
               onClick={handleWhatsAppShare}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">

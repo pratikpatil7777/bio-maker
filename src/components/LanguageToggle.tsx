@@ -19,14 +19,14 @@ export default function LanguageToggle({ language, onLanguageChange }: LanguageT
       </div>
 
       {/* Language Toggle - Pill Style */}
-      <div className="relative inline-flex bg-gray-100 rounded-full border border-gray-200 overflow-hidden">
+      <div className="relative inline-flex bg-gray-100 dark:bg-slate-700 rounded-full border border-gray-200 dark:border-slate-600 overflow-hidden">
         {/* English Button */}
         <button
           onClick={() => onLanguageChange('en')}
           className={`relative z-10 px-3 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer ${
             language === 'en'
               ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white rounded-full shadow-md'
-              : 'text-[#555] hover:text-[#333] bg-transparent'
+              : 'text-[#555] dark:text-slate-300 hover:text-[#333] dark:hover:text-white bg-transparent'
           }`}
         >
           EN
@@ -38,7 +38,7 @@ export default function LanguageToggle({ language, onLanguageChange }: LanguageT
           className={`relative z-10 px-3 py-1.5 text-xs font-medium transition-all duration-300 cursor-pointer ${
             language === 'mr'
               ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white rounded-full shadow-md'
-              : 'text-[#555] hover:text-[#333] bg-transparent'
+              : 'text-[#555] dark:text-slate-300 hover:text-[#333] dark:hover:text-white bg-transparent'
           }`}
           style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}
         >

@@ -31,8 +31,8 @@ export default function EditModeToggle({
         disabled={!canReset}
         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 ${
           canReset
-            ? 'text-[#800020] border border-[#800020] hover:bg-[#800020] hover:text-white cursor-pointer'
-            : 'text-gray-400 border border-gray-300 cursor-not-allowed opacity-50'
+            ? 'text-[#800020] dark:text-red-400 border border-[#800020] dark:border-red-400 hover:bg-[#800020] dark:hover:bg-red-500 hover:text-white cursor-pointer'
+            : 'text-gray-400 dark:text-slate-500 border border-gray-300 dark:border-slate-600 cursor-not-allowed opacity-50'
         }`}
         title={!isEditMode ? 'Enable edit mode first' : !hasChanges ? 'No changes to reset' : t.resetToDefault}
       >
@@ -58,7 +58,7 @@ export default function EditModeToggle({
         className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs cursor-pointer transition-all duration-300 overflow-hidden ${
           isEditMode
             ? 'bg-gradient-to-r from-[#28a745] to-[#218838] text-white shadow-md shadow-[#28a745]/30 hover:from-[#218838] hover:to-[#1e7e34]'
-            : 'bg-gray-100 text-[#555] hover:bg-gray-200 border border-gray-300'
+            : 'bg-gray-100 dark:bg-slate-700 text-[#555] dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600 border border-gray-300 dark:border-slate-600'
         }`}
       >
         {/* Icon - Pencil for Edit, Check for Save */}

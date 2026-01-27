@@ -200,8 +200,8 @@ export default function BiodataBuilder() {
             onClick={() => setShowPhoto(!showPhoto)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 cursor-pointer ${
               showPhoto
-                ? 'bg-white border border-gray-200 text-[#555] shadow-sm'
-                : 'bg-gray-100 text-[#999] border border-gray-200'
+                ? 'bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-[#555] dark:text-slate-200 shadow-sm'
+                : 'bg-gray-100 dark:bg-slate-800 text-[#999] dark:text-slate-400 border border-gray-200 dark:border-slate-600'
             }`}
             title={showPhoto ? 'Hide profile photo' : 'Show profile photo'}
           >
@@ -239,14 +239,14 @@ export default function BiodataBuilder() {
 
         {/* Photo Gallery URL Editor - Edit mode only */}
         {isEditMode && (
-          <div className="mt-3 relative flex items-center gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] rounded-xl px-4 py-2.5 border border-[#E8DFC4] shadow-sm">
+          <div className="mt-3 relative flex items-center gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-700 rounded-xl px-4 py-2.5 border border-[#E8DFC4] dark:border-slate-600 shadow-sm">
             <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center shadow-sm">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <label className="block text-[10px] uppercase tracking-wider text-[#998866] font-semibold mb-0.5">
+              <label className="block text-[10px] uppercase tracking-wider text-[#998866] dark:text-slate-400 font-semibold mb-0.5">
                 {isMarathi ? 'फोटो गॅलरी लिंक' : 'Photo Gallery Link'}
               </label>
               <input
@@ -254,12 +254,12 @@ export default function BiodataBuilder() {
                 value={data.photoGalleryUrl || ''}
                 onChange={(e) => handlePhotoGalleryUpdate('url', e.target.value)}
                 placeholder={isMarathi ? 'Google Drive किंवा अल्बम लिंक पेस्ट करा...' : 'Paste Google Drive or album link here...'}
-                className="w-full bg-transparent text-xs text-[#333] placeholder-[#AAA] focus:outline-none border-b border-transparent focus:border-[#D4AF37] transition-colors pb-0.5"
+                className="w-full bg-transparent text-xs text-[#333] dark:text-slate-200 placeholder-[#AAA] dark:placeholder-slate-500 focus:outline-none border-b border-transparent focus:border-[#D4AF37] transition-colors pb-0.5"
               />
             </div>
             {data.photoGalleryUrl && (
               <label className="flex items-center gap-1.5 cursor-pointer">
-                <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${data.showPhotoGalleryQR ? 'bg-[#D4AF37]' : 'bg-gray-300'}`}>
+                <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${data.showPhotoGalleryQR ? 'bg-[#D4AF37]' : 'bg-gray-300 dark:bg-slate-600'}`}>
                   <input
                     type="checkbox"
                     checked={data.showPhotoGalleryQR}
@@ -268,7 +268,7 @@ export default function BiodataBuilder() {
                   />
                   <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-200 ${data.showPhotoGalleryQR ? 'translate-x-4' : 'translate-x-0'}`} />
                 </div>
-                <span className="text-[10px] uppercase tracking-wide font-semibold text-[#777]">QR</span>
+                <span className="text-[10px] uppercase tracking-wide font-semibold text-[#777] dark:text-slate-400">QR</span>
               </label>
             )}
           </div>

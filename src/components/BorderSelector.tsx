@@ -87,15 +87,15 @@ export default function BorderSelector({
       {/* Border Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all bg-white border border-gray-200 hover:border-gray-300 shadow-sm cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 shadow-sm cursor-pointer"
       >
         {/* Current border preview */}
-        <div className="w-5 h-5 rounded border border-gray-200 overflow-hidden">
+        <div className="w-5 h-5 rounded border border-gray-200 dark:border-slate-500 overflow-hidden">
           <BorderPreview borderId={currentBorder.id} color={primaryColor} />
         </div>
-        <span className="text-[#555]">{isMarathi ? 'बॉर्डर' : 'Border'}</span>
+        <span className="text-[#555] dark:text-slate-200">{isMarathi ? 'बॉर्डर' : 'Border'}</span>
         <svg
-          className={`w-3 h-3 text-[#777] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 text-[#777] dark:text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -111,9 +111,9 @@ export default function BorderSelector({
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           {/* Menu */}
-          <div className="absolute left-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 min-w-[220px]">
-            <div className="px-3 py-2 border-b border-gray-100">
-              <p className="text-[10px] uppercase tracking-wider text-[#999] font-semibold">
+          <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-50 min-w-[220px]">
+            <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-700">
+              <p className="text-[10px] uppercase tracking-wider text-[#999] dark:text-slate-400 font-semibold">
                 {isMarathi ? 'बॉर्डर डिझाइन निवडा' : 'Select Border Design'}
               </p>
             </div>
@@ -128,8 +128,8 @@ export default function BorderSelector({
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all cursor-pointer ${
                     currentBorder.id === border.id
-                      ? 'bg-gray-100'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-gray-100 dark:bg-slate-700'
+                      : 'hover:bg-gray-50 dark:hover:bg-slate-700'
                   }`}
                 >
                   {/* Border preview */}
@@ -144,10 +144,10 @@ export default function BorderSelector({
 
                   {/* Border name and description */}
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-[#333]">
+                    <p className="text-sm font-medium text-[#333] dark:text-slate-200">
                       {isMarathi ? border.nameMarathi : border.name}
                     </p>
-                    <p className="text-[10px] text-[#777]">{border.description}</p>
+                    <p className="text-[10px] text-[#777] dark:text-slate-400">{border.description}</p>
                   </div>
 
                   {/* Checkmark */}
