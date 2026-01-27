@@ -34,73 +34,6 @@ export const useAlert = () => {
   return context;
 };
 
-// Icon components for different alert types
-const AlertIcons = {
-  info: (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  success: (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  warning: (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
-  ),
-  error: (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  confirm: (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-};
-
-// Color schemes for different alert types
-const AlertColors = {
-  info: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-200 dark:border-blue-700',
-    icon: 'text-blue-500 dark:text-blue-400',
-    title: 'text-blue-800 dark:text-blue-200',
-    button: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-  },
-  success: {
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-    border: 'border-emerald-200 dark:border-emerald-700',
-    icon: 'text-emerald-500 dark:text-emerald-400',
-    title: 'text-emerald-800 dark:text-emerald-200',
-    button: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500',
-  },
-  warning: {
-    bg: 'bg-amber-50 dark:bg-amber-900/20',
-    border: 'border-amber-200 dark:border-amber-700',
-    icon: 'text-amber-500 dark:text-amber-400',
-    title: 'text-amber-800 dark:text-amber-200',
-    button: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
-  },
-  error: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-200 dark:border-red-700',
-    icon: 'text-red-500 dark:text-red-400',
-    title: 'text-red-800 dark:text-red-200',
-    button: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-  },
-  confirm: {
-    bg: 'bg-purple-50 dark:bg-purple-900/20',
-    border: 'border-purple-200 dark:border-purple-700',
-    icon: 'text-purple-500 dark:text-purple-400',
-    title: 'text-purple-800 dark:text-purple-200',
-    button: 'bg-[#D4AF37] hover:bg-[#B8860B] focus:ring-[#D4AF37]',
-  },
-};
 
 interface DialogState extends AlertConfig {
   isOpen: boolean;
@@ -123,7 +56,6 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
 
     if (dialog) {
       document.addEventListener('keydown', handleKeyDown);
-      // Focus the dialog
       dialogRef.current?.focus();
     }
 
@@ -175,8 +107,6 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const colors = dialog ? AlertColors[dialog.type] : AlertColors.info;
-
   return (
     <AlertContext.Provider value={{ showAlert, showConfirm, showInfo, showSuccess, showWarning, showError }}>
       {children}
@@ -184,86 +114,124 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
       {/* Dialog Overlay */}
       {dialog && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          {/* Backdrop */}
+          {/* Backdrop with subtle pattern */}
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
+            className="absolute inset-0 animate-fade-in"
+            style={{
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(4px)',
+            }}
             onClick={() => dialog.type === 'confirm' ? handleClose(false) : handleClose(true)}
           />
 
-          {/* Dialog Box */}
+          {/* Dialog Box - Classic Parchment Style */}
           <div
             ref={dialogRef}
             tabIndex={-1}
-            className={`
-              relative w-full max-w-md transform transition-all animate-scale-in
-              bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
-              border-2 ${colors.border}
-              overflow-hidden
-            `}
+            className="relative w-full max-w-sm animate-scale-in"
           >
-            {/* Decorative top border */}
-            <div className="h-1.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]" />
+            {/* Outer decorative frame */}
+            <div
+              className="absolute inset-0 rounded-lg"
+              style={{
+                background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 50%, #D4AF37 100%)',
+                padding: '3px',
+              }}
+            />
 
-            {/* Content */}
-            <div className="p-6">
-              {/* Header with Icon */}
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 p-2 rounded-full ${colors.bg} ${colors.icon}`}>
-                  {AlertIcons[dialog.type]}
+            {/* Inner container */}
+            <div
+              className="relative rounded-lg overflow-hidden bg-gradient-to-b from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-900"
+              style={{
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.8)',
+              }}
+            >
+              {/* Top decorative border with lotus pattern */}
+              <div className="relative h-2 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]">
+                <div className="absolute inset-x-0 top-0 flex justify-center">
+                  <svg width="40" height="12" viewBox="0 0 40 12" className="text-[#D4AF37]">
+                    <path d="M20 0 C22 4 26 6 30 6 C26 6 22 8 20 12 C18 8 14 6 10 6 C14 6 18 4 20 0" className="fill-[#FFFEF8] dark:fill-slate-800" />
+                  </svg>
                 </div>
-                <div className="flex-1 min-w-0">
+              </div>
+
+              {/* Content */}
+              <div className="px-6 pt-5 pb-5">
+                {/* Title */}
+                <div className="text-center mb-4">
                   {dialog.title && (
-                    <h3 className={`text-lg font-semibold ${colors.title} mb-1`}>
+                    <h3 className="text-lg font-semibold mb-1 text-[#800020] dark:text-[#D4AF37]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
                       {dialog.title}
                     </h3>
                   )}
-                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                    {dialog.message}
-                  </p>
+
+                  {/* Decorative divider */}
+                  <div className="flex items-center justify-center gap-2 my-3">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#D4AF37]" />
+                    <svg width="16" height="8" viewBox="0 0 16 8" className="text-[#D4AF37]">
+                      <path d="M8 0 C9 2 11 3 13 3 L16 3 L16 5 L13 5 C11 5 9 6 8 8 C7 6 5 5 3 5 L0 5 L0 3 L3 3 C5 3 7 2 8 0" fill="currentColor" opacity="0.6"/>
+                    </svg>
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+                  </div>
+                </div>
+
+                {/* Message */}
+                <p
+                  className="text-center text-sm leading-relaxed whitespace-pre-line mb-5 text-[#555] dark:text-slate-300"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  {dialog.message}
+                </p>
+
+                {/* Buttons */}
+                <div className={`flex gap-3 ${dialog.type === 'confirm' ? 'justify-center' : 'justify-center'}`}>
+                  {dialog.type === 'confirm' && (
+                    <button
+                      onClick={() => handleClose(false)}
+                      className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-gray-100 to-gray-200 dark:from-slate-600 dark:to-slate-700 text-gray-600 dark:text-slate-200 border border-gray-300 dark:border-slate-500 shadow-sm hover:shadow-md hover:from-gray-200 hover:to-gray-300 dark:hover:from-slate-500 dark:hover:to-slate-600"
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                      {dialog.cancelText || 'Cancel'}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleClose(true)}
+                    autoFocus
+                    className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
+                      color: '#fff',
+                      border: 'none',
+                      boxShadow: '0 4px 12px rgba(212,175,55,0.4)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(135deg, #C9A227 0%, #A67B00 100%)';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(212,175,55,0.5)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(212,175,55,0.4)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {dialog.type === 'confirm' ? (dialog.confirmText || 'Confirm') : 'OK'}
+                  </button>
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div className={`mt-6 flex gap-3 ${dialog.type === 'confirm' ? 'justify-end' : 'justify-center'}`}>
-                {dialog.type === 'confirm' && (
-                  <button
-                    onClick={() => handleClose(false)}
-                    className="
-                      px-5 py-2.5 rounded-xl text-sm font-medium
-                      bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300
-                      hover:bg-gray-200 dark:hover:bg-slate-600
-                      border border-gray-200 dark:border-slate-600
-                      transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2
-                    "
-                  >
-                    {dialog.cancelText || 'Cancel'}
-                  </button>
-                )}
-                <button
-                  onClick={() => handleClose(true)}
-                  autoFocus
-                  className={`
-                    px-5 py-2.5 rounded-xl text-sm font-medium text-white
-                    ${colors.button}
-                    transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-offset-2
-                    shadow-md hover:shadow-lg
-                  `}
-                >
-                  {dialog.type === 'confirm' ? (dialog.confirmText || 'Confirm') : 'OK'}
-                </button>
+              {/* Bottom decorative border */}
+              <div className="relative h-2 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]">
+                <div className="absolute inset-x-0 bottom-0 flex justify-center">
+                  <svg width="40" height="12" viewBox="0 0 40 12" className="text-[#D4AF37] rotate-180">
+                    <path d="M20 0 C22 4 26 6 30 6 C26 6 22 8 20 12 C18 8 14 6 10 6 C14 6 18 4 20 0" className="fill-[#FFFEF8] dark:fill-slate-900" />
+                  </svg>
+                </div>
               </div>
-            </div>
 
-            {/* Decorative lotus corner */}
-            <div className="absolute -bottom-4 -right-4 w-16 h-16 opacity-10 pointer-events-none">
-              <svg viewBox="0 0 100 100" className="w-full h-full text-[#D4AF37]">
-                <path
-                  fill="currentColor"
-                  d="M50 10 C60 30 80 40 90 50 C80 60 60 70 50 90 C40 70 20 60 10 50 C20 40 40 30 50 10Z"
-                />
-              </svg>
             </div>
           </div>
         </div>

@@ -277,36 +277,20 @@ export default function BiodataBuilder() {
       <div className="no-print max-w-5xl mx-auto mb-6 px-2 sm:px-4 relative z-[100]">
         {/* Main Floating Toolbar */}
         <div className="relative">
-          {/* Outer glow effect */}
+          {/* Main Container with clean border */}
           <div
-            className="absolute inset-0 rounded-2xl blur-xl opacity-30"
-            style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 50%, #D4AF37 100%)' }}
-          />
-
-          {/* Main Container with decorative border */}
-          <div
-            className="relative rounded-2xl"
+            className="relative rounded-xl overflow-hidden"
             style={{
               background: isDark
-                ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
-                : 'linear-gradient(135deg, #FFFDF5 0%, #FFF8E7 100%)',
+                ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)'
+                : 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%)',
               boxShadow: isDark
-                ? '0 4px 30px rgba(212, 175, 55, 0.15), inset 0 1px 0 rgba(255,255,255,0.05)'
-                : '0 4px 30px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255,255,255,0.8)',
+                ? '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.2)'
+                : '0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(212, 175, 55, 0.3)',
             }}
           >
             {/* Top golden accent line */}
-            <div className="h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent rounded-t-2xl" />
-
-            {/* Decorative corner ornaments */}
-            <svg className="absolute top-1 left-1 w-8 h-8 text-[#D4AF37] opacity-40" viewBox="0 0 32 32">
-              <path d="M4 4 Q4 16 16 16 Q4 16 4 28" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="4" cy="4" r="2" fill="currentColor"/>
-            </svg>
-            <svg className="absolute top-1 right-1 w-8 h-8 text-[#D4AF37] opacity-40" viewBox="0 0 32 32">
-              <path d="M28 4 Q28 16 16 16 Q28 16 28 28" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="28" cy="4" r="2" fill="currentColor"/>
-            </svg>
+            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]" />
 
             {/* Toolbar Content */}
             <div className="relative z-10 px-3 py-2.5 sm:px-5 sm:py-3">
@@ -370,7 +354,7 @@ export default function BiodataBuilder() {
                       className={`h-9 w-9 flex items-center justify-center rounded-l-lg border transition-all duration-300 ${
                         canUndo
                           ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                          : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600 cursor-not-allowed'
+                          : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
                       }`}
                       title={isMarathi ? 'पूर्ववत करा (Ctrl+Z)' : 'Undo (Ctrl+Z)'}
                     >
@@ -384,7 +368,7 @@ export default function BiodataBuilder() {
                       className={`h-9 w-9 flex items-center justify-center rounded-r-lg border-t border-r border-b transition-all duration-300 ${
                         canRedo
                           ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                          : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600 cursor-not-allowed'
+                          : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
                       }`}
                       title={isMarathi ? 'पुन्हा करा (Ctrl+Y)' : 'Redo (Ctrl+Y)'}
                     >
@@ -420,7 +404,7 @@ export default function BiodataBuilder() {
             </div>
 
             {/* Bottom golden accent line */}
-            <div className="h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
+            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]" />
           </div>
         </div>
 

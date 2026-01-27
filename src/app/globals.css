@@ -474,15 +474,37 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--ui-bg) !important;
 }
 
-/* Dark mode control panel buttons */
-.dark .no-print button:not(.biodata-container button) {
+/* Dark mode control panel buttons - exclude golden primary buttons */
+.dark .no-print button:not(.biodata-container button):not(.golden-btn) {
   background-color: var(--ui-card-bg);
   border-color: var(--ui-border);
   color: var(--ui-text);
 }
 
-.dark .no-print button:not(.biodata-container button):hover {
+.dark .no-print button:not(.biodata-container button):not(.golden-btn):hover:not(:disabled) {
   background-color: var(--ui-bg-alt);
+}
+
+/* Standardized disabled button styles */
+button:disabled,
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+button:disabled:hover,
+button[disabled]:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Disabled golden buttons - muted appearance */
+.golden-btn:disabled,
+.golden-btn[disabled] {
+  background: linear-gradient(to right, #9CA3AF, #6B7280) !important;
+  box-shadow: none !important;
+  opacity: 0.7;
 }
 
 /* Dark mode dropdowns and inputs */

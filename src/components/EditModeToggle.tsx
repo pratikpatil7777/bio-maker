@@ -31,10 +31,10 @@ export default function EditModeToggle({
       <button
         onClick={onReset}
         disabled={!canReset}
-        className={`group/reset h-9 flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-lg transition-all duration-300 shadow-sm ${
+        className={`group/reset h-9 flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-lg transition-all duration-300 ${
           canReset
-            ? 'bg-white dark:bg-slate-700 text-red-500 dark:text-red-400 border border-red-300 dark:border-red-500/50 hover:bg-red-500 dark:hover:bg-red-500 hover:text-white hover:border-red-500 cursor-pointer hover:shadow-md'
-            : 'bg-gray-50 dark:bg-slate-800 text-gray-300 dark:text-slate-600 border border-gray-200 dark:border-slate-700 cursor-not-allowed'
+            ? 'bg-white dark:bg-slate-700 text-red-500 dark:text-red-400 border border-red-300 dark:border-red-500/50 hover:bg-red-500 dark:hover:bg-red-500 hover:text-white hover:border-red-500 cursor-pointer shadow-sm hover:shadow-md'
+            : 'bg-gray-100 dark:bg-slate-800/50 text-gray-300 dark:text-slate-600 border border-gray-200 dark:border-slate-700'
         }`}
         title={!isEditMode ? 'Enable edit mode first' : !hasChanges ? 'No changes to reset' : t.resetToDefault}
       >
@@ -56,11 +56,11 @@ export default function EditModeToggle({
       {/* Edit/Save Toggle - Primary action button */}
       <button
         onClick={() => onToggle(!isEditMode)}
-        className={`h-9 flex items-center justify-center gap-1.5 px-4 rounded-lg font-semibold text-xs cursor-pointer transition-all duration-300 ${
-          isEditMode
-            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02]'
-            : 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white shadow-lg hover:shadow-xl hover:scale-[1.02]'
-        }`}
+        className="golden-btn h-9 flex items-center justify-center gap-1.5 px-4 rounded-lg font-semibold text-xs cursor-pointer transition-all duration-300 text-white hover:scale-[1.02]"
+        style={{
+          background: 'linear-gradient(to right, #D4AF37, #B8860B)',
+          boxShadow: '0 4px 16px rgba(212, 175, 55, 0.5)',
+        }}
       >
         {isEditMode ? (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

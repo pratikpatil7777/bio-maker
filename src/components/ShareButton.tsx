@@ -148,8 +148,12 @@ export default function ShareButton({
         className={`h-9 flex items-center gap-1.5 px-4 rounded-lg font-semibold text-xs transition-all duration-300 ${
           isSharing
             ? 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed'
-            : 'bg-gradient-to-r from-[#25D366] to-[#1fb855] text-white shadow-lg hover:shadow-xl hover:scale-[1.02] cursor-pointer'
+            : 'golden-btn text-white hover:scale-[1.02] cursor-pointer'
         }`}
+        style={!isSharing ? {
+          background: 'linear-gradient(to right, #D4AF37, #B8860B)',
+          boxShadow: '0 4px 16px rgba(212, 175, 55, 0.5)',
+        } : undefined}
       >
         {isSharing ? (
           <>
