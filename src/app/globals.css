@@ -3,6 +3,9 @@
 
 @import "tailwindcss";
 
+/* Configure dark mode to use class selector instead of prefers-color-scheme */
+@custom-variant dark (&:is(.dark *));
+
 :root {
   /* Krishna / Spiritual Theme Colors */
   --gold-primary: #D4AF37;
