@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Rate limiting (simple in-memory store - use Redis in production)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const DAILY_LIMIT = 50; // Generous limit for demo, reduce in production
+const DAILY_LIMIT = 50;
 
 export interface GenerateBioRequest {
   name: string;
@@ -207,50 +206,95 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for API key
-    const apiKey = process.env.GEMINI_API_KEY;
-    console.log('API Key check:', apiKey ? `Found (${apiKey.substring(0, 10)}...)` : 'NOT FOUND');
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      console.error('GEMINI_API_KEY not configured');
+      console.error('GROQ_API_KEY not configured');
       return NextResponse.json(
         { error: 'AI service not configured. Please contact support.' },
         { status: 503 }
       );
     }
 
-    // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 2048,
+    // Build the prompt
+    const prompt = buildPrompt(body);
+
+    // Call Groq API (OpenAI-compatible)
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert Indian marriage biodata writer. You MUST respond with ONLY valid JSON. No markdown, no code blocks, no extra text. Just the raw JSON object.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 2048,
+        response_format: { type: 'json_object' },
+      }),
     });
 
-    // Generate bio
-    const prompt = buildPrompt(body);
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    if (!groqResponse.ok) {
+      const errorData = await groqResponse.text();
+      console.error('Groq API error:', groqResponse.status, errorData);
 
-    // Parse JSON from response
-    let parsedBio;
-    try {
-      // Try to extract JSON from the response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsedBio = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found in response');
+      if (groqResponse.status === 429) {
+        return NextResponse.json(
+          {
+            error: 'AI service is busy. Please wait a moment and try again.',
+            errorMarathi: 'AI सेवा व्यस्त आहे. कृपया थोडा वेळ थांबा आणि पुन्हा प्रयत्न करा.'
+          },
+          { status: 429 }
+        );
       }
-    } catch (parseError) {
-      console.error('Failed to parse AI response:', text);
+
       return NextResponse.json(
         { error: 'Failed to generate bio. Please try again.' },
         { status: 500 }
       );
+    }
+
+    const data = await groqResponse.json();
+    const text = data.choices?.[0]?.message?.content;
+
+    if (!text) {
+      console.error('Empty response from Groq');
+      return NextResponse.json(
+        { error: 'Failed to generate bio. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // Parse JSON from response
+    let parsedBio;
+    try {
+      // Try direct parse first (Groq json mode should give clean JSON)
+      parsedBio = JSON.parse(text);
+    } catch {
+      // Fallback: extract JSON from response
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsedBio = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', text);
+        return NextResponse.json(
+          { error: 'Failed to generate bio. Please try again.' },
+          { status: 500 }
+        );
+      }
     }
 
     // Return success response
@@ -263,26 +307,6 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('AI Bio Generation Error:', errorMessage);
-
-    // Handle specific Gemini API errors
-    if (errorMessage.includes('quota') || errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
-      return NextResponse.json(
-        {
-          error: 'AI service quota exceeded. Please try again later or generate a new API key.',
-          errorMarathi: 'AI सेवा मर्यादा संपली. कृपया नंतर पुन्हा प्रयत्न करा.'
-        },
-        { status: 429 }
-      );
-    }
-
-    if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('403')) {
-      return NextResponse.json(
-        {
-          error: 'Invalid API key. Please check your Gemini API key configuration.',
-        },
-        { status: 403 }
-      );
-    }
 
     return NextResponse.json(
       {
