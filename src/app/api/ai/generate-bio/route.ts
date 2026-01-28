@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
         topP: 0.8,
@@ -262,11 +262,28 @@ export async function POST(request: NextRequest) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : '';
     console.error('AI Bio Generation Error:', errorMessage);
-    console.error('Stack:', errorStack);
 
-    // Return more specific error for debugging
+    // Handle specific Gemini API errors
+    if (errorMessage.includes('quota') || errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
+      return NextResponse.json(
+        {
+          error: 'AI service quota exceeded. Please try again later or generate a new API key.',
+          errorMarathi: 'AI सेवा मर्यादा संपली. कृपया नंतर पुन्हा प्रयत्न करा.'
+        },
+        { status: 429 }
+      );
+    }
+
+    if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('403')) {
+      return NextResponse.json(
+        {
+          error: 'Invalid API key. Please check your Gemini API key configuration.',
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to generate bio. Please try again.',
