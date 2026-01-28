@@ -115,13 +115,13 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
       {dialog && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop with subtle pattern */}
+          {/* Backdrop - does NOT close on click, use buttons instead */}
           <div
             className="absolute inset-0 animate-fade-in"
             style={{
               background: 'rgba(0, 0, 0, 0.6)',
               backdropFilter: 'blur(4px)',
             }}
-            onClick={() => dialog.type === 'confirm' ? handleClose(false) : handleClose(true)}
           />
 
           {/* Dialog Box - Classic Parchment Style */}

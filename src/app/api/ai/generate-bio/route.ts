@@ -198,9 +198,26 @@ export async function POST(request: NextRequest) {
     const body: GenerateBioRequest = await request.json();
 
     // Validate required fields
-    if (!body.name || !body.age || !body.education || !body.profession) {
+    if (!body.name?.trim() || !body.age || !body.education?.trim() || !body.profession?.trim()) {
       return NextResponse.json(
         { error: 'Missing required fields: name, age, education, profession' },
+        { status: 400 }
+      );
+    }
+
+    // Validate age range
+    const age = Number(body.age);
+    if (isNaN(age) || age < 18 || age > 100) {
+      return NextResponse.json(
+        { error: 'Age must be between 18 and 100' },
+        { status: 400 }
+      );
+    }
+
+    // Validate name has at least some letters (not just numbers/symbols)
+    if (!/[a-zA-Z\u0900-\u097F]/.test(body.name)) {
+      return NextResponse.json(
+        { error: 'Name must contain at least one letter' },
         { status: 400 }
       );
     }

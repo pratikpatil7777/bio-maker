@@ -95,6 +95,19 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
   const isMarathi = language === 'mr';
 
   const handleInputChange = (field: keyof FormData, value: string) => {
+    // For age field: only allow digits, enforce 1-100 range
+    if (field === 'age') {
+      const digitsOnly = value.replace(/[^0-9]/g, '');
+      const num = parseInt(digitsOnly);
+      if (digitsOnly === '') {
+        setFormData(prev => ({ ...prev, age: '' }));
+      } else if (num > 100) {
+        setFormData(prev => ({ ...prev, age: '100' }));
+      } else {
+        setFormData(prev => ({ ...prev, age: digitsOnly }));
+      }
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -103,12 +116,28 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
     setError(null);
 
     try {
+      const age = parseInt(formData.age);
+      if (isNaN(age) || age < 18 || age > 100) {
+        setError(isMarathi ? 'कृपया वैध वय प्रविष्ट करा (18-100)' : 'Please enter a valid age (18-100)');
+        setStep('form');
+        return;
+      }
+
+      if (!formData.name.trim() || !formData.education.trim() || !formData.profession.trim()) {
+        setError(isMarathi ? 'कृपया सर्व आवश्यक फील्ड भरा' : 'Please fill all required fields');
+        setStep('form');
+        return;
+      }
+
       const response = await fetch('/api/ai/generate-bio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          age: parseInt(formData.age) || 25,
+          name: formData.name.trim(),
+          education: formData.education.trim(),
+          profession: formData.profession.trim(),
+          age,
           language: formData.outputLanguage,
         }),
       });
@@ -134,9 +163,25 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
   };
 
   const totalSteps = 4;
+  const getAgeError = (): string | null => {
+    if (!formData.age) return null; // Empty is handled by required check
+    const age = parseInt(formData.age);
+    if (isNaN(age) || age < 18) return isMarathi ? 'वय किमान 18 असावे' : 'Age must be at least 18';
+    if (age > 100) return isMarathi ? 'वय 100 पेक्षा जास्त असू शकत नाही' : 'Age cannot exceed 100';
+    return null;
+  };
+
   const canProceed = () => {
     switch (formStep) {
-      case 1: return formData.name && formData.age && formData.education && formData.profession;
+      case 1: {
+        const nameTrimmed = formData.name.trim();
+        const age = parseInt(formData.age);
+        const hasValidName = nameTrimmed.length >= 2 && /[a-zA-Z\u0900-\u097F]/.test(nameTrimmed);
+        const hasValidAge = !isNaN(age) && age >= 18 && age <= 100;
+        const hasEducation = formData.education.trim().length > 0;
+        const hasProfession = formData.profession.trim().length > 0;
+        return hasValidName && hasValidAge && hasEducation && hasProfession;
+      }
       case 2: return true; // Family details are optional
       case 3: return true; // Lifestyle is optional
       case 4: return true; // Settings
@@ -175,14 +220,21 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                   {isMarathi ? 'वय' : 'Age'} *
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={formData.age}
                   onChange={(e) => handleInputChange('age', e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-xl border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-2.5 rounded-xl border ${
+                    getAgeError()
+                      ? 'border-red-400 focus:ring-red-400'
+                      : isDark ? 'border-slate-600' : 'border-gray-200'
+                  } ${isDark ? 'bg-slate-700 text-white' : 'bg-white text-gray-800'} focus:ring-2 focus:border-transparent transition-all`}
                   placeholder="25"
-                  min="18"
-                  max="100"
+                  maxLength={3}
                 />
+                {getAgeError() && (
+                  <p className="text-xs text-red-500 mt-1">{getAgeError()}</p>
+                )}
               </div>
 
               <div>
@@ -192,7 +244,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                 <select
                   value={formData.gender}
                   onChange={(e) => handleInputChange('gender', e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-xl border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-2.5 rounded-xl border cursor-pointer ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
                 >
                   <option value="male">{isMarathi ? 'पुरुष' : 'Male'}</option>
                   <option value="female">{isMarathi ? 'स्त्री' : 'Female'}</option>
@@ -384,7 +436,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                 <select
                   value={formData.familyType}
                   onChange={(e) => handleInputChange('familyType', e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-xl border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-2.5 rounded-xl border cursor-pointer ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
                 >
                   <option value="">{isMarathi ? 'निवडा' : 'Select'}</option>
                   <option value="Nuclear">{isMarathi ? 'विभक्त कुटुंब' : 'Nuclear Family'}</option>
@@ -423,7 +475,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                 <select
                   value={formData.diet}
                   onChange={(e) => handleInputChange('diet', e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-xl border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-2.5 rounded-xl border cursor-pointer ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-200 text-gray-800'} focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all`}
                 >
                   <option value="">{isMarathi ? 'निवडा' : 'Select'}</option>
                   <option value="Vegetarian">{isMarathi ? 'शाकाहारी' : 'Vegetarian'}</option>
@@ -485,7 +537,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                   <button
                     key={tone.value}
                     onClick={() => handleInputChange('tone', tone.value)}
-                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    className={`p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${
                       formData.tone === tone.value
                         ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
                         : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-gray-200 hover:border-gray-300'
@@ -513,7 +565,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                   <button
                     key={lang.value}
                     onClick={() => handleInputChange('outputLanguage', lang.value)}
-                    className={`p-4 rounded-xl border-2 transition-all ${
+                    className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
                       formData.outputLanguage === lang.value
                         ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
                         : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-gray-200 hover:border-gray-300'
@@ -532,11 +584,8 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      {/* Backdrop - does NOT close on click, use close button instead */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
       <div className={`relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
@@ -558,7 +607,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
             </div>
             <button
               onClick={onClose}
-              className={`w-10 h-10 rounded-xl ${isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'} flex items-center justify-center transition-colors`}
+              className={`w-10 h-10 rounded-xl ${isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'} flex items-center justify-center transition-colors cursor-pointer`}
             >
               <svg className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -678,7 +727,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                 className={`px-5 py-2.5 rounded-xl font-medium transition-all ${
                   formStep === 1
                     ? 'opacity-50 cursor-not-allowed'
-                    : isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'
+                    : isDark ? 'hover:bg-slate-700 cursor-pointer' : 'hover:bg-gray-100 cursor-pointer'
                 } ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
               >
                 {isMarathi ? 'मागे' : 'Back'}
@@ -690,7 +739,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                   disabled={!canProceed()}
                   className={`px-6 py-2.5 rounded-xl font-semibold transition-all ${
                     canProceed()
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:scale-[1.02]'
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:scale-[1.02] cursor-pointer'
                       : 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed'
                   }`}
                 >
@@ -699,7 +748,7 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
               ) : (
                 <button
                   onClick={handleGenerate}
-                  className="px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>✨</span>
                   <span>{isMarathi ? 'बायो तयार करा' : 'Generate Bio'}</span>
@@ -712,13 +761,13 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
             <div className="flex items-center gap-3">
               <button
                 onClick={() => { setStep('form'); setFormStep(1); }}
-                className={`flex-1 px-5 py-3 rounded-xl font-medium ${isDark ? 'bg-slate-700 text-gray-300 hover:bg-slate-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} transition-all`}
+                className={`flex-1 px-5 py-3 rounded-xl font-medium cursor-pointer ${isDark ? 'bg-slate-700 text-gray-300 hover:bg-slate-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} transition-all`}
               >
                 {isMarathi ? 'पुन्हा तयार करा' : 'Regenerate'}
               </button>
               <button
                 onClick={handleUseBio}
-                className="flex-1 px-5 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all"
+                className="flex-1 px-5 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
               >
                 {isMarathi ? 'हा वापरा' : 'Use This Bio'}
               </button>
