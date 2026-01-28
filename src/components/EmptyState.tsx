@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Language } from '@/lib/types';
 import { Theme, themes } from '@/lib/themes';
 import { BorderDesign, borderDesigns } from '@/lib/borders';
@@ -147,33 +148,60 @@ export default function EmptyState({
           <DarkModeToggle />
         </div>
 
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            {/* Krishna Icon */}
+          {/* Logo with glow effect */}
+          <div className="flex justify-center mb-5">
             <div className="relative">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${isDark ? 'bg-gradient-to-br from-amber-900/50 to-amber-800/50' : 'bg-gradient-to-br from-amber-100 to-amber-200'}`}>
-                <svg width="50" height="50" viewBox="0 0 100 100" className="text-amber-600">
-                  <circle cx="50" cy="35" r="15" fill="currentColor" opacity="0.9" />
-                  <ellipse cx="50" cy="72" rx="20" ry="25" fill="currentColor" opacity="0.8" />
-                  <path d="M30 30 Q50 5 70 30" stroke="currentColor" strokeWidth="3" fill="none" />
-                  <circle cx="35" cy="20" r="4" fill="currentColor" />
-                  <circle cx="65" cy="20" r="4" fill="currentColor" />
-                  <path d="M25 60 Q15 50 20 40" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <path d="M75 60 Q85 50 80 40" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <ellipse cx="20" cy="38" rx="4" ry="6" fill="currentColor" opacity="0.6" />
-                  <ellipse cx="80" cy="38" rx="4" ry="6" fill="currentColor" opacity="0.6" />
-                  <path d="M70 55 Q90 55 95 35 Q90 30 85 35 Q87 45 70 50" fill="currentColor" opacity="0.7" />
-                  <circle cx="92" cy="32" r="2" fill="currentColor" />
-                </svg>
+              {/* Outer glow rings */}
+              <div
+                className="absolute inset-0 rounded-2xl animate-pulse"
+                style={{
+                  background: isDark
+                    ? 'radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%)'
+                    : 'radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%)',
+                  transform: 'scale(1.8)',
+                }}
+              />
+              {/* Logo */}
+              <div className="relative">
+                <Image
+                  src="/logo.png"
+                  alt="Shubh Vivah Logo"
+                  width={100}
+                  height={100}
+                  className="rounded-xl"
+                  style={{
+                    filter: isDark
+                      ? 'drop-shadow(0 8px 25px rgba(251, 191, 36, 0.3))'
+                      : 'drop-shadow(0 8px 25px rgba(128, 0, 32, 0.3))',
+                  }}
+                  priority
+                />
               </div>
             </div>
           </div>
 
-          <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-amber-400' : 'text-amber-800'}`} style={{ fontFamily: "'Playfair Display', serif" }}>
+          {/* Brand name */}
+          <h2
+            className={`text-2xl md:text-3xl font-bold mb-1 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            शुभ विवाह
+          </h2>
+
+          <h1 className={`text-xl md:text-2xl font-semibold mb-3 ${isDark ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
             {isMarathi ? 'विवाह बायोडाटा निर्माता' : 'Marriage Biodata Builder'}
           </h1>
-          <p className={`text-lg ${isDark ? 'text-amber-300/80' : 'text-amber-600'}`}>
+
+          {/* Decorative divider */}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className={`w-12 h-0.5 ${isDark ? 'bg-gradient-to-r from-transparent to-amber-500/50' : 'bg-gradient-to-r from-transparent to-[#D4AF37]'}`} />
+            <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-amber-500' : 'bg-[#D4AF37]'}`} />
+            <div className={`w-12 h-0.5 ${isDark ? 'bg-gradient-to-l from-transparent to-amber-500/50' : 'bg-gradient-to-l from-transparent to-[#D4AF37]'}`} />
+          </div>
+
+          <p className={`text-base ${isDark ? 'text-amber-300/80' : 'text-amber-700'}`}>
             {isMarathi
               ? 'तुमचा सुंदर विवाह बायोडाटा काही मिनिटांत तयार करा'
               : 'Create your beautiful marriage biodata in minutes'}

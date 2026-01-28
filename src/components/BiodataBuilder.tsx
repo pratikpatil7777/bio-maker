@@ -14,6 +14,7 @@ import { useLocalStorage, clearLocalStorage } from '@/lib/useLocalStorage';
 import { Theme, getThemeById } from '@/lib/themes';
 import { BorderDesign, getBorderById } from '@/lib/borders';
 
+import Image from 'next/image';
 import Header from './Header';
 import PhotoSection from './PhotoSection';
 import SectionBuilder from './SectionBuilder';
@@ -29,6 +30,7 @@ import BorderRenderer from './borders';
 import DataBackupNew from './DataBackupNew';
 import EmptyState from './EmptyState';
 import BiodataPagedView from './BiodataPagedView';
+import AIBioWriter from './AIBioWriter';
 import { DarkModeToggleCompact } from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
 import { useAlert } from './AlertDialog';
@@ -49,6 +51,7 @@ export default function BiodataBuilder() {
   const [data, setData] = useLocalStorage<DynamicBiodataData>(STORAGE_KEY, createEmptyBiodata());
   const [isClient, setIsClient] = useState(false);
   const [pageCount, setPageCount] = useState(1);
+  const [showAIWriter, setShowAIWriter] = useState(false);
 
   // History for Undo/Redo
   const [history, setHistory] = useState<DynamicBiodataData[]>([]);
@@ -243,6 +246,53 @@ export default function BiodataBuilder() {
     setPageCount(count);
   };
 
+  // Handle AI-generated bio sections
+  const handleAIBioGenerated = (sections: Array<{
+    title: string;
+    titleMarathi: string;
+    fields: Array<{
+      label: string;
+      labelMarathi: string;
+      value: string;
+      valueMarathi: string;
+    }>;
+  }>) => {
+    // Convert AI sections to biodata sections format
+    const newSections: BiodataSection[] = sections.map((section, sectionIdx) => {
+      // Create section with custom title (AI-generated titles are custom)
+      const biodataSection = createSection('custom');
+      biodataSection.customTitle = section.title;
+      biodataSection.customTitleMarathi = section.titleMarathi;
+
+      // Convert fields to attributes
+      biodataSection.attributes = section.fields.map((field, fieldIdx) => ({
+        id: `ai-attr-${Date.now()}-${sectionIdx}-${fieldIdx}`,
+        attributeId: 'custom',
+        value: field.value,
+        valueMarathi: field.valueMarathi,
+        customLabel: field.label,
+        customLabelMarathi: field.labelMarathi,
+      }));
+
+      return biodataSection;
+    });
+
+    // Extract name from the first section if available
+    const personalSection = sections.find(s => s.title.toLowerCase().includes('personal'));
+    const nameField = personalSection?.fields.find(f => f.label.toLowerCase() === 'name');
+
+    setData((prev) => ({
+      ...prev,
+      name: nameField?.value?.replace(/^(Mr\.|Ms\.|Mrs\.|Shri|Smt\.?)\s*/i, '') || prev.name,
+      nameMarathi: nameField?.valueMarathi?.replace(/^(श्री|श्रीमती|सौ\.|कु\.)\s*/i, '') || prev.nameMarathi,
+      sections: newSections,
+      updatedAt: new Date().toISOString(),
+    }));
+
+    setShowAIWriter(false);
+    setIsEditMode(true);
+  };
+
   const isEmpty = !data.name && data.sections.length === 0;
   const hasChanges = JSON.stringify(data) !== JSON.stringify(createEmptyBiodata());
 
@@ -297,17 +347,21 @@ export default function BiodataBuilder() {
               {/* Unified Button Bar */}
               <div className="flex items-center justify-between gap-3 flex-wrap">
 
-                {/* Left Section: Back + Mode Toggles */}
+                {/* Left Section: Logo/Home + Mode Toggles */}
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  {/* Back Button */}
+                  {/* Logo as Home Button */}
                   <button
                     onClick={handleBackToHome}
-                    className="h-9 w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
-                    title={isMarathi ? 'मागे जा' : 'Back to Home'}
+                    className="group h-9 w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37]/50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 cursor-pointer overflow-hidden"
+                    title={isMarathi ? 'मुख्यपृष्ठ' : 'Home'}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <Image
+                      src="/logo.png"
+                      alt="Shubh Vivah"
+                      width={28}
+                      height={28}
+                      className="rounded transition-transform duration-300 group-hover:scale-110"
+                    />
                   </button>
 
                   <div className="w-px h-6 bg-gray-200 dark:bg-slate-600 hidden sm:block" />
@@ -345,6 +399,19 @@ export default function BiodataBuilder() {
                   </button>
 
                   <DataBackupNew language={language} data={data} onRestore={handleDataRestore} />
+
+                  {/* AI Bio Writer Button */}
+                  <button
+                    onClick={() => setShowAIWriter(true)}
+                    className="h-9 px-3 flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:scale-[1.02] text-white"
+                    style={{
+                      background: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+                    }}
+                    title={isMarathi ? 'AI बायो लेखक' : 'AI Bio Writer'}
+                  >
+                    <span className="text-sm">✨</span>
+                    <span className="hidden sm:inline">{isMarathi ? 'AI लेखक' : 'AI Writer'}</span>
+                  </button>
 
                   {/* Undo/Redo Buttons */}
                   <div className="flex items-center">
@@ -586,9 +653,19 @@ export default function BiodataBuilder() {
       )}
 
       {/* Copyright */}
-      <div className="no-print text-center mt-4 text-sm text-[#777]">
-        &copy; {new Date().getFullYear()} Marriage Biodata Builder. All rights reserved.
+      <div className="no-print text-center mt-4 text-sm text-[#777] dark:text-slate-500">
+        &copy; {new Date().getFullYear()} Shubh Vivah - Marriage Biodata Builder. All rights reserved.
       </div>
+
+      {/* AI Bio Writer Modal */}
+      {showAIWriter && (
+        <AIBioWriter
+          language={language}
+          currentName={data.name}
+          onBioGenerated={handleAIBioGenerated}
+          onClose={() => setShowAIWriter(false)}
+        />
+      )}
     </main>
   );
 }
