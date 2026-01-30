@@ -329,7 +329,7 @@ h1, h2, h3, h4, h5, h6 {
   animation: subtleGlow 3s ease-in-out infinite;
 }
 
-/* Biodata container - Multi-page support */
+/* Biodata container - Fixed A4 dimensions (scrollable on mobile) */
 .biodata-container {
   width: 210mm;
   min-height: 297mm;
@@ -339,6 +339,28 @@ h1, h2, h3, h4, h5, h6 {
   /* Content can flow beyond min-height, border wrapper handles visual containment */
 }
 
+/* Mobile toolbar xs breakpoint helper (400px+) */
+@media (min-width: 400px) {
+  .xs\:flex-row {
+    flex-direction: row !important;
+  }
+  .xs\:items-center {
+    align-items: center !important;
+  }
+  .xs\:gap-3 {
+    gap: 0.75rem !important;
+  }
+  .xs\:inline {
+    display: inline !important;
+  }
+  .xs\:w-auto {
+    width: auto !important;
+  }
+  .xs\:ml-0 {
+    margin-left: 0 !important;
+  }
+}
+
 /* Single page mode (for backwards compatibility) */
 .biodata-container.single-page {
   height: 297mm;
@@ -346,7 +368,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
-/* Inner content wrapper with consistent padding */
+/* Inner content wrapper with fixed padding (biodata is always at A4 dimensions) */
 .biodata-inner-content {
   padding: 10px 37px;
   min-height: calc(297mm - 20px);
@@ -441,7 +463,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-right: 0;
 }
 
-/* Row label - consistent width */
+/* Row label - fixed width (biodata is always at A4 dimensions) */
 .row-label {
   width: 160px;
   min-width: 160px;

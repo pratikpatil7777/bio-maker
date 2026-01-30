@@ -8,26 +8,32 @@ interface HeaderProps {
   language: Language;
   name: string;
   nameMarathi: string;
+  nameHindi?: string;
 }
 
-export default function Header({ language, name, nameMarathi }: HeaderProps) {
+export default function Header({ language, name, nameMarathi, nameHindi }: HeaderProps) {
   const t = translations[language];
-  const displayName = language === 'en' ? name : nameMarathi;
+  const isDevanagari = language === 'mr' || language === 'hi';
+  const displayName = language === 'hi'
+    ? (nameHindi || nameMarathi || name)
+    : language === 'mr'
+      ? (nameMarathi || name)
+      : name;
 
   return (
     <header className="text-center" style={{ paddingBottom: '8px' }}>
       {/* Krishna Icon */}
       <div className="flex justify-center" style={{ marginBottom: '8px' }}>
-        <KrishnaIcon className="w-24 h-auto md:w-28" />
+        <KrishnaIcon className="w-28 h-auto" />
       </div>
 
       {/* Name */}
       <h1
         className={`biodata-name ${
-          language === 'mr' ? 'marathi-header' : ''
+          isDevanagari ? 'marathi-header' : ''
         }`}
         style={{
-          fontFamily: language === 'mr' ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
+          fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
           color: 'var(--theme-header-text, #800020)',
           marginBottom: '0',
         }}

@@ -2,22 +2,69 @@
 
 import React, { useState } from 'react';
 import { Language } from '@/lib/translations';
+import { DynamicBiodataData } from '@/lib/types';
+import { encodeShareLink } from '@/lib/shareLink';
 import { useAlert } from './AlertDialog';
 
 interface ShareButtonProps {
   language: Language;
   targetRef: React.RefObject<HTMLDivElement | null>;
   fileName?: string;
+  biodataData?: DynamicBiodataData;
 }
 
 export default function ShareButton({
   language,
   targetRef,
-  fileName = 'Pratik_Ravindra_Patil_Biodata',
+  fileName = 'Marriage_Biodata',
+  biodataData,
 }: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const { showSuccess, showError } = useAlert();
+
+  const isDevanagari = language === 'mr' || language === 'hi';
+  const isHindi = language === 'hi';
+  const isMarathi = language === 'mr';
+
+  // Trilingual text helper
+  const getText = (en: string, hi: string, mr: string) => {
+    if (isHindi) return hi;
+    if (isMarathi) return mr;
+    return en;
+  };
+
+  const generateImageBlob = async (): Promise<Blob | null> => {
+    if (!targetRef.current) return null;
+
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const container = targetRef.current;
+
+      // Find the first biodata page for capture
+      const page = container.querySelector('.biodata-page') as HTMLElement || container;
+
+      const canvas = await html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#FFFEF0',
+        imageTimeout: 5000,
+      });
+
+      return new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(
+          (blob) => resolve(blob),
+          'image/png',
+          1.0
+        );
+      });
+    } catch (error) {
+      console.error('Error generating image:', error);
+      return null;
+    }
+  };
 
   const generatePDFBlob = async (): Promise<Blob | null> => {
     if (!targetRef.current) return null;
@@ -43,7 +90,6 @@ export default function ShareButton({
         },
       };
 
-      // Generate PDF as blob
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pdfBlob = await (html2pdf() as any)
         .set(opt)
@@ -52,7 +98,6 @@ export default function ShareButton({
         .get('pdf')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((pdf: any) => {
-          // Remove extra pages
           const totalPages = pdf.internal.pages.length - 1;
           if (totalPages > 1) {
             for (let i = totalPages; i > 1; i--) {
@@ -69,38 +114,91 @@ export default function ShareButton({
     }
   };
 
+  const handleDownloadImage = async () => {
+    setIsSharing(true);
+    setShowOptions(false);
+
+    try {
+      const imageBlob = await generateImageBlob();
+      if (!imageBlob) {
+        throw new Error('Failed to generate image');
+      }
+
+      const url = URL.createObjectURL(imageBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      await showSuccess(
+        getText('Image downloaded successfully!', 'इमेज डाउनलोड हो गई!', 'इमेज डाउनलोड झाली!'),
+        getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
+      );
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      await showError(
+        getText('Failed to generate image.', 'इमेज बनाने में विफल।', 'इमेज तयार करण्यात अयशस्वी.'),
+        getText('Error', 'त्रुटि', 'त्रुटी')
+      );
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   const handleWebShare = async () => {
     setIsSharing(true);
     setShowOptions(false);
 
     try {
-      const pdfBlob = await generatePDFBlob();
-      if (!pdfBlob) {
-        throw new Error('Failed to generate PDF');
+      // Try sharing image first (more universally supported on mobile)
+      const imageBlob = await generateImageBlob();
+      if (imageBlob) {
+        const imageFile = new File([imageBlob], `${fileName}.png`, { type: 'image/png' });
+
+        if (navigator.share && navigator.canShare({ files: [imageFile] })) {
+          await navigator.share({
+            title: getText('Marriage Biodata', 'विवाह बायोडाटा', 'विवाह बायोडाटा'),
+            text: getText('Please find the marriage biodata attached.', 'कृपया बायोडाटा देखें।', 'कृपया बायोडाटा पहा.'),
+            files: [imageFile],
+          });
+          return;
+        }
       }
 
-      const file = new File([pdfBlob], `${fileName}.pdf`, { type: 'application/pdf' });
+      // Fallback to PDF share
+      const pdfBlob = await generatePDFBlob();
+      if (!pdfBlob) {
+        throw new Error('Failed to generate file');
+      }
 
-      if (navigator.share && navigator.canShare({ files: [file] })) {
+      const pdfFile = new File([pdfBlob], `${fileName}.pdf`, { type: 'application/pdf' });
+
+      if (navigator.share && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
-          title: 'Marriage Biodata',
-          text: 'Please find the marriage biodata attached.',
-          files: [file],
+          title: getText('Marriage Biodata', 'विवाह बायोडाटा', 'विवाह बायोडाटा'),
+          text: getText('Please find the marriage biodata attached.', 'कृपया बायोडाटा देखें।', 'कृपया बायोडाटा पहा.'),
+          files: [pdfFile],
         });
       } else {
-        // Fallback: Download and show instructions
+        // Desktop fallback: download PDF
         const url = URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `${fileName}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
-        await showSuccess('PDF downloaded! You can now share it via WhatsApp or any other app.', 'Download Complete');
+        await showSuccess(
+          getText('PDF downloaded! You can now share it via WhatsApp or any other app.', 'PDF डाउनलोड हो गई! अब आप इसे WhatsApp या किसी भी ऐप से शेयर कर सकते हैं।', 'PDF डाउनलोड झाली! आता WhatsApp वर शेअर करा.'),
+          getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
+        );
       }
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         console.error('Error sharing:', error);
-        await showError('Failed to share. Please try downloading the PDF instead.', 'Share Failed');
+        await showError(
+          getText('Failed to share. Please try downloading instead.', 'शेयर करने में विफल। कृपया डाउनलोड करें।', 'शेअर करण्यात अयशस्वी.'),
+          getText('Share Failed', 'शेयर विफल', 'शेअर अयशस्वी')
+        );
       }
     } finally {
       setIsSharing(false);
@@ -112,31 +210,97 @@ export default function ShareButton({
     setShowOptions(false);
 
     try {
-      const pdfBlob = await generatePDFBlob();
-      if (!pdfBlob) {
-        throw new Error('Failed to generate PDF');
+      // On mobile, try Web Share API with image for WhatsApp
+      const imageBlob = await generateImageBlob();
+      if (imageBlob) {
+        const imageFile = new File([imageBlob], `${fileName}.png`, { type: 'image/png' });
+
+        if (navigator.share && navigator.canShare({ files: [imageFile] })) {
+          await navigator.share({
+            title: getText('Marriage Biodata', 'विवाह बायोडाटा', 'विवाह बायोडाटा'),
+            files: [imageFile],
+          });
+          return;
+        }
       }
 
-      // Download PDF first
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${fileName}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Desktop fallback: download image + open WhatsApp
+      if (imageBlob) {
+        const url = URL.createObjectURL(imageBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fileName}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
 
-      // Small delay then open WhatsApp
       setTimeout(() => {
         const message = encodeURIComponent(
-          '🙏 Namaste!\n\nPlease find the marriage biodata attached.\n\nRegards'
+          getText(
+            '\u{1F64F} Namaste!\n\nPlease find the marriage biodata attached.\n\nRegards',
+            '\u{1F64F} नमस्ते!\n\nकृपया बायोडाटा देखें।\n\nधन्यवाद',
+            '\u{1F64F} नमस्कार!\n\nकृपया बायोडाटा पहा.\n\nधन्यवाद'
+          )
         );
         window.open(`https://wa.me/?text=${message}`, '_blank');
       }, 500);
     } catch (error) {
-      console.error('Error:', error);
-      await showError('Failed to prepare for sharing. Please try again.', 'Error');
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error:', error);
+        await showError(
+          getText('Failed to prepare for sharing. Please try again.', 'शेयर करने में विफल। कृपया पुनः प्रयास करें।', 'शेअर करण्यात अयशस्वी.'),
+          getText('Error', 'त्रुटि', 'त्रुटी')
+        );
+      }
     } finally {
       setIsSharing(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    setShowOptions(false);
+
+    try {
+      const url = window.location.href;
+      await navigator.clipboard.writeText(url);
+      await showSuccess(
+        getText('Link copied to clipboard!', 'लिंक कॉपी हो गई!', 'लिंक कॉपी झाली!'),
+        getText('Copied', 'कॉपी सम्पन्न', 'कॉपी पूर्ण')
+      );
+    } catch {
+      await showError(
+        getText('Failed to copy link.', 'लिंक कॉपी नहीं हो सकी।', 'लिंक कॉपी करता आली नाही.'),
+        getText('Error', 'त्रुटि', 'त्रुटी')
+      );
+    }
+  };
+
+  const handleCopyShareableLink = async () => {
+    setShowOptions(false);
+
+    if (!biodataData) {
+      await showError(
+        getText('Biodata data not available.', 'बायोडाटा डेटा उपलब्ध नहीं है।', 'बायोडाटा डेटा उपलब्ध नाही.'),
+        getText('Error', 'त्रुटि', 'त्रुटी')
+      );
+      return;
+    }
+
+    try {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = encodeShareLink(biodataData, baseUrl);
+
+      await navigator.clipboard.writeText(shareUrl);
+      await showSuccess(
+        getText('Shareable link copied! Anyone with this link can view your biodata.', 'शेयर करने योग्य लिंक कॉपी हो गई! इस लिंक से कोई भी आपका बायोडाटा देख सकता है।', 'शेअर करण्यायोग्य लिंक कॉपी झाली! या लिंकवरून कोणीही तुमचा बायोडाटा पाहू शकतो.'),
+        getText('Link Ready!', 'लिंक तैयार!', 'लिंक तयार!')
+      );
+    } catch (error) {
+      console.error('Error creating shareable link:', error);
+      await showError(
+        getText('Failed to create shareable link.', 'लिंक बनाने में विफल।', 'लिंक तयार करण्यात अयशस्वी.'),
+        getText('Error', 'त्रुटि', 'त्रुटी')
+      );
     }
   };
 
@@ -161,14 +325,14 @@ export default function ShareButton({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <span>Sharing...</span>
+            <span>{isHindi ? 'शेयर हो रहा है...' : isMarathi ? 'शेअर करत आहे...' : 'Sharing...'}</span>
           </>
         ) : (
           <>
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z" />
             </svg>
-            <span>Share</span>
+            <span>{isHindi ? 'शेयर करें' : isMarathi ? 'शेअर करा' : 'Share'}</span>
           </>
         )}
       </button>
@@ -183,18 +347,31 @@ export default function ShareButton({
           />
 
           {/* Menu */}
-          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[180px]">
-            {/* Web Share (if supported) or General Share */}
+          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[200px]">
+            {/* Download as Image */}
+            <button
+              onClick={handleDownloadImage}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span>{isHindi ? 'इमेज डाउनलोड (PNG)' : isMarathi ? 'इमेज डाउनलोड (PNG)' : 'Download Image (PNG)'}</span>
+            </button>
+
+            {/* Share via Web Share API */}
             <button
               onClick={handleWebShare}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
                 <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
               </div>
-              <span>Share PDF</span>
+              <span>{isHindi ? 'शेयर करें' : isMarathi ? 'शेअर करा' : 'Share'}</span>
             </button>
 
             {/* WhatsApp */}
@@ -209,6 +386,39 @@ export default function ShareButton({
               </div>
               <span>WhatsApp</span>
             </button>
+
+            {/* Copy Link */}
+            <button
+              onClick={handleCopyLink}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-600 flex items-center justify-center">
+                <svg className="w-4 h-4 text-gray-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </div>
+              <span>{isHindi ? 'लिंक कॉपी करें' : isMarathi ? 'लिंक कॉपी करा' : 'Copy Link'}</span>
+            </button>
+
+            {/* Copy Shareable Link (with embedded data) */}
+            {biodataData && (
+              <button
+                onClick={handleCopyShareableLink}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
+              >
+                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span>{isHindi ? 'शेयर योग्य लिंक' : isMarathi ? 'शेअर करण्यायोग्य लिंक' : 'Shareable Link'}</span>
+                  <span className="text-[10px] text-gray-400">
+                    {isHindi ? 'डेटा लिंक में है' : isMarathi ? 'डेटा लिंकमध्ये' : 'Data in link'}
+                  </span>
+                </div>
+              </button>
+            )}
           </div>
         </>
       )}

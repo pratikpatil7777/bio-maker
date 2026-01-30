@@ -36,6 +36,8 @@ export default function SectionBuilder({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedTitle = getTitleById(section.titleId);
+  const isDevanagari = language === 'mr' || language === 'hi';
+  const isHindi = language === 'hi';
   const isMarathi = language === 'mr';
 
   // Close dropdown when clicking outside
@@ -109,12 +111,18 @@ export default function SectionBuilder({
   // Get display title
   const getTitle = () => {
     if (section.customTitle) {
-      return isMarathi ? (section.customTitleMarathi || section.customTitle) : section.customTitle;
+      if (isHindi) return section.customTitleHindi || section.customTitle;
+      if (isMarathi) return section.customTitleMarathi || section.customTitle;
+      return section.customTitle;
     }
     if (selectedTitle) {
-      return isMarathi ? selectedTitle.labelMarathi : selectedTitle.label;
+      if (isHindi) return selectedTitle.labelHindi || selectedTitle.labelMarathi;
+      if (isMarathi) return selectedTitle.labelMarathi;
+      return selectedTitle.label;
     }
-    return isMarathi ? 'शीर्षक निवडा' : 'Select Title';
+    if (isHindi) return 'शीर्षक चुनें';
+    if (isMarathi) return 'शीर्षक निवडा';
+    return 'Select Title';
   };
 
   // VIEW MODE
@@ -123,9 +131,11 @@ export default function SectionBuilder({
     if (section.attributes.length === 0) return null;
 
     // Check if all attributes are empty
-    const hasContent = section.attributes.some(attr =>
-      (isMarathi ? attr.valueMarathi : attr.value) || attr.value
-    );
+    const hasContent = section.attributes.some(attr => {
+      if (isHindi) return attr.valueHindi || attr.valueMarathi || attr.value;
+      if (isMarathi) return attr.valueMarathi || attr.value;
+      return attr.value;
+    });
     if (!hasContent) return null;
 
     return (
@@ -134,7 +144,7 @@ export default function SectionBuilder({
           className="section-title"
           style={{
             color: 'var(--theme-header-text, #800020)',
-            fontFamily: isMarathi ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
+            fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
           }}
         >
           {getTitle()}
@@ -174,11 +184,11 @@ export default function SectionBuilder({
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
-                placeholder={isMarathi ? 'शीर्षक शोधा...' : 'Search section title...'}
+                placeholder={isHindi ? 'शीर्षक खोजें...' : isMarathi ? 'शीर्षक शोधा...' : 'Search section title...'}
                 className="w-full text-sm font-semibold px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
                 style={{
                   color: 'var(--theme-header-text, #800020)',
-                  fontFamily: isMarathi ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
+                  fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
                 }}
               />
 
@@ -205,15 +215,15 @@ export default function SectionBuilder({
                     >
                       <span className="text-lg">{title.icon}</span>
                       <div className="flex-1">
-                        <div className="font-medium">{isMarathi ? title.labelMarathi : title.label}</div>
-                        <div className="text-xs text-gray-400">{isMarathi ? title.label : title.labelMarathi}</div>
+                        <div className="font-medium">{isHindi ? (title.labelHindi || title.labelMarathi) : isMarathi ? title.labelMarathi : title.label}</div>
+                        <div className="text-xs text-gray-400">{isDevanagari ? title.label : title.labelMarathi}</div>
                       </div>
                     </button>
                   ))}
 
                   {filteredTitles.length === 0 && !searchQuery.trim() && (
                     <div className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {isMarathi ? 'शीर्षक शोधण्यासाठी टाइप करा' : 'Type to search titles'}
+                      {isHindi ? 'शीर्षक खोजने के लिए टाइप करें' : isMarathi ? 'शीर्षक शोधण्यासाठी टाइप करा' : 'Type to search titles'}
                     </div>
                   )}
                 </div>
@@ -225,9 +235,9 @@ export default function SectionBuilder({
               className="w-full text-left text-sm font-semibold px-3 py-2 border border-dashed border-amber-300 rounded hover:bg-amber-50 flex items-center gap-2"
               style={{
                 color: 'var(--theme-header-text, #800020)',
-                fontFamily: isMarathi ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
+                fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
               }}
-              title={isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
+              title={isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
             >
               {selectedTitle?.icon && <span className="text-lg">{selectedTitle.icon}</span>}
               <span>{getTitle()}</span>
@@ -242,7 +252,7 @@ export default function SectionBuilder({
             <button
               onClick={onMoveUp}
               className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
-              title={isMarathi ? 'वर हलवा' : 'Move up'}
+              title={isHindi ? 'ऊपर ले जाएं' : isMarathi ? 'वर हलवा' : 'Move up'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -255,7 +265,7 @@ export default function SectionBuilder({
             <button
               onClick={onMoveDown}
               className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
-              title={isMarathi ? 'खाली हलवा' : 'Move down'}
+              title={isHindi ? 'नीचे ले जाएं' : isMarathi ? 'खाली हलवा' : 'Move down'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -267,7 +277,7 @@ export default function SectionBuilder({
           <button
             onClick={onAddSectionBelow}
             className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
-            title={isMarathi ? 'खाली विभाग जोडा' : 'Add section below'}
+            title={isHindi ? 'नीचे अनुभाग जोड़ें' : isMarathi ? 'खाली विभाग जोडा' : 'Add section below'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -278,7 +288,7 @@ export default function SectionBuilder({
           <button
             onClick={onDelete}
             className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-            title={isMarathi ? 'विभाग काढून टाका' : 'Remove section'}
+            title={isHindi ? 'अनुभाग हटाएं' : isMarathi ? 'विभाग काढून टाका' : 'Remove section'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -314,7 +324,7 @@ export default function SectionBuilder({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>{isMarathi ? 'विशेषता जोडा' : 'Add attribute'}</span>
+          <span>{isHindi ? 'विशेषता जोड़ें' : isMarathi ? 'विशेषता जोडा' : 'Add attribute'}</span>
         </button>
       )}
 
@@ -327,7 +337,7 @@ export default function SectionBuilder({
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>{isMarathi ? 'आणखी विशेषता जोडा' : 'Add more attributes'}</span>
+          <span>{isHindi ? 'और विशेषता जोड़ें' : isMarathi ? 'आणखी विशेषता जोडा' : 'Add more attributes'}</span>
         </button>
       )}
     </section>

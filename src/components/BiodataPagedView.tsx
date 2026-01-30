@@ -43,6 +43,7 @@ export default function BiodataPagedView({
   const [measured, setMeasured] = useState(false);
 
   const isMarathi = language === 'mr';
+  const isHindi = language === 'hi';
 
   // Usable height for content on each page
   const HEADER_HEIGHT = 85; // Header with icon and name
@@ -170,11 +171,18 @@ export default function BiodataPagedView({
             // Get proper label from collection, fallback to custom label or attributeId
             const attrOption = getAttributeById(attr.attributeId);
             const displayLabel =
-              (isMarathi && attr.customLabelMarathi) ? attr.customLabelMarathi
+              (isHindi && attr.customLabelHindi) ? attr.customLabelHindi
+              : (isMarathi && attr.customLabelMarathi) ? attr.customLabelMarathi
               : attr.customLabel ? attr.customLabel
-              : (isMarathi ? (attrOption?.labelMarathi || attrOption?.label) : attrOption?.label)
+              : isHindi ? (attrOption?.labelHindi || attrOption?.label)
+              : isMarathi ? (attrOption?.labelMarathi || attrOption?.label)
+              : attrOption?.label
               || attr.attributeId;
-            const displayValue = isMarathi ? attr.valueMarathi || attr.value : attr.value;
+            const displayValue = isHindi
+              ? (attr.valueHindi || attr.value)
+              : isMarathi
+                ? (attr.valueMarathi || attr.value)
+                : attr.value;
 
             if (!displayValue) return null;
 
@@ -254,6 +262,7 @@ export default function BiodataPagedView({
                 language={language}
                 name={data.name}
                 nameMarathi={data.nameMarathi}
+                nameHindi={data.nameHindi}
               />
 
               <div className="relative" style={{ marginTop: '8px' }}>
@@ -272,7 +281,7 @@ export default function BiodataPagedView({
                 )}
 
                 {/* Sections for this page */}
-                <div className={showPhoto ? 'pr-44 md:pr-48' : ''}>
+                <div className={showPhoto ? 'pr-48' : ''}>
                   {page.sectionIndices.map((sectionIndex) =>
                     renderSection(data.sections[sectionIndex], sectionIndex)
                   )}

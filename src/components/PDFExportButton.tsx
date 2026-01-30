@@ -41,11 +41,18 @@ export default function PDFExportButton({
   const [progress, setProgress] = useState<string>('');
   const { showError } = useAlert();
 
+  // Trilingual text helper
+  const getText = (en: string, hi: string, mr: string) => {
+    if (language === 'hi') return hi;
+    if (language === 'mr') return mr;
+    return en;
+  };
+
   const handleExport = useCallback(async () => {
     if (!targetRef.current) return;
 
     setIsGenerating(true);
-    setProgress(language === 'mr' ? 'तयारी करत आहे...' : 'Preparing...');
+    setProgress(getText('Preparing...', 'तैयारी हो रही है...', 'तयारी करत आहे...'));
 
     try {
       const [html2canvasModule, jsPDFModule] = await Promise.all([
@@ -130,16 +137,18 @@ export default function PDFExportButton({
         pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, A4_HEIGHT_MM));
       }
 
-      setProgress(language === 'mr' ? 'सेव्ह करत आहे...' : 'Saving...');
+      setProgress(getText('Saving...', 'सेव हो रहा है...', 'सेव्ह करत आहे...'));
       pdf.save(`${fileName}.pdf`);
 
     } catch (error) {
       console.error('Error generating PDF:', error);
       await showError(
-        language === 'mr'
-          ? 'PDF तयार करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.'
-          : 'Failed to generate PDF. Please try again.',
-        language === 'mr' ? 'त्रुटी' : 'Error'
+        getText(
+          'Failed to generate PDF. Please try again.',
+          'PDF बनाने में विफल। कृपया पुनः प्रयास करें।',
+          'PDF तयार करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.'
+        ),
+        getText('Error', 'त्रुटि', 'त्रुटी')
       );
     } finally {
       setIsGenerating(false);

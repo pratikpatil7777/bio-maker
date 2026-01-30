@@ -11,9 +11,11 @@ export interface BiodataAttribute {
   attributeId: string;  // Reference to attribute from collections (e.g., 'date_of_birth')
   value: string;        // English value
   valueMarathi: string; // Marathi value
+  valueHindi?: string;  // Hindi value
   // For custom attributes (when user types their own label)
   customLabel?: string;
   customLabelMarathi?: string;
+  customLabelHindi?: string;
 }
 
 // A section in the biodata (e.g., "Personal Details", "Education")
@@ -23,6 +25,7 @@ export interface BiodataSection {
   // For custom titles (when user types their own title)
   customTitle?: string;
   customTitleMarathi?: string;
+  customTitleHindi?: string;
   attributes: BiodataAttribute[];
 }
 
@@ -31,6 +34,7 @@ export interface DynamicBiodataData {
   // Profile
   name: string;
   nameMarathi: string;
+  nameHindi?: string;
 
   // Photo
   photo: string;  // base64 encoded image

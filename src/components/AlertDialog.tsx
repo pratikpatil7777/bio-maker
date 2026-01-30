@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { Language } from '@/lib/types';
 
 // Types for different alert configurations
 type AlertType = 'info' | 'success' | 'warning' | 'error' | 'confirm';
@@ -22,6 +23,7 @@ interface AlertContextType {
   showSuccess: (message: string, title?: string) => Promise<boolean>;
   showWarning: (message: string, title?: string) => Promise<boolean>;
   showError: (message: string, title?: string) => Promise<boolean>;
+  setLanguage: (lang: Language) => void;
 }
 
 const AlertContext = createContext<AlertContextType | null>(null);
@@ -40,9 +42,31 @@ interface DialogState extends AlertConfig {
   resolve: (value: boolean) => void;
 }
 
+// Trilingual text helper
+const getLocalizedText = (lang: Language, en: string, hi: string, mr: string) => {
+  if (lang === 'hi') return hi;
+  if (lang === 'mr') return mr;
+  return en;
+};
+
+// Default button texts
+const getDefaultTexts = (lang: Language) => ({
+  ok: getLocalizedText(lang, 'OK', 'ठीक है', 'ठीक आहे'),
+  confirm: getLocalizedText(lang, 'Confirm', 'पुष्टि करें', 'पुष्टी करा'),
+  cancel: getLocalizedText(lang, 'Cancel', 'रद्द करें', 'रद्द करा'),
+  information: getLocalizedText(lang, 'Information', 'जानकारी', 'माहिती'),
+  success: getLocalizedText(lang, 'Success', 'सफलता', 'यशस्वी'),
+  warning: getLocalizedText(lang, 'Warning', 'चेतावनी', 'चेतावणी'),
+  error: getLocalizedText(lang, 'Error', 'त्रुटि', 'त्रुटी'),
+});
+
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [dialog, setDialog] = useState<DialogState | null>(null);
+  const [language, setLanguageState] = useState<Language>('en');
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Memoized localized texts
+  const texts = getDefaultTexts(language);
 
   // Close on Escape key
   useEffect(() => {
@@ -73,30 +97,39 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const showConfirm = useCallback((message: string, options?: { title?: string; confirmText?: string; cancelText?: string }): Promise<boolean> => {
+    const currentTexts = getDefaultTexts(language);
     return showAlert({
       type: 'confirm',
       message,
       title: options?.title,
-      confirmText: options?.confirmText || 'Confirm',
-      cancelText: options?.cancelText || 'Cancel',
+      confirmText: options?.confirmText || currentTexts.confirm,
+      cancelText: options?.cancelText || currentTexts.cancel,
     });
-  }, [showAlert]);
+  }, [showAlert, language]);
 
   const showInfo = useCallback((message: string, title?: string): Promise<boolean> => {
-    return showAlert({ type: 'info', message, title: title || 'Information' });
-  }, [showAlert]);
+    const currentTexts = getDefaultTexts(language);
+    return showAlert({ type: 'info', message, title: title || currentTexts.information });
+  }, [showAlert, language]);
 
   const showSuccess = useCallback((message: string, title?: string): Promise<boolean> => {
-    return showAlert({ type: 'success', message, title: title || 'Success' });
-  }, [showAlert]);
+    const currentTexts = getDefaultTexts(language);
+    return showAlert({ type: 'success', message, title: title || currentTexts.success });
+  }, [showAlert, language]);
 
   const showWarning = useCallback((message: string, title?: string): Promise<boolean> => {
-    return showAlert({ type: 'warning', message, title: title || 'Warning' });
-  }, [showAlert]);
+    const currentTexts = getDefaultTexts(language);
+    return showAlert({ type: 'warning', message, title: title || currentTexts.warning });
+  }, [showAlert, language]);
 
   const showError = useCallback((message: string, title?: string): Promise<boolean> => {
-    return showAlert({ type: 'error', message, title: title || 'Error' });
-  }, [showAlert]);
+    const currentTexts = getDefaultTexts(language);
+    return showAlert({ type: 'error', message, title: title || currentTexts.error });
+  }, [showAlert, language]);
+
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+  }, []);
 
   const handleClose = (result: boolean) => {
     if (dialog) {
@@ -108,7 +141,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AlertContext.Provider value={{ showAlert, showConfirm, showInfo, showSuccess, showWarning, showError }}>
+    <AlertContext.Provider value={{ showAlert, showConfirm, showInfo, showSuccess, showWarning, showError, setLanguage }}>
       {children}
 
       {/* Dialog Overlay */}
@@ -191,9 +224,9 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
                     <button
                       onClick={() => handleClose(false)}
                       className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-gray-100 to-gray-200 dark:from-slate-600 dark:to-slate-700 text-gray-600 dark:text-slate-200 border border-gray-300 dark:border-slate-500 shadow-sm hover:shadow-md hover:from-gray-200 hover:to-gray-300 dark:hover:from-slate-500 dark:hover:to-slate-600"
-                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                      style={{ fontFamily: language !== 'en' ? "'Noto Sans Devanagari', 'Poppins', sans-serif" : "'Poppins', sans-serif" }}
                     >
-                      {dialog.cancelText || 'Cancel'}
+                      {dialog.cancelText || texts.cancel}
                     </button>
                   )}
                   <button
@@ -201,7 +234,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
                     autoFocus
                     className="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
                     style={{
-                      fontFamily: "'Poppins', sans-serif",
+                      fontFamily: language !== 'en' ? "'Noto Sans Devanagari', 'Poppins', sans-serif" : "'Poppins', sans-serif",
                       background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
                       color: '#fff',
                       border: 'none',
@@ -218,7 +251,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    {dialog.type === 'confirm' ? (dialog.confirmText || 'Confirm') : 'OK'}
+                    {dialog.type === 'confirm' ? (dialog.confirmText || texts.confirm) : texts.ok}
                   </button>
                 </div>
               </div>

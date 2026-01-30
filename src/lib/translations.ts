@@ -173,8 +173,96 @@ export const translations = {
     language: "भाषा",
     english: "इंग्रजी",
     marathi: "मराठी",
+  },
+
+  hi: {
+    // Header
+    shriGaneshaya: "|| श्री गणेशाय नमः ||",
+    biodata: "बायोडाटा",
+
+    // Section titles
+    personalDetails: "व्यक्तिगत विवरण",
+    familyDetails: "पारिवारिक विवरण",
+    education: "शिक्षा",
+    professionalDetails: "व्यावसायिक विवरण",
+    educationAndCareer: "शिक्षा एवं करियर",
+    siblings: "भाई-बहन",
+    extendedFamily: "विस्तारित परिवार",
+    maternalDetails: "ननिहाल विवरण",
+    familyAssets: "पारिवारिक संपत्ति",
+    contactDetails: "संपर्क विवरण",
+
+    // Personal details labels
+    name: "नाम",
+    dateOfBirth: "जन्म तिथि",
+    timeOfBirth: "जन्म समय",
+    placeOfBirth: "जन्म स्थान",
+    height: "ऊंचाई",
+    complexion: "रंग",
+    bloodGroup: "रक्त समूह",
+    rashi: "राशि",
+    nakshatra: "नक्षत्र",
+    gotra: "गोत्र",
+
+    // Education labels
+    degree: "डिग्री",
+    institution: "संस्थान",
+
+    // Professional labels
+    occupation: "व्यवसाय",
+    company: "कंपनी",
+    workLocation: "कार्यस्थल",
+    visaStatus: "वीजा स्थिति",
+    annualIncome: "वार्षिक आय",
+
+    // Family labels
+    nativePlace: "मूल निवास",
+    grandfatherName: "दादाजी का नाम",
+    fatherName: "पिताजी का नाम",
+    fatherOccupation: "पिताजी का व्यवसाय",
+    fatherContact: "पिताजी का संपर्क",
+    motherName: "माताजी का नाम",
+    motherOccupation: "माताजी का व्यवसाय",
+
+    // Sibling labels
+    elderSister: "बड़ी बहन",
+    siblingName: "नाम",
+    siblingOccupation: "व्यवसाय",
+    spouseName: "पति",
+    spouseOccupation: "पति/पत्नी का व्यवसाय",
+
+    // Extended family
+    uncleName: "चाचाजी का नाम",
+
+    // Maternal labels
+    maternalNativePlace: "मूल निवास",
+    maternalGrandfatherName: "नानाजी का नाम",
+    maternalUncleName: "मामाजी का नाम",
+
+    // Assets
+    farmLand: "कृषि भूमि",
+    property: "संपत्ति",
+
+    // Contact
+    mobile: "मोबाइल",
+    email: "ईमेल",
+    currentResidence: "वर्तमान पता",
+
+    // Footer
+    thankYou: "धन्यवाद",
+    krishnaFooter: "|| श्री कृष्णार्पणमस्तु ||",
+
+    // Actions
+    downloadPDF: "PDF डाउनलोड करें",
+    editMode: "संपादन मोड",
+    resetToDefault: "मूल स्थिति में वापस",
+
+    // Language
+    language: "भाषा",
+    english: "अंग्रेज़ी",
+    marathi: "मराठी",
   }
 };
 
-export type Language = 'en' | 'mr';
+export type Language = 'en' | 'mr' | 'hi';
 export type TranslationKey = keyof typeof translations.en;

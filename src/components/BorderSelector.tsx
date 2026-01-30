@@ -81,6 +81,13 @@ export default function BorderSelector({
 }: BorderSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMarathi = language === 'mr';
+  const isHindi = language === 'hi';
+
+  const getBorderName = (border: BorderDesign) => {
+    if (isHindi) return border.nameHindi || border.name;
+    if (isMarathi) return border.nameMarathi;
+    return border.name;
+  };
 
   return (
     <div className="relative">
@@ -98,7 +105,7 @@ export default function BorderSelector({
         >
           <BorderPreview borderId={currentBorder.id} color={primaryColor} />
         </div>
-        <span className="text-gray-700 dark:text-slate-200 hidden sm:inline">{isMarathi ? 'बॉर्डर' : 'Border'}</span>
+        <span className="text-gray-700 dark:text-slate-200 hidden sm:inline">{isHindi ? 'बॉर्डर' : isMarathi ? 'बॉर्डर' : 'Border'}</span>
         <svg
           className={`w-3 h-3 text-gray-400 dark:text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
@@ -119,7 +126,7 @@ export default function BorderSelector({
           <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[220px]">
             <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-700">
               <p className="text-[10px] uppercase tracking-wider text-[#999] dark:text-slate-400 font-semibold">
-                {isMarathi ? 'बॉर्डर डिझाइन निवडा' : 'Select Border Design'}
+                {isHindi ? 'बॉर्डर डिज़ाइन चुनें' : isMarathi ? 'बॉर्डर डिझाइन निवडा' : 'Select Border Design'}
               </p>
             </div>
 
@@ -150,7 +157,7 @@ export default function BorderSelector({
                   {/* Border name and description */}
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-[#333] dark:text-slate-200">
-                      {isMarathi ? border.nameMarathi : border.name}
+                      {getBorderName(border)}
                     </p>
                     <p className="text-[10px] text-[#777] dark:text-slate-400">{border.description}</p>
                   </div>

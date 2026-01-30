@@ -3,6 +3,7 @@
 import React, { forwardRef } from 'react';
 import { Theme } from '@/lib/themes';
 import { BorderDesign } from '@/lib/borders';
+import { Language } from '@/lib/translations';
 import BorderRenderer from './borders';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '@/lib/pageLayout';
 
@@ -13,7 +14,7 @@ interface PDFPageRendererProps {
   theme: Theme;
   border: BorderDesign;
   children: React.ReactNode;
-  language: 'en' | 'mr';
+  language: Language;
 }
 
 /**
@@ -24,6 +25,8 @@ interface PDFPageRendererProps {
  */
 const PDFPageRenderer = forwardRef<HTMLDivElement, PDFPageRendererProps>(
   ({ pageNumber, totalPages, isFirstPage, theme, border, children, language }, ref) => {
+    const isDevanagari = language === 'mr' || language === 'hi';
+    const isHindi = language === 'hi';
     const isMarathi = language === 'mr';
 
     return (
@@ -87,7 +90,7 @@ const PDFPageRenderer = forwardRef<HTMLDivElement, PDFPageRendererProps>(
                 marginTop: 'auto',
               }}
             >
-              {isMarathi ? `पृष्ठ ${pageNumber} / ${totalPages}` : `Page ${pageNumber} of ${totalPages}`}
+              {isHindi ? `पृष्ठ ${pageNumber} / ${totalPages}` : isMarathi ? `पृष्ठ ${pageNumber} / ${totalPages}` : `Page ${pageNumber} of ${totalPages}`}
             </div>
           )}
         </div>

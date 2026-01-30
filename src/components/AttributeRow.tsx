@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BiodataAttribute, Language } from '@/lib/types';
 import { attributeCollection, getAttributeById, categoryLabels, getCategories, AttributeOption } from '@/lib/collections';
+import TransliterateInput from './TransliterateInput';
 
 interface AttributeRowProps {
   attribute: BiodataAttribute;
@@ -34,6 +35,8 @@ export default function AttributeRow({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedAttribute = getAttributeById(attribute.attributeId);
+  const isDevanagari = language === 'mr' || language === 'hi';
+  const isHindi = language === 'hi';
   const isMarathi = language === 'mr';
 
   // Close dropdown when clicking outside
@@ -91,54 +94,65 @@ export default function AttributeRow({
     }
   };
 
-  const handleValueChange = (value: string, isMarathiValue: boolean) => {
-    onUpdate({
-      ...attribute,
-      ...(isMarathiValue ? { valueMarathi: value } : { value: value }),
-    });
+  const handleValueChange = (value: string) => {
+    if (isHindi) {
+      onUpdate({ ...attribute, valueHindi: value });
+    } else if (isMarathi) {
+      onUpdate({ ...attribute, valueMarathi: value });
+    } else {
+      onUpdate({ ...attribute, value: value });
+    }
   };
 
   // Get display label
   const getLabel = () => {
     if (attribute.customLabel) {
-      return isMarathi ? (attribute.customLabelMarathi || attribute.customLabel) : attribute.customLabel;
+      if (isHindi) return attribute.customLabelHindi || attribute.customLabel;
+      if (isMarathi) return attribute.customLabelMarathi || attribute.customLabel;
+      return attribute.customLabel;
     }
     if (selectedAttribute) {
-      return isMarathi ? selectedAttribute.labelMarathi : selectedAttribute.label;
+      if (isHindi) return selectedAttribute.labelHindi || selectedAttribute.labelMarathi;
+      if (isMarathi) return selectedAttribute.labelMarathi;
+      return selectedAttribute.label;
     }
     return '';
   };
 
   const getPlaceholder = () => {
     if (selectedAttribute) {
-      return isMarathi
-        ? (selectedAttribute.placeholderMarathi || 'मूल्य प्रविष्ट करा')
-        : (selectedAttribute.placeholder || 'Enter value');
+      if (isHindi) return selectedAttribute.placeholderHindi || selectedAttribute.placeholderMarathi || 'मान दर्ज करें';
+      if (isMarathi) return selectedAttribute.placeholderMarathi || 'मूल्य प्रविष्ट करा';
+      return selectedAttribute.placeholder || 'Enter value';
     }
-    return isMarathi ? 'मूल्य प्रविष्ट करा' : 'Enter value';
+    if (isHindi) return 'मान दर्ज करें';
+    if (isMarathi) return 'मूल्य प्रविष्ट करा';
+    return 'Enter value';
   };
 
   // VIEW MODE
   if (!isEditMode) {
-    const displayValue = isMarathi ? (attribute.valueMarathi || attribute.value) : attribute.value;
+    let displayValue = attribute.value;
+    if (isHindi) displayValue = attribute.valueHindi || attribute.valueMarathi || attribute.value;
+    else if (isMarathi) displayValue = attribute.valueMarathi || attribute.value;
     if (!displayValue) return null;
 
     return (
       <div className="flex items-start gap-2 py-0.5">
         <span
-          className={`row-label text-[11px] font-medium ${isMarathi ? 'marathi-text' : ''}`}
+          className={`row-label text-[11px] font-medium ${isDevanagari ? 'marathi-text' : ''}`}
           style={{
             color: 'var(--theme-header-text, #800020)',
-            fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
+            fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
           }}
         >
           {getLabel()}:
         </span>
         <span
-          className={`flex-1 text-[11px] ${isMarathi ? 'marathi-text' : ''}`}
+          className={`flex-1 text-[11px] ${isDevanagari ? 'marathi-text' : ''}`}
           style={{
             color: 'var(--theme-text, #333)',
-            fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
+            fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
           }}
         >
           {displayValue}
@@ -163,9 +177,9 @@ export default function AttributeRow({
                 setShowDropdown(true);
               }}
               onFocus={() => setShowDropdown(true)}
-              placeholder={isMarathi ? 'विशेषता शोधा...' : 'Search attribute...'}
+              placeholder={isHindi ? 'विशेषता खोजें...' : isMarathi ? 'विशेषता शोधा...' : 'Search attribute...'}
               className="w-full text-[11px] px-2 py-1 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
-              style={{ fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
+              style={{ fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
             />
 
             {/* Dropdown */}
@@ -186,7 +200,7 @@ export default function AttributeRow({
                 {Object.entries(groupedAttributes).map(([category, attrs]) => (
                   <div key={category}>
                     <div className="px-3 py-1 text-[10px] font-semibold text-amber-700 bg-amber-50 sticky top-0">
-                      {categoryLabels[category]?.[isMarathi ? 'mr' : 'en'] || category}
+                      {categoryLabels[category]?.[isHindi ? 'hi' : isMarathi ? 'mr' : 'en'] || category}
                     </div>
                     {attrs.map((attr) => (
                       <button
@@ -194,9 +208,9 @@ export default function AttributeRow({
                         onClick={() => handleSelectAttribute(attr)}
                         className="w-full px-3 py-1.5 text-left text-[11px] hover:bg-amber-50 flex justify-between items-center"
                       >
-                        <span>{isMarathi ? attr.labelMarathi : attr.label}</span>
+                        <span>{isHindi ? (attr.labelHindi || attr.labelMarathi) : isMarathi ? attr.labelMarathi : attr.label}</span>
                         <span className="text-[9px] text-gray-400">
-                          {isMarathi ? attr.label : attr.labelMarathi}
+                          {isDevanagari ? attr.label : attr.labelMarathi}
                         </span>
                       </button>
                     ))}
@@ -205,7 +219,7 @@ export default function AttributeRow({
 
                 {filteredAttributes.length === 0 && !searchQuery.trim() && (
                   <div className="px-3 py-4 text-[11px] text-gray-500 text-center">
-                    {isMarathi ? 'विशेषता शोधण्यासाठी टाइप करा' : 'Type to search attributes'}
+                    {isHindi ? 'विशेषता खोजने के लिए टाइप करें' : isMarathi ? 'विशेषता शोधण्यासाठी टाइप करा' : 'Type to search attributes'}
                   </div>
                 )}
               </div>
@@ -217,9 +231,9 @@ export default function AttributeRow({
             className="w-full text-left text-[11px] px-2 py-1 border border-dashed border-amber-300 rounded hover:bg-amber-50 truncate"
             style={{
               color: 'var(--theme-header-text, #800020)',
-              fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
+              fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
             }}
-            title={isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
+            title={isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
           >
             {getLabel()}:
           </button>
@@ -228,13 +242,15 @@ export default function AttributeRow({
 
       {/* Value Input */}
       <div className="flex-1">
-        <input
+        <TransliterateInput
           type={selectedAttribute?.inputType === 'email' ? 'email' : selectedAttribute?.inputType === 'phone' ? 'tel' : 'text'}
-          value={isMarathi ? attribute.valueMarathi : attribute.value}
-          onChange={(e) => handleValueChange(e.target.value, isMarathi)}
+          value={isHindi ? (attribute.valueHindi || '') : isMarathi ? attribute.valueMarathi : attribute.value}
+          onChange={handleValueChange}
+          enabled={isDevanagari}
+          lang={isHindi ? 'hi' : 'mr'}
           placeholder={getPlaceholder()}
-          className={`w-full text-[11px] px-2 py-1 border-b border-dashed border-amber-300 bg-transparent focus:outline-none focus:border-amber-500 ${isMarathi ? 'marathi-text' : ''}`}
-          style={{ fontFamily: isMarathi ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
+          className={`w-full text-[11px] px-2 py-1 border-b border-dashed border-amber-300 bg-transparent focus:outline-none focus:border-amber-500 ${isDevanagari ? 'marathi-text' : ''}`}
+          style={{ fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
         />
       </div>
 
@@ -244,7 +260,7 @@ export default function AttributeRow({
           <button
             onClick={onAddBelow}
             className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
-            title={isMarathi ? 'खाली जोडा' : 'Add below'}
+            title={isHindi ? 'नीचे जोड़ें' : isMarathi ? 'खाली जोडा' : 'Add below'}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -254,7 +270,7 @@ export default function AttributeRow({
         <button
           onClick={onDelete}
           className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-          title={isMarathi ? 'काढून टाका' : 'Remove'}
+          title={isHindi ? 'हटाएं' : isMarathi ? 'काढून टाका' : 'Remove'}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

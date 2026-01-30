@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { Language } from '@/lib/types';
 import { useAlert } from './AlertDialog';
 
 interface PhotoSectionProps {
@@ -10,6 +11,7 @@ interface PhotoSectionProps {
   primaryColor?: string;
   secondaryColor?: string;
   backgroundColor?: string;
+  language?: Language;
 }
 
 export default function PhotoSection({
@@ -19,9 +21,17 @@ export default function PhotoSection({
   primaryColor = '#D4AF37',
   secondaryColor = '#800020',
   backgroundColor = '#FFFEF0',
+  language = 'en',
 }: PhotoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showWarning } = useAlert();
+
+  // Trilingual text helper
+  const getText = (en: string, hi: string, mr: string) => {
+    if (language === 'hi') return hi;
+    if (language === 'mr') return mr;
+    return en;
+  };
 
   const handlePhotoClick = () => {
     if (isEditMode && fileInputRef.current) {
@@ -34,7 +44,10 @@ export default function PhotoSection({
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        await showWarning('Photo size should be less than 5MB', 'File Too Large');
+        await showWarning(
+          getText('Photo size should be less than 5MB', 'फोटो का आकार 5MB से कम होना चाहिए', 'फोटोचा आकार 5MB पेक्षा कमी असावा'),
+          getText('File Too Large', 'फ़ाइल बहुत बड़ी', 'फाइल खूप मोठी')
+        );
         return;
       }
 

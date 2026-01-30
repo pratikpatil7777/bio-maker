@@ -14,7 +14,15 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMarathi = language === 'mr';
+  const isHindi = language === 'hi';
   const { showError, showWarning, showConfirm } = useAlert();
+
+  // Trilingual text helper
+  const getText = (en: string, hi: string, mr: string) => {
+    if (isHindi) return hi;
+    if (isMarathi) return mr;
+    return en;
+  };
 
   const handleExport = () => {
     const backup: BiodataBackup = {
@@ -53,10 +61,12 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
         // Validate the backup structure
         if (!backup.data || !backup.version) {
           await showError(
-            isMarathi
-              ? 'अवैध बॅकअप फाइल. कृपया योग्य फाइल निवडा.'
-              : 'Invalid backup file. Please select a valid backup file.',
-            isMarathi ? 'अवैध फाइल' : 'Invalid File'
+            getText(
+              'Invalid backup file. Please select a valid backup file.',
+              'अमान्य बैकअप फ़ाइल। कृपया वैध फ़ाइल चुनें।',
+              'अवैध बॅकअप फाइल. कृपया योग्य फाइल निवडा.'
+            ),
+            getText('Invalid File', 'अमान्य फ़ाइल', 'अवैध फाइल')
           );
           return;
         }
@@ -64,22 +74,28 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
         // Check version compatibility
         if (backup.version.startsWith('1.')) {
           await showWarning(
-            isMarathi
-              ? 'ही जुन्या आवृत्तीची बॅकअप फाइल आहे. कृपया नवीन बॅकअप बनवा.'
-              : 'This is an old version backup file. Please create a new backup.',
-            isMarathi ? 'जुनी आवृत्ती' : 'Old Version'
+            getText(
+              'This is an old version backup file. Please create a new backup.',
+              'यह पुराने संस्करण की बैकअप फ़ाइल है। कृपया नया बैकअप बनाएं।',
+              'ही जुन्या आवृत्तीची बॅकअप फाइल आहे. कृपया नवीन बॅकअप बनवा.'
+            ),
+            getText('Old Version', 'पुराना संस्करण', 'जुनी आवृत्ती')
           );
           return;
         }
 
-        const confirmMessage = isMarathi
-          ? `सध्याचा सर्व डेटा या बॅकअपने बदलला जाईल.\n\nबॅकअप तारीख: ${new Date(backup.exportDate).toLocaleDateString()}\nनाव: ${backup.data.name || 'उपलब्ध नाही'}`
-          : `All current data will be replaced with this backup.\n\nBackup date: ${new Date(backup.exportDate).toLocaleDateString()}\nName: ${backup.data.name || 'Not available'}`;
+        const backupDate = new Date(backup.exportDate).toLocaleDateString();
+        const name = backup.data.name || getText('Not available', 'उपलब्ध नहीं', 'उपलब्ध नाही');
+        const confirmMessage = getText(
+          `All current data will be replaced with this backup.\n\nBackup date: ${backupDate}\nName: ${name}`,
+          `वर्तमान सभी डेटा इस बैकअप से बदल दिया जाएगा।\n\nबैकअप तारीख: ${backupDate}\nनाम: ${name}`,
+          `सध्याचा सर्व डेटा या बॅकअपने बदलला जाईल.\n\nबॅकअप तारीख: ${backupDate}\nनाव: ${name}`
+        );
 
         const confirmed = await showConfirm(confirmMessage, {
-          title: isMarathi ? 'बॅकअप पुनर्संचयित करा?' : 'Restore Backup?',
-          confirmText: isMarathi ? 'पुनर्संचयित करा' : 'Restore',
-          cancelText: isMarathi ? 'रद्द करा' : 'Cancel',
+          title: getText('Restore Backup?', 'बैकअप पुनर्स्थापित करें?', 'बॅकअप पुनर्संचयित करा?'),
+          confirmText: getText('Restore', 'पुनर्स्थापित करें', 'पुनर्संचयित करा'),
+          cancelText: getText('Cancel', 'रद्द करें', 'रद्द करा'),
         });
 
         if (confirmed) {
@@ -87,10 +103,12 @@ export default function DataBackupNew({ language, data, onRestore }: DataBackupN
         }
       } catch (error) {
         await showError(
-          isMarathi
-            ? 'फाइल वाचताना त्रुटी आली. कृपया वैध JSON फाइल निवडा.'
-            : 'Error reading file. Please select a valid JSON file.',
-          isMarathi ? 'त्रुटी' : 'Error'
+          getText(
+            'Error reading file. Please select a valid JSON file.',
+            'फ़ाइल पढ़ने में त्रुटि। कृपया वैध JSON फ़ाइल चुनें।',
+            'फाइल वाचताना त्रुटी आली. कृपया वैध JSON फाइल निवडा.'
+          ),
+          getText('Error', 'त्रुटि', 'त्रुटी')
         );
       }
     };

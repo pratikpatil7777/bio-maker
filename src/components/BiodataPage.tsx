@@ -3,6 +3,7 @@
 import React from 'react';
 import { Theme } from '@/lib/themes';
 import { BorderDesign } from '@/lib/borders';
+import { Language } from '@/lib/translations';
 import BorderRenderer from './borders';
 
 interface BiodataPageProps {
@@ -11,7 +12,7 @@ interface BiodataPageProps {
   theme: Theme;
   border: BorderDesign;
   children: React.ReactNode;
-  language: 'en' | 'mr';
+  language: Language;
 }
 
 /**

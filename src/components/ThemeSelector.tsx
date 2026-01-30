@@ -17,6 +17,13 @@ export default function ThemeSelector({
 }: ThemeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMarathi = language === 'mr';
+  const isHindi = language === 'hi';
+
+  const getThemeName = (theme: Theme) => {
+    if (isHindi) return theme.nameHindi || theme.name;
+    if (isMarathi) return theme.nameMarathi;
+    return theme.name;
+  };
 
   return (
     <div className="relative group/theme">
@@ -35,7 +42,7 @@ export default function ThemeSelector({
             }}
           />
         </div>
-        <span className="text-gray-700 dark:text-slate-200 hidden sm:inline">{isMarathi ? 'थीम' : 'Theme'}</span>
+        <span className="text-gray-700 dark:text-slate-200 hidden sm:inline">{isHindi ? 'थीम' : isMarathi ? 'थीम' : 'Theme'}</span>
         <svg
           className={`w-3 h-3 text-gray-400 dark:text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
@@ -60,7 +67,7 @@ export default function ThemeSelector({
           <div className="absolute left-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[200px]">
             <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-700">
               <p className="text-[10px] uppercase tracking-wider text-[#999] dark:text-slate-400 font-semibold">
-                {isMarathi ? 'थीम निवडा' : 'Select Theme'}
+                {isHindi ? 'थीम चुनें' : isMarathi ? 'थीम निवडा' : 'Select Theme'}
               </p>
             </div>
 
@@ -90,7 +97,7 @@ export default function ThemeSelector({
                   {/* Theme name */}
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-[#333] dark:text-slate-200">
-                      {isMarathi ? theme.nameMarathi : theme.name}
+                      {getThemeName(theme)}
                     </p>
                   </div>
 

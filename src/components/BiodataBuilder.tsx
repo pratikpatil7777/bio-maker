@@ -31,9 +31,11 @@ import DataBackupNew from './DataBackupNew';
 import EmptyState from './EmptyState';
 import BiodataPagedView from './BiodataPagedView';
 import AIBioWriter from './AIBioWriter';
+import TransliterateInput from './TransliterateInput';
 import { DarkModeToggleCompact } from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
 import { useAlert } from './AlertDialog';
+import { hasShareData, getSharedData, clearShareFromUrl } from '@/lib/shareLink';
 
 const STORAGE_KEY = 'biodata-builder-data';
 const MAX_HISTORY = 50;
@@ -43,9 +45,15 @@ export default function BiodataBuilder() {
   const biodataRef = useRef<HTMLDivElement>(null);
   const pagedViewRef = useRef<HTMLDivElement>(null);
   const { isDark } = useDarkMode();
-  const { showConfirm } = useAlert();
+  const { showConfirm, setLanguage: setAlertLanguage } = useAlert();
 
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en');
+
+  // Wrapper to sync language with AlertDialog
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    setAlertLanguage(lang);
+  }, [setAlertLanguage]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPhoto, setShowPhoto] = useState(true);
   const [data, setData] = useLocalStorage<DynamicBiodataData>(STORAGE_KEY, createEmptyBiodata());
@@ -113,16 +121,25 @@ export default function BiodataBuilder() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleUndo, handleRedo]);
 
+  // Trilingual text helper
+  const getText = (en: string, hi: string, mr: string) => {
+    if (language === 'hi') return hi;
+    if (language === 'mr') return mr;
+    return en;
+  };
+
   // Back to home function
   const handleBackToHome = async () => {
     if (hasChanges) {
-      const confirmMessage = language === 'mr'
-        ? 'तुमच्याकडे जतन न केलेले बदल आहेत. तुम्हाला खात्री आहे का?'
-        : 'You have unsaved changes. Are you sure you want to go back?';
+      const confirmMessage = getText(
+        'You have unsaved changes. Are you sure you want to go back?',
+        'आपके पास सहेजे नहीं गए परिवर्तन हैं। क्या आप वाकई वापस जाना चाहते हैं?',
+        'तुमच्याकडे जतन न केलेले बदल आहेत. तुम्हाला खात्री आहे का?'
+      );
       const confirmed = await showConfirm(confirmMessage, {
-        title: language === 'mr' ? 'परत जा?' : 'Go Back?',
-        confirmText: language === 'mr' ? 'होय, परत जा' : 'Yes, Go Back',
-        cancelText: language === 'mr' ? 'रहा' : 'Stay',
+        title: getText('Go Back?', 'वापस जाएं?', 'परत जा?'),
+        confirmText: getText('Yes, Go Back', 'हाँ, वापस जाएं', 'होय, परत जा'),
+        cancelText: getText('Stay', 'रहें', 'रहा'),
       });
       if (!confirmed) return;
     }
@@ -138,7 +155,19 @@ export default function BiodataBuilder() {
     if (editParam === 'true') {
       setIsEditMode(true);
     }
-  }, [searchParams]);
+
+    // Load shared biodata from URL if present
+    if (hasShareData()) {
+      const sharedData = getSharedData();
+      if (sharedData) {
+        setData(sharedData);
+        // Clear the URL parameter without reloading
+        clearShareFromUrl();
+        // Show preview mode for shared biodata
+        setIsEditMode(false);
+      }
+    }
+  }, [searchParams, setData]);
 
   const handleThemeChange = (theme: Theme) => {
     setData((prev) => ({ ...prev, themeId: theme.id, updatedAt: new Date().toISOString() }));
@@ -214,13 +243,15 @@ export default function BiodataBuilder() {
 
   const handleReset = async () => {
     const confirmed = await showConfirm(
-      language === 'mr'
-        ? 'सर्व डेटा हटवला जाईल. ही क्रिया पूर्ववत करता येणार नाही.'
-        : 'All data will be cleared. This action cannot be undone.',
+      getText(
+        'All data will be cleared. This action cannot be undone.',
+        'सारा डेटा हटा दिया जाएगा। यह क्रिया पूर्ववत नहीं की जा सकती।',
+        'सर्व डेटा हटवला जाईल. ही क्रिया पूर्ववत करता येणार नाही.'
+      ),
       {
-        title: language === 'mr' ? 'सर्व रीसेट करायचे?' : 'Reset Everything?',
-        confirmText: language === 'mr' ? 'होय, रीसेट करा' : 'Yes, Reset',
-        cancelText: language === 'mr' ? 'रद्द करा' : 'Cancel',
+        title: getText('Reset Everything?', 'सब कुछ रीसेट करें?', 'सर्व रीसेट करायचे?'),
+        confirmText: getText('Yes, Reset', 'हाँ, रीसेट करें', 'होय, रीसेट करा'),
+        cancelText: getText('Cancel', 'रद्द करें', 'रद्द करा'),
       }
     );
     if (confirmed) {
@@ -329,7 +360,7 @@ export default function BiodataBuilder() {
         <div className="relative">
           {/* Main Container with clean border */}
           <div
-            className="relative rounded-xl overflow-hidden"
+            className="relative rounded-xl"
             style={{
               background: isDark
                 ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)'
@@ -340,163 +371,151 @@ export default function BiodataBuilder() {
             }}
           >
             {/* Top golden accent line */}
-            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]" />
+            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37] rounded-t-xl" />
 
-            {/* Toolbar Content */}
-            <div className="relative z-10 px-3 py-2.5 sm:px-5 sm:py-3">
-              {/* Unified Button Bar */}
-              <div className="flex items-center justify-between gap-3 flex-wrap">
+            {/* Toolbar Content - Simple flex-wrap */}
+            <div className="relative z-10 px-2 py-2 sm:px-4 sm:py-3">
+              <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+                {/* Logo as Home Button */}
+                <button
+                  onClick={handleBackToHome}
+                  className="group h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37]/50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 cursor-pointer overflow-hidden"
+                  title={getText('Home', 'होम', 'मुख्यपृष्ठ')}
+                >
+                  <Image
+                    src="/logo.png"
+                    alt="Shubh Vivah"
+                    width={24}
+                    height={24}
+                    className="rounded transition-transform duration-300 group-hover:scale-110 sm:w-7 sm:h-7"
+                  />
+                </button>
 
-                {/* Left Section: Logo/Home + Mode Toggles */}
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  {/* Logo as Home Button */}
+                <DarkModeToggleCompact />
+                <LanguageToggle language={language} onLanguageChange={setLanguage} />
+                <ThemeSelector language={language} currentTheme={currentTheme} onThemeChange={handleThemeChange} />
+                <BorderSelector language={language} currentBorder={currentBorder} primaryColor={currentTheme.colors.primary} onBorderChange={handleBorderChange} />
+
+                {/* Photo Toggle */}
+                <button
+                  onClick={() => setShowPhoto(!showPhoto)}
+                  className={`h-8 sm:h-9 px-2 sm:px-3 flex items-center gap-1 rounded-lg text-xs font-medium transition-all duration-300 cursor-pointer shadow-sm ${
+                    showPhoto
+                      ? 'bg-white dark:bg-slate-700 text-[#D4AF37] border border-[#D4AF37]/40 hover:shadow-md'
+                      : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                  }`}
+                  title={showPhoto ? getText('Hide photo', 'फोटो छुपाएं', 'फोटो लपवा') : getText('Show photo', 'फोटो दिखाएं', 'फोटो दाखवा')}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {showPhoto ? (
+                      <>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </>
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    )}
+                  </svg>
+                </button>
+
+                <DataBackupNew language={language} data={data} onRestore={handleDataRestore} />
+
+                {/* AI Bio Writer Button */}
+                <button
+                  onClick={() => setShowAIWriter(true)}
+                  className="h-8 sm:h-9 px-2 sm:px-3 flex items-center gap-1 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:scale-[1.02] text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+                  }}
+                  title={getText('AI Bio Writer', 'AI बायो लेखक', 'AI बायो लेखक')}
+                >
+                  <span className="text-sm">✨</span>
+                </button>
+
+                {/* Undo/Redo Buttons */}
+                <div className="flex items-center">
                   <button
-                    onClick={handleBackToHome}
-                    className="group h-9 w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37]/50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 cursor-pointer overflow-hidden"
-                    title={isMarathi ? 'मुख्यपृष्ठ' : 'Home'}
-                  >
-                    <Image
-                      src="/logo.png"
-                      alt="Shubh Vivah"
-                      width={28}
-                      height={28}
-                      className="rounded transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </button>
-
-                  <div className="w-px h-6 bg-gray-200 dark:bg-slate-600 hidden sm:block" />
-
-                  <DarkModeToggleCompact />
-                  <LanguageToggle language={language} onLanguageChange={setLanguage} />
-                </div>
-
-                {/* Center Section: Design Controls */}
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
-                  <ThemeSelector language={language} currentTheme={currentTheme} onThemeChange={handleThemeChange} />
-                  <BorderSelector language={language} currentBorder={currentBorder} primaryColor={currentTheme.colors.primary} onBorderChange={handleBorderChange} />
-
-                  {/* Photo Toggle */}
-                  <button
-                    onClick={() => setShowPhoto(!showPhoto)}
-                    className={`h-9 px-3 flex items-center gap-1.5 rounded-lg text-xs font-medium transition-all duration-300 cursor-pointer shadow-sm ${
-                      showPhoto
-                        ? 'bg-white dark:bg-slate-700 text-[#D4AF37] border border-[#D4AF37]/40 hover:shadow-md'
-                        : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                    onClick={handleUndo}
+                    disabled={!canUndo}
+                    className={`h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-l-lg border transition-all duration-300 ${
+                      canUndo
+                        ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
+                        : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
                     }`}
-                    title={showPhoto ? (isMarathi ? 'फोटो लपवा' : 'Hide photo') : (isMarathi ? 'फोटो दाखवा' : 'Show photo')}
+                    title={getText('Undo (Ctrl+Z)', 'पूर्ववत करें (Ctrl+Z)', 'पूर्ववत करा (Ctrl+Z)')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      {showPhoto ? (
-                        <>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </>
-                      ) : (
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      )}
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                     </svg>
-                    <span className="hidden sm:inline">{showPhoto ? (isMarathi ? 'फोटो' : 'Photo') : (isMarathi ? 'बंद' : 'Off')}</span>
                   </button>
-
-                  <DataBackupNew language={language} data={data} onRestore={handleDataRestore} />
-
-                  {/* AI Bio Writer Button */}
                   <button
-                    onClick={() => setShowAIWriter(true)}
-                    className="h-9 px-3 flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:scale-[1.02] text-white"
-                    style={{
-                      background: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
-                    }}
-                    title={isMarathi ? 'AI बायो लेखक' : 'AI Bio Writer'}
+                    onClick={handleRedo}
+                    disabled={!canRedo}
+                    className={`h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-r-lg border-t border-r border-b transition-all duration-300 ${
+                      canRedo
+                        ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
+                        : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
+                    }`}
+                    title={getText('Redo (Ctrl+Y)', 'पुनः करें (Ctrl+Y)', 'पुन्हा करा (Ctrl+Y)')}
                   >
-                    <span className="text-sm">✨</span>
-                    <span className="hidden sm:inline">{isMarathi ? 'AI लेखक' : 'AI Writer'}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+                    </svg>
                   </button>
-
-                  {/* Undo/Redo Buttons */}
-                  <div className="flex items-center">
-                    <button
-                      onClick={handleUndo}
-                      disabled={!canUndo}
-                      className={`h-9 w-9 flex items-center justify-center rounded-l-lg border transition-all duration-300 ${
-                        canUndo
-                          ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                          : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
-                      }`}
-                      title={isMarathi ? 'पूर्ववत करा (Ctrl+Z)' : 'Undo (Ctrl+Z)'}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={handleRedo}
-                      disabled={!canRedo}
-                      className={`h-9 w-9 flex items-center justify-center rounded-r-lg border-t border-r border-b transition-all duration-300 ${
-                        canRedo
-                          ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                          : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
-                      }`}
-                      title={isMarathi ? 'पुन्हा करा (Ctrl+Y)' : 'Redo (Ctrl+Y)'}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
-                      </svg>
-                    </button>
-                  </div>
                 </div>
 
-                {/* Right Section: Edit & Actions */}
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <EditModeToggle
-                    language={language}
-                    isEditMode={isEditMode}
-                    onToggle={setIsEditMode}
-                    onReset={handleReset}
-                    hasChanges={hasChanges}
-                  />
+                <EditModeToggle
+                  language={language}
+                  isEditMode={isEditMode}
+                  onToggle={setIsEditMode}
+                  onReset={handleReset}
+                  hasChanges={hasChanges}
+                />
 
-                  {/* Action Buttons Group */}
-                  <div className="flex items-center gap-1.5">
-                    <PDFExportButton
-                      language={language}
-                      targetRef={isEditMode ? biodataRef : pagedViewRef}
-                      fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
-                      pageCount={pageCount}
-                    />
-                    <ShareButton language={language} targetRef={isEditMode ? biodataRef : pagedViewRef} />
-                  </div>
-                </div>
+                <PDFExportButton
+                  language={language}
+                  targetRef={isEditMode ? biodataRef : pagedViewRef}
+                  fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
+                  pageCount={pageCount}
+                />
+                <ShareButton
+                  language={language}
+                  targetRef={isEditMode ? biodataRef : pagedViewRef}
+                  fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
+                  biodataData={data}
+                />
               </div>
             </div>
 
             {/* Bottom golden accent line */}
-            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37]" />
+            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37] rounded-b-xl" />
           </div>
         </div>
 
         {/* Photo Gallery URL Editor - Edit mode only */}
         {isEditMode && (
-          <div className="mt-3 relative flex items-center gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-700 rounded-xl px-4 py-2.5 border border-[#E8DFC4] dark:border-slate-600 shadow-sm">
-            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center shadow-sm">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <label className="block text-[10px] uppercase tracking-wider text-[#998866] dark:text-slate-400 font-semibold mb-0.5">
-                {isMarathi ? 'फोटो गॅलरी लिंक' : 'Photo Gallery Link'}
-              </label>
-              <input
-                type="url"
-                value={data.photoGalleryUrl || ''}
-                onChange={(e) => handlePhotoGalleryUpdate('url', e.target.value)}
-                placeholder={isMarathi ? 'Google Drive किंवा अल्बम लिंक पेस्ट करा...' : 'Paste Google Drive or album link here...'}
-                className="w-full bg-transparent text-xs text-[#333] dark:text-slate-200 placeholder-[#AAA] dark:placeholder-slate-500 focus:outline-none border-b border-transparent focus:border-[#D4AF37] transition-colors pb-0.5"
-              />
+          <div className="mt-2 sm:mt-3 relative flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-700 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 border border-[#E8DFC4] dark:border-slate-600 shadow-sm">
+            <div className="flex items-center gap-2 w-full xs:w-auto">
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center shadow-sm">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <label className="block text-[9px] sm:text-[10px] uppercase tracking-wider text-[#998866] dark:text-slate-400 font-semibold mb-0.5">
+                  {getText('Photo Gallery Link', 'फोटो गैलरी लिंक', 'फोटो गॅलरी लिंक')}
+                </label>
+                <input
+                  type="url"
+                  value={data.photoGalleryUrl || ''}
+                  onChange={(e) => handlePhotoGalleryUpdate('url', e.target.value)}
+                  placeholder={getText('Paste Google Drive or album link...', 'Google Drive या एल्बम लिंक पेस्ट करें...', 'Google Drive किंवा अल्बम लिंक पेस्ट करा...')}
+                  className="w-full bg-transparent text-[11px] sm:text-xs text-[#333] dark:text-slate-200 placeholder-[#AAA] dark:placeholder-slate-500 focus:outline-none border-b border-transparent focus:border-[#D4AF37] transition-colors pb-0.5"
+                />
+              </div>
             </div>
             {data.photoGalleryUrl && (
-              <label className="flex items-center gap-1.5 cursor-pointer">
+              <label className="flex items-center gap-1.5 cursor-pointer ml-9 xs:ml-0">
                 <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${data.showPhotoGalleryQR ? 'bg-[#D4AF37]' : 'bg-gray-300 dark:bg-slate-600'}`}>
                   <input
                     type="checkbox"
@@ -515,6 +534,7 @@ export default function BiodataBuilder() {
 
       {/* EDIT MODE: Continuous scrollable container */}
       {isEditMode && (
+        <div className="overflow-x-auto pb-4">
         <div
           ref={biodataRef}
           className="biodata-container shadow-xl golden-glow mx-auto relative z-[10]"
@@ -556,10 +576,11 @@ export default function BiodataBuilder() {
                     <circle cx="92" cy="32" r="2" fill="currentColor" />
                   </svg>
                 </div>
-                <input
+                <TransliterateInput
                   type="text"
                   value={isMarathi ? data.nameMarathi : data.name}
-                  onChange={(e) => handleNameChange(e.target.value, isMarathi)}
+                  onChange={(val) => handleNameChange(val, isMarathi)}
+                  enabled={isMarathi}
                   placeholder={isMarathi ? 'तुमचे नाव येथे टाइप करा' : 'Type your name here'}
                   className={`biodata-name text-center w-full bg-transparent border-b-2 border-dashed border-amber-300 focus:border-amber-500 focus:outline-none px-4 py-1 ${isMarathi ? 'marathi-header' : ''}`}
                   style={{
@@ -571,6 +592,7 @@ export default function BiodataBuilder() {
 
               {/* Photo and Sections */}
               <div className="relative mt-2">
+                {/* Photo floated right - biodata is at fixed A4 width */}
                 {showPhoto && (
                   <div className="absolute right-0 top-0 z-10">
                     <PhotoSection
@@ -580,11 +602,12 @@ export default function BiodataBuilder() {
                       primaryColor={currentTheme.colors.primary}
                       secondaryColor={currentTheme.colors.secondary}
                       backgroundColor={currentTheme.colors.background}
+                      language={language}
                     />
                   </div>
                 )}
 
-                <div className={showPhoto ? 'pr-44 md:pr-48' : ''}>
+                <div className={showPhoto ? 'pr-48' : ''}>
                   {data.sections.map((section, index) => (
                     <SectionBuilder
                       key={section.id}
@@ -635,20 +658,23 @@ export default function BiodataBuilder() {
             </div>
           </div>
         </div>
+        </div>
       )}
 
       {/* VIEW MODE: Discrete A4 pages - WYSIWYG */}
       {!isEditMode && (
-        <div className="flex justify-center relative z-[10]">
-          <BiodataPagedView
-            data={data}
-            language={language}
-            theme={currentTheme}
-            border={currentBorder}
-            showPhoto={showPhoto}
-            pagesRef={pagedViewRef}
-            onPageCountChange={handlePageCountChange}
-          />
+        <div className="overflow-x-auto pb-4">
+          <div className="w-fit mx-auto">
+            <BiodataPagedView
+              data={data}
+              language={language}
+              theme={currentTheme}
+              border={currentBorder}
+              showPhoto={showPhoto}
+              pagesRef={pagedViewRef}
+              onPageCountChange={handlePageCountChange}
+            />
+          </div>
         </div>
       )}
 

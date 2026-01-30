@@ -2,6 +2,7 @@ export interface Theme {
   id: string;
   name: string;
   nameMarathi: string;
+  nameHindi?: string;
   colors: {
     primary: string;      // Main accent (gold, rose, etc.)
     primaryDark: string;  // Darker shade
@@ -21,6 +22,7 @@ export const themes: Theme[] = [
     id: 'gold',
     name: 'Royal Gold',
     nameMarathi: 'शाही सोनेरी',
+    nameHindi: 'शाही सुनहरा',
     colors: {
       primary: '#D4AF37',
       primaryDark: '#B8860B',
@@ -38,6 +40,7 @@ export const themes: Theme[] = [
     id: 'rose',
     name: 'Rose Gold',
     nameMarathi: 'गुलाबी सोनेरी',
+    nameHindi: 'गुलाबी सुनहरा',
     colors: {
       primary: '#E8A598',
       primaryDark: '#D4847A',
@@ -55,6 +58,7 @@ export const themes: Theme[] = [
     id: 'silver',
     name: 'Elegant Silver',
     nameMarathi: 'चांदी',
+    nameHindi: 'चांदी',
     colors: {
       primary: '#A8A8A8',
       primaryDark: '#808080',
@@ -72,6 +76,7 @@ export const themes: Theme[] = [
     id: 'maroon',
     name: 'Royal Maroon',
     nameMarathi: 'शाही मरून',
+    nameHindi: 'शाही मैरून',
     colors: {
       primary: '#800020',
       primaryDark: '#5C0018',
@@ -89,6 +94,7 @@ export const themes: Theme[] = [
     id: 'navy',
     name: 'Classic Navy',
     nameMarathi: 'नेव्ही निळा',
+    nameHindi: 'क्लासिक नेवी',
     colors: {
       primary: '#1E3A5F',
       primaryDark: '#152942',
