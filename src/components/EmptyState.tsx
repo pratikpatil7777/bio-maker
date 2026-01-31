@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Language } from '@/lib/types';
 import { Theme, themes } from '@/lib/themes';
@@ -132,6 +132,7 @@ export default function EmptyState({
   const isHindi = language === 'hi';
   const isDevanagari = isMarathi || isHindi;
   const { isDark } = useDarkMode();
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Trilingual text helper
   const getText = (en: string, hi: string, mr: string) => {
@@ -308,7 +309,7 @@ export default function EmptyState({
           </p>
 
           {/* Trust badges */}
-          <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
             <div className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
               <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -329,6 +330,24 @@ export default function EmptyState({
               </svg>
               <span>{getText('Print Ready', 'प्रिंट रेडी', 'प्रिंट रेडी')}</span>
             </div>
+          </div>
+
+          {/* Privacy explanation */}
+          <div className="mt-3 text-center">
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
+              {getText(
+                'Your biodata stays on your device unless you export or share.',
+                'आपका बायोडाटा आपके डिवाइस पर रहता है जब तक आप एक्सपोर्ट या शेयर नहीं करते।',
+                'तुमचा बायोडाटा तुमच्या डिव्हाइसवर राहतो जोपर्यंत तुम्ही एक्सपोर्ट किंवा शेअर करत नाही.'
+              )}
+              {' '}
+              <button
+                onClick={() => setShowPrivacyModal(true)}
+                className={`underline cursor-pointer hover:no-underline ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
+              >
+                {getText('Learn how privacy works', 'गोपनीयता कैसे काम करती है', 'गोपनीयता कशी कार्य करते')}
+              </button>
+            </p>
           </div>
 
           {/* Primary CTA Buttons */}
@@ -622,6 +641,109 @@ export default function EmptyState({
           </div>
         </div>
       </div>
+
+      {/* Privacy Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className={`relative max-w-md w-full rounded-2xl shadow-2xl p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+            {/* Close button */}
+            <button
+              onClick={() => setShowPrivacyModal(false)}
+              className={`absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors cursor-pointer ${
+                isDark ? 'hover:bg-slate-700 text-gray-400 hover:text-gray-200' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className={`text-lg font-bold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+                {getText('Your Privacy is Protected', 'आपकी गोपनीयता सुरक्षित है', 'तुमची गोपनीयता सुरक्षित आहे')}
+              </h3>
+            </div>
+
+            {/* Privacy points */}
+            <ul className="space-y-3 mb-6">
+              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {getText(
+                    'All data is stored locally in your browser - we never see or store your biodata on any server.',
+                    'सारा डेटा आपके ब्राउज़र में लोकली स्टोर होता है - हम आपका बायोडाटा कभी नहीं देखते या किसी सर्वर पर स्टोर नहीं करते।',
+                    'सर्व डेटा तुमच्या ब्राउझरमध्ये लोकली स्टोअर होतो - आम्ही तुमचा बायोडाटा कधीही पाहत नाही किंवा सर्व्हरवर स्टोअर करत नाही.'
+                  )}
+                </span>
+              </li>
+              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {getText(
+                    'No account or login required - your data belongs only to you.',
+                    'कोई अकाउंट या लॉगिन जरूरी नहीं - आपका डेटा केवल आपका है।',
+                    'कोणताही अकाउंट किंवा लॉगिन आवश्यक नाही - तुमचा डेटा फक्त तुमचाच आहे.'
+                  )}
+                </span>
+              </li>
+              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {getText(
+                    'PDF and image exports are created directly on your device.',
+                    'PDF और इमेज एक्सपोर्ट सीधे आपके डिवाइस पर बनते हैं।',
+                    'PDF आणि इमेज एक्सपोर्ट थेट तुमच्या डिव्हाइसवर तयार होतात.'
+                  )}
+                </span>
+              </li>
+              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {getText(
+                    'Share links use URL encoding - data travels directly to recipient, not through our servers.',
+                    'शेयर लिंक URL एनकोडिंग का उपयोग करते हैं - डेटा सीधे प्राप्तकर्ता को जाता है, हमारे सर्वर से नहीं।',
+                    'शेअर लिंक्स URL एनकोडिंग वापरतात - डेटा थेट प्राप्तकर्त्याकडे जातो, आमच्या सर्व्हरमधून नाही.'
+                  )}
+                </span>
+              </li>
+              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {getText(
+                    'Clear browser data anytime to remove all traces.',
+                    'सब हटाने के लिए कभी भी ब्राउज़र डेटा क्लियर करें।',
+                    'सर्व ट्रेसेस काढण्यासाठी कधीही ब्राउझर डेटा क्लिअर करा.'
+                  )}
+                </span>
+              </li>
+            </ul>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowPrivacyModal(false)}
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 cursor-pointer"
+            >
+              {getText('Got it!', 'समझ गया!', 'समजले!')}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
