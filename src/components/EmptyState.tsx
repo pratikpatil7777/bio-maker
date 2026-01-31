@@ -1,14 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Language } from '@/lib/types';
 import { Theme, themes } from '@/lib/themes';
 import { BorderDesign, borderDesigns } from '@/lib/borders';
 import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useMotionValue, useTransform, useSpring, useScroll, useMotionTemplate } from 'framer-motion';
+
+// Dynamically import 3D background to avoid SSR issues
+const Background3D = dynamic(() => import('./Background3D'), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface EmptyStateProps {
   language: Language;
@@ -144,36 +151,119 @@ export default function EmptyState({
     }
   };
 
+  // Animated text reveal for hero
+  const titleText = getText(
+    'Create Beautiful Marriage Biodatas',
+    'सुंदर विवाह बायोडाटा बनाएं',
+    'सुंदर विवाह बायोडाटा तयार करा'
+  );
+
+  const letterVariants = {
+    hidden: { opacity: 0, y: 50, rotateX: -90 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      transition: {
+        delay: i * 0.03,
+        type: 'spring' as const,
+        stiffness: 100,
+        damping: 12
+      }
+    })
+  };
+
+  // Glow effect animation
+  const glowAnimation = {
+    animate: {
+      boxShadow: [
+        '0 0 20px rgba(251, 191, 36, 0.3)',
+        '0 0 60px rgba(251, 191, 36, 0.5)',
+        '0 0 20px rgba(251, 191, 36, 0.3)'
+      ],
+      transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const }
+    }
+  };
+
+  // Mouse tracking for parallax effects
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springConfig = { stiffness: 100, damping: 30 };
+  const mouseXSpring = useSpring(mouseX, springConfig);
+  const mouseYSpring = useSpring(mouseY, springConfig);
+
+  // Handle mouse move for parallax
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    mouseX.set((clientX - innerWidth / 2) / 50);
+    mouseY.set((clientY - innerHeight / 2) / 50);
+  };
+
   return (
     <main
       className="min-h-screen transition-colors duration-500 relative overflow-hidden"
+      onMouseMove={handleMouseMove}
       style={{
         background: isDark
           ? 'linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
           : 'linear-gradient(180deg, #FFFEF0 0%, #FFF9E6 30%, #FFEDD5 60%, #FFF9E6 100%)'
       }}
     >
-      {/* Animated background orbs */}
+      {/* 3D Background */}
+      <Suspense fallback={null}>
+        <Background3D isDark={isDark} />
+      </Suspense>
+
+      {/* Animated gradient mesh background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Glassmorphism overlay */}
+        <div className={`absolute inset-0 ${isDark ? 'bg-slate-900/40' : 'bg-white/30'} backdrop-blur-[1px]`} />
+
+        {/* Animated gradient orbs with parallax */}
         <motion.div
-          className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-20"
-          style={{ background: isDark ? '#D4AF37' : '#FBBF24' }}
-          animate={{
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.1, 1],
+          className="absolute top-0 left-1/4 w-[800px] h-[800px] rounded-full blur-[150px] opacity-25"
+          style={{
+            background: isDark
+              ? 'radial-gradient(circle, #D4AF37 0%, transparent 70%)'
+              : 'radial-gradient(circle, #FBBF24 0%, transparent 70%)',
+            x: useTransform(mouseXSpring, (v) => v * -2),
+            y: useTransform(mouseYSpring, (v) => v * -2),
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-15"
-          style={{ background: isDark ? '#800020' : '#E8A598' }}
-          animate={{
-            x: [0, -40, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
+          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-20"
+          style={{
+            background: isDark
+              ? 'radial-gradient(circle, #800020 0%, transparent 70%)'
+              : 'radial-gradient(circle, #E8A598 0%, transparent 70%)',
+            x: useTransform(mouseXSpring, (v) => v * 2),
+            y: useTransform(mouseYSpring, (v) => v * 2),
           }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[100px] opacity-10"
+          style={{
+            background: isDark
+              ? 'radial-gradient(circle, #FFD700 0%, transparent 70%)'
+              : 'radial-gradient(circle, #B8860B 0%, transparent 70%)',
+            x: useTransform(mouseXSpring, (v) => v * 1.5),
+            y: useTransform(mouseYSpring, (v) => v * 1.5),
+          }}
+          animate={{
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
@@ -239,20 +329,34 @@ export default function EmptyState({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <h1
+                <motion.h1
                   className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight ${
                     isDark
                       ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200'
                       : 'text-transparent bg-clip-text bg-gradient-to-r from-[#800020] via-[#a02040] to-[#800020]'
                   }`}
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    backgroundSize: '200% 200%',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                  }}
+                  transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
                 >
-                  {getText(
-                    'Create Beautiful Marriage Biodatas',
-                    'सुंदर विवाह बायोडाटा बनाएं',
-                    'सुंदर विवाह बायोडाटा तयार करा'
-                  )}
-                </h1>
+                  {titleText.split('').map((char, i) => (
+                    <motion.span
+                      key={i}
+                      custom={i}
+                      variants={letterVariants}
+                      initial="hidden"
+                      animate="visible"
+                      style={{ display: 'inline-block' }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </motion.span>
+                  ))}
+                </motion.h1>
 
                 <p className={`text-base sm:text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   {getText(
@@ -293,14 +397,28 @@ export default function EmptyState({
                 >
                   <motion.button
                     onClick={onStartBuilding}
-                    className="w-full sm:w-auto group px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                    className="w-full sm:w-auto group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all cursor-pointer overflow-hidden"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
+                    {...glowAnimation}
                   >
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    {/* Shimmer effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '200%' }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                    />
+                    <span className="relative flex items-center justify-center gap-2">
+                      <motion.svg
+                        className="w-5 h-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        animate={{ rotate: [0, 90, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
+                      >
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                      </svg>
+                      </motion.svg>
                       {getText('Create Your Biodata', 'अपना बायोडाटा बनाएं', 'तुमचा बायोडाटा बनवा')}
                     </span>
                   </motion.button>
@@ -523,6 +641,7 @@ export default function EmptyState({
                     `${themes.length} सुंदर कलर थीम`
                   ),
                   gradient: 'from-violet-500 to-purple-600',
+                  glow: 'rgba(139, 92, 246, 0.4)',
                 },
                 {
                   icon: icons.frame,
@@ -533,6 +652,7 @@ export default function EmptyState({
                     `${borderDesigns.length} पारंपारिक डिझाइन`
                   ),
                   gradient: 'from-rose-500 to-pink-600',
+                  glow: 'rgba(244, 63, 94, 0.4)',
                 },
                 {
                   icon: icons.globe,
@@ -543,6 +663,7 @@ export default function EmptyState({
                     'इंग्रजी, हिंदी आणि मराठी'
                   ),
                   gradient: 'from-blue-500 to-cyan-600',
+                  glow: 'rgba(59, 130, 246, 0.4)',
                 },
                 {
                   icon: icons.download,
@@ -553,6 +674,7 @@ export default function EmptyState({
                     'PDF किंवा HD इमेज'
                   ),
                   gradient: 'from-amber-500 to-orange-600',
+                  glow: 'rgba(245, 158, 11, 0.4)',
                 },
               ].map((feature, i) => (
                 <motion.div
@@ -560,21 +682,52 @@ export default function EmptyState({
                   className={`group relative p-8 rounded-3xl transition-all duration-300 overflow-hidden ${
                     isDark
                       ? 'bg-slate-800/50 hover:bg-slate-800/80'
-                      : 'bg-white hover:shadow-2xl'
+                      : 'bg-white/80 backdrop-blur-sm hover:shadow-2xl'
                   }`}
                   variants={itemVariants}
-                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                  whileHover={{
+                    y: -8,
+                    boxShadow: `0 25px 50px -12px ${feature.glow}`,
+                    transition: { duration: 0.3 }
+                  }}
                 >
-                  {/* Gradient border on hover */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ padding: '1px', borderRadius: '1.5rem' }}>
+                  {/* Animated gradient border */}
+                  <motion.div
+                    className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                    style={{ padding: '2px', borderRadius: '1.5rem' }}
+                    animate={{
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
                     <div className={`w-full h-full rounded-3xl ${isDark ? 'bg-slate-800' : 'bg-white'}`} />
+                  </motion.div>
+
+                  {/* Floating particles on hover */}
+                  <div className="absolute inset-0 overflow-hidden rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity">
+                    {[...Array(5)].map((_, j) => (
+                      <motion.div
+                        key={j}
+                        className={`absolute w-1 h-1 rounded-full bg-gradient-to-r ${feature.gradient}`}
+                        initial={{ y: '100%', x: `${20 + j * 15}%`, opacity: 0 }}
+                        animate={{
+                          y: ['100%', '-10%'],
+                          opacity: [0, 1, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          delay: j * 0.3,
+                          repeat: Infinity,
+                        }}
+                      />
+                    ))}
                   </div>
 
                   <div className="relative z-10">
                     <motion.div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-r ${feature.gradient} text-white`}
-                      whileHover={{ rotate: 5, scale: 1.1 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-r ${feature.gradient} text-white shadow-lg`}
+                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                      transition={{ type: 'spring' as const, stiffness: 300 }}
                     >
                       {feature.icon}
                     </motion.div>
