@@ -8,7 +8,7 @@ import { BorderDesign, borderDesigns } from '@/lib/borders';
 import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
-import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 
 interface EmptyStateProps {
   language: Language;
@@ -86,13 +86,10 @@ export default function EmptyState({
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Scroll-based animations
-  const { scrollY } = useScroll();
   const featuresRef = useRef<HTMLElement>(null);
   const stepsRef = useRef<HTMLElement>(null);
-  const templatesRef = useRef<HTMLElement>(null);
   const featuresInView = useInView(featuresRef, { once: true, margin: '-100px' });
   const stepsInView = useInView(stepsRef, { once: true, margin: '-100px' });
-  const templatesInView = useInView(templatesRef, { once: true, margin: '-100px' });
 
   // Auto-rotate preview
   useEffect(() => {
@@ -120,16 +117,6 @@ export default function EmptyState({
     if (isMarathi) return mr;
     return en;
   };
-
-  // Dynamic templates from themes
-  const allTemplates = themes.map((theme, i) => ({
-    id: theme.id,
-    name: theme.name,
-    nameHi: theme.nameHindi || theme.name,
-    nameMr: theme.nameMarathi,
-    theme,
-    border: borderDesigns[i % borderDesigns.length],
-  }));
 
   // Animation variants
   const containerVariants = {
@@ -604,181 +591,165 @@ export default function EmptyState({
           </div>
         </motion.section>
 
-        {/* How It Works Section */}
+        {/* How It Works Section - Modern Timeline */}
         <motion.section
           ref={stepsRef}
-          className="py-20 px-6"
+          className="py-24 px-6 relative overflow-hidden"
         >
-          <div className="max-w-5xl mx-auto">
+          {/* Background decoration */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] ${isDark ? 'opacity-10' : 'opacity-5'}`} style={{ background: 'linear-gradient(135deg, #D4AF37, #800020)' }} />
+          </div>
+
+          <div className="max-w-6xl mx-auto relative z-10">
             <motion.div
-              className="text-center mb-16"
+              className="text-center mb-20"
               initial={{ opacity: 0, y: 30 }}
               animate={stepsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
             >
+              <motion.span
+                className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-6 ${
+                  isDark ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                }`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={stepsInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ delay: 0.2 }}
+              >
+                {getText('Simple Process', 'सरल प्रक्रिया', 'सोपी प्रक्रिया')}
+              </motion.span>
               <h2
-                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl sm:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                {getText('How It Works', 'यह कैसे काम करता है', 'हे कसे कार्य करते')}
+                {getText('Create in Minutes', 'मिनटों में बनाएं', 'मिनिटांत तयार करा')}
               </h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {getText('Three simple steps to your perfect biodata', 'तीन आसान कदम', 'तीन सोप्या पायऱ्या')}
-              </p>
-            </motion.div>
-
-            <div className="relative">
-              {/* Connecting line */}
-              <div className={`absolute top-1/2 left-0 right-0 h-0.5 hidden md:block ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
-
-              <motion.div
-                className="grid md:grid-cols-3 gap-8 relative"
-                variants={containerVariants}
-                initial="hidden"
-                animate={stepsInView ? 'visible' : 'hidden'}
-              >
-                {[
-                  {
-                    step: '01',
-                    icon: icons.cursor,
-                    title: getText('Choose Style', 'स्टाइल चुनें', 'स्टाइल निवडा'),
-                    desc: getText('Pick a theme and border', 'थीम और बॉर्डर चुनें', 'थीम आणि बॉर्डर निवडा'),
-                  },
-                  {
-                    step: '02',
-                    icon: icons.document,
-                    title: getText('Fill Details', 'विवरण भरें', 'तपशील भरा'),
-                    desc: getText('Add your information', 'अपनी जानकारी डालें', 'तुमची माहिती टाका'),
-                  },
-                  {
-                    step: '03',
-                    icon: icons.share,
-                    title: getText('Download & Share', 'डाउनलोड और शेयर', 'डाउनलोड आणि शेअर'),
-                    desc: getText('Export and share', 'एक्सपोर्ट करें', 'एक्सपोर्ट करा'),
-                  },
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    className="relative text-center"
-                    variants={itemVariants}
-                  >
-                    <motion.div
-                      className={`relative mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 ${
-                        isDark
-                          ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30'
-                          : 'bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200'
-                      }`}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                      <div className={`${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                        {item.icon}
-                      </div>
-                      <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        isDark
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                      }`}>
-                        {item.step}
-                      </div>
-                    </motion.div>
-                    <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {item.title}
-                    </h3>
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {item.desc}
-                    </p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Template Gallery Section */}
-        <motion.section
-          ref={templatesRef}
-          id="templates"
-          className={`py-20 px-6 ${isDark ? 'bg-gradient-to-b from-slate-900/40 to-slate-900/80' : 'bg-gradient-to-b from-white/40 to-white/80'}`}
-        >
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              className="text-center mb-12"
-              initial={{ opacity: 0, y: 30 }}
-              animate={templatesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-            >
-              <h2
-                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                {getText('Choose Your Template', 'अपना टेम्पलेट चुनें', 'तुमचा टेम्पलेट निवडा')}
-              </h2>
-              <p className={`text-lg max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 {getText(
-                  'Select a template and start customizing immediately',
-                  'टेम्पलेट चुनें और तुरंत शुरू करें',
-                  'टेम्पलेट निवडा आणि लगेच सुरू करा'
+                  'No design skills needed. Just follow three simple steps.',
+                  'कोई डिजाइन कौशल की जरूरत नहीं। बस तीन आसान कदम।',
+                  'कोणत्याही डिझाइन कौशल्याची गरज नाही. फक्त तीन सोप्या पायऱ्या.'
                 )}
               </p>
             </motion.div>
 
             <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5"
+              className="grid md:grid-cols-3 gap-0 relative"
               variants={containerVariants}
               initial="hidden"
-              animate={templatesInView ? 'visible' : 'hidden'}
+              animate={stepsInView ? 'visible' : 'hidden'}
             >
-              {allTemplates.map((template, i) => (
-                <motion.button
-                  key={template.id}
-                  onClick={() => {
-                    onThemeChange(template.theme);
-                    onBorderChange(template.border);
-                    onUseTemplate();
-                  }}
-                  className={`group relative rounded-2xl overflow-hidden cursor-pointer ${
-                    isDark ? 'ring-1 ring-slate-700' : 'ring-1 ring-gray-200'
-                  }`}
+              {/* Animated connecting line for desktop */}
+              <motion.div
+                className={`absolute top-[60px] left-[16.67%] right-[16.67%] h-[2px] hidden md:block ${isDark ? 'bg-gradient-to-r from-amber-500/50 via-amber-500 to-amber-500/50' : 'bg-gradient-to-r from-amber-300/50 via-amber-400 to-amber-300/50'}`}
+                initial={{ scaleX: 0 }}
+                animate={stepsInView ? { scaleX: 1 } : {}}
+                transition={{ duration: 1, delay: 0.5 }}
+              />
+
+              {[
+                {
+                  num: '1',
+                  icon: (
+                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+                    </svg>
+                  ),
+                  title: getText('Pick Your Style', 'अपनी स्टाइल चुनें', 'तुमची स्टाइल निवडा'),
+                  desc: getText('Choose from beautiful themes and elegant traditional borders', 'सुंदर थीम और बॉर्डर चुनें', 'सुंदर थीम आणि बॉर्डर निवडा'),
+                  gradient: 'from-violet-500 to-purple-600',
+                },
+                {
+                  num: '2',
+                  icon: (
+                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                  ),
+                  title: getText('Add Your Details', 'अपनी जानकारी डालें', 'तुमची माहिती टाका'),
+                  desc: getText('Fill in personal, family, education and career information', 'व्यक्तिगत और पारिवारिक जानकारी भरें', 'वैयक्तिक आणि कौटुंबिक माहिती भरा'),
+                  gradient: 'from-amber-500 to-orange-600',
+                },
+                {
+                  num: '3',
+                  icon: (
+                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                  ),
+                  title: getText('Download & Share', 'डाउनलोड और शेयर करें', 'डाउनलोड आणि शेअर करा'),
+                  desc: getText('Export as print-ready PDF or share directly via WhatsApp', 'PDF डाउनलोड करें या WhatsApp से शेयर करें', 'PDF डाउनलोड करा किंवा WhatsApp वर शेअर करा'),
+                  gradient: 'from-emerald-500 to-teal-600',
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  className="relative px-6 py-8 text-center group"
                   variants={itemVariants}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
-                  <div
-                    className="aspect-[3/4] relative"
-                    style={{ backgroundColor: template.theme.colors.background }}
+                  {/* Step number circle */}
+                  <motion.div
+                    className="relative mx-auto mb-8"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: 'spring' as const, stiffness: 400 }}
                   >
-                    <BorderRenderer
-                      borderId={template.border.id}
-                      primaryColor={template.theme.colors.primary}
-                      secondaryColor={template.theme.colors.secondary}
+                    {/* Outer glow ring */}
+                    <motion.div
+                      className={`absolute inset-0 rounded-full bg-gradient-to-r ${item.gradient} blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`}
+                      style={{ width: 120, height: 120, margin: 'auto', left: 0, right: 0, top: 0 }}
                     />
-                    <div className="absolute inset-4 flex flex-col items-center justify-center">
-                      <div className="text-2xl mb-2" style={{ color: template.theme.colors.primary }}>ॐ</div>
-                      <div className="w-8 h-10 rounded-sm mb-3" style={{ border: `1.5px solid ${template.theme.colors.primary}`, opacity: 0.5 }} />
-                      <div className="w-full space-y-1.5">
-                        <div className="h-1 w-3/4 mx-auto rounded-full" style={{ backgroundColor: template.theme.colors.primary, opacity: 0.4 }} />
-                        <div className="h-0.5 w-1/2 mx-auto rounded-full" style={{ backgroundColor: template.theme.colors.text, opacity: 0.2 }} />
+
+                    {/* Main circle */}
+                    <div
+                      className={`relative w-[120px] h-[120px] mx-auto rounded-full flex items-center justify-center ${
+                        isDark
+                          ? 'bg-slate-800 border-2 border-slate-700'
+                          : 'bg-white border-2 border-gray-100 shadow-xl'
+                      }`}
+                    >
+                      {/* Gradient ring */}
+                      <div className={`absolute inset-1 rounded-full bg-gradient-to-br ${item.gradient} opacity-10`} />
+
+                      {/* Icon */}
+                      <div className={`relative z-10 bg-gradient-to-br ${item.gradient} text-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg`}>
+                        {item.icon}
+                      </div>
+
+                      {/* Step number badge */}
+                      <div className={`absolute -top-1 -right-1 w-10 h-10 rounded-full bg-gradient-to-r ${item.gradient} flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
+                        {item.num}
                       </div>
                     </div>
-                    {/* Hover overlay */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end justify-center pb-6"
-                      initial={{ opacity: 0 }}
-                      whileHover={{ opacity: 1 }}
-                    >
-                      <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                        {getText('Use Template', 'उपयोग करें', 'वापरा')}
-                      </span>
-                    </motion.div>
-                  </div>
-                  <div className={`py-3 text-center ${isDark ? 'bg-slate-800' : 'bg-gray-50'}`}>
-                    <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                      {isHindi ? template.nameHi : isMarathi ? template.nameMr : template.name}
-                    </span>
-                  </div>
-                </motion.button>
+                  </motion.div>
+
+                  <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    {item.title}
+                  </h3>
+                  <p className={`text-sm leading-relaxed max-w-xs mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {item.desc}
+                  </p>
+                </motion.div>
               ))}
+            </motion.div>
+
+            {/* CTA after steps */}
+            <motion.div
+              className="text-center mt-16"
+              initial={{ opacity: 0, y: 20 }}
+              animate={stepsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.8 }}
+            >
+              <motion.button
+                onClick={onStartBuilding}
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-2xl transition-all cursor-pointer"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {getText('Start Creating Now', 'अभी शुरू करें', 'आता सुरू करा')}
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </motion.button>
             </motion.div>
           </div>
         </motion.section>
