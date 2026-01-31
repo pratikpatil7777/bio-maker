@@ -191,7 +191,7 @@ export default function SplashLoader({ onLoadingComplete, minDuration = 4000 }: 
         </div>
 
         <h1
-          className="text-3xl md:text-4xl font-bold mb-1"
+          className="text-2xl md:text-3xl font-bold"
           style={{
             fontFamily: "'Playfair Display', serif",
             background: 'linear-gradient(135deg, #800020 0%, #A52A2A 30%, #800020 60%, #D4AF37 100%)',
@@ -201,19 +201,8 @@ export default function SplashLoader({ onLoadingComplete, minDuration = 4000 }: 
             animation: 'gradientText 3s ease infinite',
           }}
         >
-          शुभ विवाह
+          Marriage Biodata Builder
         </h1>
-        <p
-          className="text-lg md:text-xl font-semibold tracking-wider"
-          style={{
-            fontFamily: "'Poppins', sans-serif",
-            background: 'linear-gradient(90deg, #D4AF37, #FFD700, #B8860B)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Marriage Biodata
-        </p>
       </div>
 
       {/* 3D Card Showcase - Carousel Style */}

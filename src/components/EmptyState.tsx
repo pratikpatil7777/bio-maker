@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Language } from '@/lib/types';
 import { Theme, themes } from '@/lib/themes';
@@ -8,7 +8,7 @@ import { BorderDesign, borderDesigns } from '@/lib/borders';
 import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
-import BiodataPreview from './BiodataPreview';
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
 interface EmptyStateProps {
   language: Language;
@@ -21,102 +21,49 @@ interface EmptyStateProps {
   onUseTemplate: () => void;
 }
 
-// Floating decorative elements for background
-const FloatingElements = ({ isDark }: { isDark: boolean }) => (
-  <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    {/* Floating Lotus Petals */}
-    {[...Array(6)].map((_, i) => (
-      <div
-        key={`petal-${i}`}
-        className="absolute animate-float-slow"
-        style={{
-          left: `${10 + i * 15}%`,
-          top: `${-10 + (i % 3) * 5}%`,
-          animationDelay: `${i * 2}s`,
-          animationDuration: `${15 + i * 3}s`,
-        }}
-      >
-        <svg
-          width="30"
-          height="40"
-          viewBox="0 0 30 40"
-          className={`${isDark ? 'text-amber-500/10' : 'text-amber-400/20'}`}
-          style={{ transform: `rotate(${i * 30}deg)` }}
-        >
-          <path
-            d="M15 0C15 0 25 15 25 25C25 35 20 40 15 40C10 40 5 35 5 25C5 15 15 0 15 0Z"
-            fill="currentColor"
-          />
-        </svg>
-      </div>
-    ))}
-
-    {/* Floating Golden Particles */}
-    {[...Array(12)].map((_, i) => (
-      <div
-        key={`particle-${i}`}
-        className="absolute rounded-full animate-float-particle"
-        style={{
-          width: `${4 + (i % 3) * 2}px`,
-          height: `${4 + (i % 3) * 2}px`,
-          left: `${5 + i * 8}%`,
-          top: `${20 + (i % 4) * 20}%`,
-          background: isDark
-            ? `radial-gradient(circle, rgba(251,191,36,0.3) 0%, transparent 70%)`
-            : `radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)`,
-          animationDelay: `${i * 0.8}s`,
-          animationDuration: `${8 + (i % 4) * 2}s`,
-        }}
-      />
-    ))}
-
-    {/* Subtle Paisley Patterns */}
-    <svg
-      className={`absolute top-20 left-10 w-32 h-32 animate-spin-very-slow ${isDark ? 'text-amber-500/5' : 'text-amber-400/10'}`}
-      viewBox="0 0 100 100"
-    >
-      <path
-        d="M50 10C50 10 70 30 70 50C70 65 60 70 50 70C40 70 30 65 30 50C30 30 50 10 50 10Z"
-        fill="currentColor"
-      />
-      <circle cx="50" cy="45" r="8" fill="currentColor" opacity="0.5" />
+// Premium SVG Icons
+const icons = {
+  palette: (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
     </svg>
-
-    <svg
-      className={`absolute bottom-32 right-20 w-40 h-40 animate-spin-very-slow-reverse ${isDark ? 'text-amber-500/5' : 'text-amber-400/10'}`}
-      viewBox="0 0 100 100"
-    >
-      <path
-        d="M50 10C50 10 70 30 70 50C70 65 60 70 50 70C40 70 30 65 30 50C30 30 50 10 50 10Z"
-        fill="currentColor"
-      />
-      <circle cx="50" cy="45" r="8" fill="currentColor" opacity="0.5" />
+  ),
+  frame: (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
     </svg>
-
-    {/* Corner Mandala Accents */}
-    <div className={`absolute top-0 left-0 w-48 h-48 ${isDark ? 'opacity-5' : 'opacity-10'}`}>
-      <svg viewBox="0 0 100 100" className="w-full h-full text-amber-500">
-        <circle cx="0" cy="0" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        <circle cx="0" cy="0" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        {[0, 45, 90].map((angle) => (
-          <line key={angle} x1="0" y1="0" x2="50" y2="0" stroke="currentColor" strokeWidth="0.3" transform={`rotate(${angle})`} />
-        ))}
-      </svg>
-    </div>
-
-    <div className={`absolute bottom-0 right-0 w-48 h-48 ${isDark ? 'opacity-5' : 'opacity-10'}`}>
-      <svg viewBox="0 0 100 100" className="w-full h-full text-amber-500">
-        <circle cx="100" cy="100" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        <circle cx="100" cy="100" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" />
-        {[180, 225, 270].map((angle) => (
-          <line key={angle} x1="100" y1="100" x2="50" y2="100" stroke="currentColor" strokeWidth="0.3" transform={`rotate(${angle} 100 100)`} />
-        ))}
-      </svg>
-    </div>
-  </div>
-);
+  ),
+  globe: (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+    </svg>
+  ),
+  download: (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
+  ),
+  sparkles: (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  ),
+  cursor: (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
+    </svg>
+  ),
+  document: (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+    </svg>
+  ),
+  share: (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+    </svg>
+  ),
+};
 
 export default function EmptyState({
   language,
@@ -130,620 +77,815 @@ export default function EmptyState({
 }: EmptyStateProps) {
   const isMarathi = language === 'mr';
   const isHindi = language === 'hi';
-  const isDevanagari = isMarathi || isHindi;
   const { isDark } = useDarkMode();
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  // Trilingual text helper
+  // Dynamic preview state
+  const [previewThemeIndex, setPreviewThemeIndex] = useState(0);
+  const [previewBorderIndex, setPreviewBorderIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Scroll-based animations
+  const { scrollY } = useScroll();
+  const featuresRef = useRef<HTMLElement>(null);
+  const stepsRef = useRef<HTMLElement>(null);
+  const templatesRef = useRef<HTMLElement>(null);
+  const featuresInView = useInView(featuresRef, { once: true, margin: '-100px' });
+  const stepsInView = useInView(stepsRef, { once: true, margin: '-100px' });
+  const templatesInView = useInView(templatesRef, { once: true, margin: '-100px' });
+
+  // Auto-rotate preview
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setPreviewThemeIndex((prev) => {
+          const nextTheme = (prev + 1) % themes.length;
+          if (nextTheme === 0) {
+            setPreviewBorderIndex((prevBorder) => (prevBorder + 1) % borderDesigns.length);
+          }
+          return nextTheme;
+        });
+        setIsTransitioning(false);
+      }, 300);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentPreviewTheme = themes[previewThemeIndex];
+  const currentPreviewBorder = borderDesigns[previewBorderIndex];
+
   const getText = (en: string, hi: string, mr: string) => {
     if (isHindi) return hi;
     if (isMarathi) return mr;
     return en;
   };
 
+  // Dynamic templates from themes
+  const allTemplates = themes.map((theme, i) => ({
+    id: theme.id,
+    name: theme.name,
+    nameHi: theme.nameHindi || theme.name,
+    nameMr: theme.nameMarathi,
+    theme,
+    border: borderDesigns[i % borderDesigns.length],
+  }));
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring' as const, stiffness: 100, damping: 15 }
+    }
+  };
+
+  const floatVariants = {
+    initial: { y: 0 },
+    animate: {
+      y: [-8, 8, -8],
+      transition: { duration: 6, repeat: Infinity, ease: 'easeInOut' as const }
+    }
+  };
+
   return (
     <main
-      className="min-h-screen py-8 px-4 transition-colors duration-300 relative overflow-hidden"
+      className="min-h-screen transition-colors duration-500 relative overflow-hidden"
       style={{
         background: isDark
-          ? 'linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)'
-          : 'linear-gradient(to bottom right, #FFFEF0, #FFF9E6, #FFF5D6)'
+          ? 'linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+          : 'linear-gradient(180deg, #FFFEF0 0%, #FFF9E6 30%, #FFEDD5 60%, #FFF9E6 100%)'
       }}
     >
-      {/* Animated Background */}
-      <FloatingElements isDark={isDark} />
-
-      {/* Mobile Preview - Top */}
-      <div className="lg:hidden relative z-10 mb-6 px-4">
-        <div className="flex justify-center">
-          <div
-            className="relative overflow-hidden rounded-xl shadow-2xl"
-            style={{
-              width: '240px',
-              height: '340px',
-            }}
-          >
-            <div style={{ '--preview-scale': '0.303' } as React.CSSProperties}>
-              <BiodataPreview
-                theme={currentTheme}
-                border={currentBorder}
-                language={language}
-              />
-            </div>
-          </div>
-        </div>
-        <p className={`text-center mt-3 text-sm ${isDark ? 'text-amber-400/80' : 'text-amber-700/80'}`}>
-          {getText('Live Preview', 'लाइव प्रीव्यू', 'लाइव्ह प्रीव्यू')}
-        </p>
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-20"
+          style={{ background: isDark ? '#D4AF37' : '#FBBF24' }}
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-15"
+          style={{ background: isDark ? '#800020' : '#E8A598' }}
+          animate={{
+            x: [0, -40, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        />
       </div>
 
-      {/* Desktop Layout - Two columns */}
-      <div className="max-w-7xl mx-auto relative z-10 lg:flex lg:gap-8 lg:px-4">
-        {/* Left Column - Controls */}
-        <div className="max-w-4xl mx-auto lg:mx-0 lg:flex-1 px-4 lg:px-0">
-          {/* Top Bar - Dark Mode & Language */}
-          <div className="flex justify-between items-center mb-6">
-          {/* Language Selector - Creative Floating Pills */}
-          <div className="relative">
-            <div className={`flex items-center gap-1 p-1 rounded-full ${isDark ? 'bg-slate-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg border ${isDark ? 'border-slate-700' : 'border-amber-200/50'}`}>
-              {/* Globe Icon */}
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? 'bg-amber-500/20' : 'bg-amber-100'}`}>
-                <svg className={`w-4 h-4 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-              </div>
-
-              {/* Language Buttons */}
-              <button
-                onClick={() => onLanguageChange('en')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${
-                  language === 'en'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                    : isDark ? 'text-slate-300 hover:text-amber-400 hover:bg-slate-700/50' : 'text-gray-600 hover:text-amber-700 hover:bg-amber-50'
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => onLanguageChange('hi')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-300 cursor-pointer ${
-                  language === 'hi'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                    : isDark ? 'text-slate-300 hover:text-amber-400 hover:bg-slate-700/50' : 'text-gray-600 hover:text-amber-700 hover:bg-amber-50'
-                }`}
-                style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}
-              >
-                हिं
-              </button>
-              <button
-                onClick={() => onLanguageChange('mr')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-300 cursor-pointer ${
-                  language === 'mr'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                    : isDark ? 'text-slate-300 hover:text-amber-400 hover:bg-slate-700/50' : 'text-gray-600 hover:text-amber-700 hover:bg-amber-50'
-                }`}
-                style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}
-              >
-                मरा
-              </button>
-            </div>
-          </div>
-
-          {/* Dark Mode Toggle */}
-          <DarkModeToggle />
-        </div>
-
-        {/* Hero Section - Centered Content */}
-        <div className="text-center mb-10">
-          {/* Logo with enhanced glow effect */}
-          <div className="flex justify-center mb-6">
-            <div className="relative group">
-              {/* Animated glow rings */}
-              <div
-                className="absolute inset-0 rounded-3xl animate-pulse"
+      <div className="relative z-10">
+        {/* Navigation Bar */}
+        <motion.nav
+          className="py-4 px-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="max-w-6xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={44}
+                height={44}
+                className="rounded-lg"
                 style={{
-                  background: isDark
-                    ? 'radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, transparent 60%)'
-                    : 'radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, transparent 60%)',
-                  transform: 'scale(2)',
+                  filter: isDark
+                    ? 'drop-shadow(0 4px 12px rgba(251, 191, 36, 0.3))'
+                    : 'drop-shadow(0 4px 12px rgba(128, 0, 32, 0.2))',
                 }}
+                priority
               />
-              <div
-                className="absolute inset-0 rounded-3xl animate-ping opacity-20"
-                style={{
-                  background: isDark
-                    ? 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 50%)'
-                    : 'radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 50%)',
-                  transform: 'scale(1.5)',
-                  animationDuration: '3s',
-                }}
-              />
-              {/* Logo */}
-              <div className="relative transition-transform duration-300 group-hover:scale-105">
-                <Image
-                  src="/logo.png"
-                  alt="Shubh Vivah Logo"
-                  width={110}
-                  height={110}
-                  className="rounded-2xl"
-                  style={{
-                    filter: isDark
-                      ? 'drop-shadow(0 10px 30px rgba(251, 191, 36, 0.35))'
-                      : 'drop-shadow(0 10px 30px rgba(128, 0, 32, 0.35))',
-                  }}
-                  priority
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Brand name with gradient */}
-          <h2
-            className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300' : 'text-transparent bg-clip-text bg-gradient-to-r from-[#800020] via-[#a02040] to-[#800020]'}`}
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            शुभ विवाह
-          </h2>
-
-          <h1 className={`text-xl md:text-2xl font-semibold mb-4 ${isDark ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: "'Poppins', sans-serif" }}>
-            {getText('Marriage Biodata Builder', 'विवाह बायोडाटा निर्माता', 'विवाह बायोडाटा निर्माता')}
-          </h1>
-
-          {/* Enhanced decorative divider */}
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className={`w-16 h-0.5 rounded-full ${isDark ? 'bg-gradient-to-r from-transparent via-amber-500/50 to-amber-500' : 'bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-[#D4AF37]'}`} />
-            <div className="relative">
-              <div className={`w-3 h-3 rounded-full ${isDark ? 'bg-amber-500' : 'bg-[#D4AF37]'}`} />
-              <div className={`absolute inset-0 w-3 h-3 rounded-full animate-ping ${isDark ? 'bg-amber-500/50' : 'bg-[#D4AF37]/50'}`} style={{ animationDuration: '2s' }} />
-            </div>
-            <div className={`w-16 h-0.5 rounded-full ${isDark ? 'bg-gradient-to-l from-transparent via-amber-500/50 to-amber-500' : 'bg-gradient-to-l from-transparent via-[#D4AF37]/50 to-[#D4AF37]'}`} />
-          </div>
-
-          {/* Tagline with subtle animation */}
-          <p className={`text-base md:text-lg ${isDark ? 'text-amber-300/90' : 'text-amber-700'}`}>
-            {getText(
-              'Create your beautiful marriage biodata in minutes',
-              'कुछ ही मिनटों में अपना सुंदर विवाह बायोडाटा बनाएं',
-              'तुमचा सुंदर विवाह बायोडाटा काही मिनिटांत तयार करा'
-            )}
-          </p>
-
-          {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
-            <div className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>{getText('Free to use', 'मुफ्त', 'विनामूल्य')}</span>
-            </div>
-            <div className={`w-1 h-1 rounded-full ${isDark ? 'bg-slate-600' : 'bg-gray-300'}`} />
-            <div className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-              <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>{getText('Private & Secure', 'सुरक्षित', 'सुरक्षित')}</span>
-            </div>
-            <div className={`w-1 h-1 rounded-full ${isDark ? 'bg-slate-600' : 'bg-gray-300'}`} />
-            <div className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-              <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span>{getText('Print Ready', 'प्रिंट रेडी', 'प्रिंट रेडी')}</span>
-            </div>
-          </div>
-
-          {/* Privacy explanation */}
-          <div className="mt-3 text-center">
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-              {getText(
-                'Your biodata stays on your device unless you export or share.',
-                'आपका बायोडाटा आपके डिवाइस पर रहता है जब तक आप एक्सपोर्ट या शेयर नहीं करते।',
-                'तुमचा बायोडाटा तुमच्या डिव्हाइसवर राहतो जोपर्यंत तुम्ही एक्सपोर्ट किंवा शेअर करत नाही.'
-              )}
-              {' '}
-              <button
-                onClick={() => setShowPrivacyModal(true)}
-                className={`underline cursor-pointer hover:no-underline ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
+              <span
+                className={`hidden sm:block text-lg font-bold ${isDark ? 'text-amber-100' : 'text-[#800020]'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                {getText('Learn how privacy works', 'गोपनीयता कैसे काम करती है', 'गोपनीयता कशी कार्य करते')}
-              </button>
-            </p>
-          </div>
-
-          {/* Primary CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
-            <button
-              onClick={onUseTemplate}
-              className="group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                {getText('Create Biodata', 'बायोडाटा बनाएं', 'बायोडाटा बनवा')}
+                {getText('Biodata Builder', 'बायोडाटा बिल्डर', 'बायोडाटा बिल्डर')}
               </span>
-              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-            <button
-              onClick={onStartBuilding}
-              className={`px-6 py-3 font-semibold rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-center gap-2 ${
-                isDark
-                  ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:border-amber-400'
-                  : 'border-amber-400 text-amber-700 hover:bg-amber-50 hover:border-amber-500'
-              }`}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              {getText('Start from Scratch', 'शुरू से शुरू करें', 'रिक्त बायोडाटा')}
-            </button>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex items-center gap-0.5 p-1 rounded-full ${isDark ? 'bg-slate-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-md border ${isDark ? 'border-slate-700' : 'border-amber-200/50'}`}>
+                {['en', 'hi', 'mr'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => onLanguageChange(lang as Language)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+                      language === lang
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                        : isDark ? 'text-slate-300 hover:text-amber-400' : 'text-gray-600 hover:text-amber-700'
+                    }`}
+                  >
+                    {lang === 'en' ? 'EN' : lang === 'hi' ? 'हिं' : 'मरा'}
+                  </button>
+                ))}
+              </div>
+              <DarkModeToggle />
+            </div>
           </div>
-        </div>
+        </motion.nav>
 
-        {/* Theme Selection */}
-        <div className={`rounded-2xl shadow-lg p-6 mb-6 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-          <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30' : 'bg-gradient-to-br from-amber-100 to-orange-100'}`}>
-              <svg className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9zM6.5 13c-.83 0-1.5-.67-1.5-1.5S5.67 10 6.5 10s1.5.67 1.5 1.5S7.33 13 6.5 13zm3-4C8.67 9 8 8.33 8 7.5S8.67 6 9.5 6s1.5.67 1.5 1.5S10.33 9 9.5 9zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 6 14.5 6s1.5.67 1.5 1.5S15.33 9 14.5 9zm3 4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-              </svg>
-            </span>
-            {getText('Choose Your Theme', 'अपनी थीम चुनें', 'थीम निवडा')}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => onThemeChange(theme)}
-                className={`relative p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                  currentTheme.id === theme.id
-                    ? 'border-amber-500 shadow-lg scale-105'
-                    : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
-                }`}
+        {/* Hero Section with Live Preview */}
+        <section className="py-8 md:py-16 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              {/* Left: Content */}
+              <motion.div
+                className="text-center lg:text-left order-2 lg:order-1"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
               >
-                {currentTheme.id === theme.id && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                )}
-                <div className="flex gap-1 mb-2">
-                  <div className="w-6 h-6 rounded-full" style={{ backgroundColor: theme.colors.primary }} />
-                  <div className="w-6 h-6 rounded-full" style={{ backgroundColor: theme.colors.secondary }} />
-                  <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: theme.colors.background }} />
-                </div>
-                <p className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {isHindi ? (theme.nameHindi || theme.name) : isMarathi ? theme.nameMarathi : theme.name}
+                <h1
+                  className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight ${
+                    isDark
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200'
+                      : 'text-transparent bg-clip-text bg-gradient-to-r from-[#800020] via-[#a02040] to-[#800020]'
+                  }`}
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {getText(
+                    'Create Beautiful Marriage Biodatas',
+                    'सुंदर विवाह बायोडाटा बनाएं',
+                    'सुंदर विवाह बायोडाटा तयार करा'
+                  )}
+                </h1>
+
+                <p className={`text-base sm:text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {getText(
+                    'Professional, print-ready biodatas in minutes. Choose from beautiful themes, multiple languages, and elegant borders.',
+                    'कुछ ही मिनटों में प्रोफेशनल, प्रिंट-रेडी बायोडाटा। सुंदर थीम, कई भाषाएं और खूबसूरत बॉर्डर।',
+                    'काही मिनिटांत प्रोफेशनल, प्रिंट-रेडी बायोडाटा. सुंदर थीम, अनेक भाषा आणि सुंदर बॉर्डर.'
+                  )}
                 </p>
-              </button>
-            ))}
-          </div>
-        </div>
 
-        {/* Border Selection */}
-        <div className={`rounded-2xl shadow-lg p-6 mb-6 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-          <h2 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/30' : 'bg-gradient-to-br from-amber-100 to-orange-100'}`}>
-              <svg className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <rect x="6" y="6" width="12" height="12" rx="1" strokeDasharray="2 2" />
-                <path d="M3 7h2M3 12h2M3 17h2M19 7h2M19 12h2M19 17h2M7 3v2M12 3v2M17 3v2M7 19v2M12 19v2M17 19v2" strokeWidth="1" />
-              </svg>
-            </span>
-            {getText('Choose Border Design', 'बॉर्डर डिज़ाइन चुनें', 'बॉर्डर डिझाइन निवडा')}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {borderDesigns.map((border) => (
-              <button
-                key={border.id}
-                onClick={() => onBorderChange(border)}
-                className={`relative p-2 rounded-xl border-2 transition-all cursor-pointer ${
-                  currentBorder.id === border.id
-                    ? 'border-amber-500 shadow-lg scale-105'
-                    : isDark ? 'border-slate-600 hover:border-amber-400 hover:shadow' : 'border-gray-200 hover:border-amber-300 hover:shadow'
-                }`}
+                {/* Trust badges */}
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-6">
+                  {[
+                    { icon: '🔒', text: getText('100% Private', '100% निजी', '100% खाजगी') },
+                    { icon: '🌐', text: getText('3 Languages', '3 भाषाएं', '3 भाषा') },
+                    { icon: '📄', text: getText('PDF & Image', 'PDF और इमेज', 'PDF आणि इमेज') },
+                  ].map((badge, i) => (
+                    <motion.div
+                      key={i}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
+                        isDark ? 'bg-slate-800/60 text-gray-300' : 'bg-white/80 text-gray-700'
+                      } shadow-sm backdrop-blur-sm`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                    >
+                      <span>{badge.icon}</span>
+                      <span className="font-medium">{badge.text}</span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                >
+                  <motion.button
+                    onClick={onStartBuilding}
+                    className="w-full sm:w-auto group px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                      </svg>
+                      {getText('Create Your Biodata', 'अपना बायोडाटा बनाएं', 'तुमचा बायोडाटा बनवा')}
+                    </span>
+                  </motion.button>
+                  <motion.button
+                    onClick={() => {
+                      onThemeChange(currentPreviewTheme);
+                      onBorderChange(currentPreviewBorder);
+                      onUseTemplate();
+                    }}
+                    className={`w-full sm:w-auto px-6 py-3 font-semibold rounded-xl border-2 transition-all cursor-pointer ${
+                      isDark
+                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10'
+                        : 'border-amber-600/50 text-amber-700 hover:bg-amber-50'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {getText('Use This Template', 'यह टेम्पलेट उपयोग करें', 'हा टेम्पलेट वापरा')}
+                  </motion.button>
+                </motion.div>
+
+                {/* Privacy note */}
+                <motion.button
+                  onClick={() => setShowPrivacyModal(true)}
+                  className={`mt-4 inline-flex items-center gap-1.5 text-sm cursor-pointer hover:underline ${
+                    isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {getText('Your data stays private - learn how', 'आपका डेटा सुरक्षित रहता है', 'तुमचा डेटा खाजगी राहतो')}
+                </motion.button>
+              </motion.div>
+
+              {/* Right: Dynamic Live Preview */}
+              <motion.div
+                className="order-1 lg:order-2 flex justify-center"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
               >
-                {currentBorder.id === border.id && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center z-10">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                <motion.div
+                  className="relative"
+                  variants={floatVariants}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {/* Decorative glow */}
+                  <motion.div
+                    className="absolute -inset-8 rounded-3xl blur-3xl opacity-30"
+                    style={{ background: currentPreviewTheme.colors.primary }}
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.35, 0.2] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  />
+
+                  {/* Main preview card */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`${currentPreviewTheme.id}-${currentPreviewBorder.id}`}
+                      className="relative rounded-2xl shadow-2xl overflow-hidden"
+                      style={{
+                        width: '280px',
+                        height: '380px',
+                        backgroundColor: currentPreviewTheme.colors.background,
+                      }}
+                      initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
+                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, rotateY: 10 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <BorderRenderer
+                        borderId={currentPreviewBorder.id}
+                        primaryColor={currentPreviewTheme.colors.primary}
+                        secondaryColor={currentPreviewTheme.colors.secondary}
+                      />
+                      <div className="absolute inset-0 z-10 p-6 flex flex-col items-center">
+                        <div className="text-3xl mb-2" style={{ color: currentPreviewTheme.colors.primary }}>ॐ</div>
+                        <div className="text-xs font-medium mb-3" style={{ color: currentPreviewTheme.colors.secondary }}>
+                          || श्री गणेशाय नमः ||
+                        </div>
+                        <div className="text-sm font-bold mb-3" style={{ color: currentPreviewTheme.colors.headerText }}>
+                          {getText('MARRIAGE BIODATA', 'विवाह बायोडाटा', 'विवाह बायोडाटा')}
+                        </div>
+                        <div
+                          className="w-16 h-20 rounded-sm mb-3 flex items-center justify-center"
+                          style={{
+                            border: `2px solid ${currentPreviewTheme.colors.primary}`,
+                            backgroundColor: currentPreviewTheme.colors.backgroundAlt,
+                          }}
+                        >
+                          <svg className="w-6 h-6" fill={currentPreviewTheme.colors.primary} viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                        <div className="text-sm font-semibold mb-4" style={{ color: currentPreviewTheme.colors.text }}>
+                          {getText('Your Name Here', 'आपका नाम यहां', 'तुमचे नाव येथे')}
+                        </div>
+                        <div className="w-full">
+                          <div
+                            className="text-xs font-semibold pb-1 mb-2 border-b"
+                            style={{ color: currentPreviewTheme.colors.headerText, borderColor: currentPreviewTheme.colors.primary }}
+                          >
+                            {getText('Personal Details', 'व्यक्तिगत विवरण', 'वैयक्तिक तपशील')}
+                          </div>
+                          <div className="space-y-1.5 text-[10px]">
+                            {[
+                              getText('Date of Birth', 'जन्म तिथि', 'जन्म तारीख'),
+                              getText('Height', 'ऊंचाई', 'उंची'),
+                              getText('Education', 'शिक्षा', 'शिक्षण'),
+                            ].map((field, i) => (
+                              <div key={i} className="flex">
+                                <span className="w-1/2" style={{ color: currentPreviewTheme.colors.textMuted }}>{field}</span>
+                                <span className="w-1/2" style={{ color: currentPreviewTheme.colors.text }}>: ................</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Theme/Border indicator */}
+                  <motion.div
+                    className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2 ${isDark ? 'bg-slate-800 text-gray-200' : 'bg-white text-gray-700'}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ background: `linear-gradient(135deg, ${currentPreviewTheme.preview[0]}, ${currentPreviewTheme.preview[1]})` }}
+                    />
+                    <span>
+                      {isHindi ? currentPreviewTheme.nameHindi : isMarathi ? currentPreviewTheme.nameMarathi : currentPreviewTheme.name}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <span>
+                      {isHindi ? currentPreviewBorder.nameHindi : isMarathi ? currentPreviewBorder.nameMarathi : currentPreviewBorder.name}
+                    </span>
+                  </motion.div>
+
+                  {/* Preview cycle indicators */}
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {themes.map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="h-1.5 rounded-full"
+                        style={{
+                          width: i === previewThemeIndex ? 16 : 6,
+                          backgroundColor: i === previewThemeIndex
+                            ? '#f59e0b'
+                            : isDark ? '#334155' : '#d1d5db'
+                        }}
+                        animate={{ width: i === previewThemeIndex ? 16 : 6 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    ))}
                   </div>
-                )}
-                <div className="aspect-[3/4] relative rounded-lg overflow-hidden" style={{ backgroundColor: currentTheme.colors.background }}>
-                  <BorderRenderer
-                    borderId={border.id}
-                    primaryColor={currentTheme.colors.primary}
-                    secondaryColor={currentTheme.colors.secondary}
-                  />
-                </div>
-                <p className={`text-xs font-medium mt-2 text-center ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {isHindi ? (border.nameHindi || border.name) : isMarathi ? border.nameMarathi : border.name}
-                </p>
-              </button>
-            ))}
+                </motion.div>
+              </motion.div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Start Options */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-8 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-          <h2 className={`text-xl font-semibold mb-6 text-center ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-            {getText('How would you like to start?', 'आप कैसे शुरू करना चाहेंगे?', 'कसे सुरू करायचे?')}
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Start from Scratch */}
-            <button
-              onClick={onStartBuilding}
-              className={`group relative p-6 rounded-2xl border-2 transition-all text-left shadow-sm hover:shadow-xl cursor-pointer ${isDark ? 'border-slate-600 hover:border-amber-500 hover:bg-slate-700/50' : 'border-gray-200 hover:border-amber-400'}`}
+        {/* Features Section */}
+        <motion.section
+          ref={featuresRef}
+          className={`py-20 px-6 ${isDark ? 'bg-gradient-to-b from-slate-900/80 to-slate-900/40' : 'bg-gradient-to-b from-white/80 to-white/40'}`}
+        >
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              animate={featuresInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6 }}
             >
-              <div className="flex items-start gap-4">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform ${isDark ? 'bg-gradient-to-br from-slate-600 to-slate-700' : 'bg-gradient-to-br from-gray-100 to-gray-200'}`}>
-                  <svg className={`w-7 h-7 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" opacity="0.3"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={`text-lg font-semibold mb-1 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-                    {getText('Start from Scratch', 'शुरू से शुरू करें', 'रिक्त बायोडाटा')}
-                  </h3>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {getText(
-                      'Add your own sections and fields from the beginning',
-                      'अपने खुद के सेक्शन और फील्ड जोड़ें',
-                      'स्वतःहून सर्व विभाग आणि फील्ड जोडा'
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                </svg>
-              </div>
-            </button>
-
-            {/* Use Reference Template */}
-            <button
-              onClick={onUseTemplate}
-              className={`group relative p-6 rounded-2xl border-2 transition-all text-left shadow-md hover:shadow-xl cursor-pointer ${isDark ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-slate-800 hover:border-amber-400' : 'border-amber-300 bg-gradient-to-br from-amber-50 to-white hover:border-amber-500'}`}
-            >
-              <div className="absolute -top-3 -right-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
-                {getText('Recommended', 'अनुशंसित', 'शिफारस')}
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg">
-                  <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-                    <path d="M8 15.01V17h1.99l5.88-5.88-1.99-1.99L8 15.01zm7.66-4.95l-1.41-1.41-.71.71 1.41 1.41.71-.71z" opacity="0.8"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={`text-lg font-semibold mb-1 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-                    {getText('Use Reference Template', 'रेफरेंस टेम्पलेट उपयोग करें', 'संदर्भ टेम्पलेट वापरा')}
-                  </h3>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {getText(
-                      'Start with a pre-filled sample and customize it',
-                      'पहले से भरे नमूने के साथ शुरू करें और इसे अनुकूलित करें',
-                      'पूर्व-भरलेला नमुना पाहा आणि संपादित करा'
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                </svg>
-              </div>
-            </button>
-          </div>
-
-        </div>
-
-        <p className={`text-center text-sm mb-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-          {getText(
-            'Your data is securely saved in your browser',
-            'आपका डेटा आपके ब्राउज़र में सुरक्षित रूप से सहेजा जाता है',
-            'तुमचा डेटा तुमच्या ब्राउझरमध्ये सुरक्षितपणे जतन केला जातो'
-          )}
-        </p>
-
-        {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30' : 'bg-gradient-to-br from-emerald-100 to-teal-100'}`}>
-              <svg className={`w-7 h-7 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
-              </svg>
-            </div>
-            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-              {getText('Fully Customizable', 'पूर्णतः अनुकूलन योग्य', 'पूर्णपणे सानुकूल')}
-            </h3>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              {getText(
-                'Add only the fields you need',
-                'केवल वही फ़ील्ड जोड़ें जो आपको चाहिए',
-                'तुम्हाला हवे ते फील्ड जोडा'
-              )}
-            </p>
-          </div>
-          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-rose-500/30 to-pink-500/30' : 'bg-gradient-to-br from-rose-100 to-pink-100'}`}>
-              <svg className={`w-7 h-7 ${isDark ? 'text-rose-400' : 'text-rose-600'}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-              </svg>
-            </div>
-            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-              {getText('PDF Download', 'PDF डाउनलोड', 'PDF डाउनलोड')}
-            </h3>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              {getText(
-                'Download in A4 size',
-                'A4 साइज में डाउनलोड करें',
-                'A4 साइझमध्ये डाउनलोड करा'
-              )}
-            </p>
-          </div>
-          <div className={`rounded-2xl p-6 text-center shadow-lg transition-transform hover:scale-105 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-            <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-violet-500/30 to-purple-500/30' : 'bg-gradient-to-br from-violet-100 to-purple-100'}`}>
-              <svg className={`w-7 h-7 ${isDark ? 'text-violet-400' : 'text-violet-600'}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
-              </svg>
-            </div>
-            <h3 className={`font-semibold mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-              {getText('Trilingual', 'त्रिभाषी', 'त्रिभाषिक')}
-            </h3>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              {getText(
-                'English, Hindi & Marathi',
-                'अंग्रेजी, हिंदी और मराठी',
-                'इंग्रजी, हिंदी आणि मराठी'
-              )}
-            </p>
-          </div>
-        </div>
-        </div>
-        {/* End of Left Column */}
-
-        {/* Right Column - Desktop Preview (hidden on mobile) */}
-        <div className="hidden lg:block lg:w-[320px] lg:flex-shrink-0 lg:sticky lg:top-8 lg:self-start">
-          <div className={`rounded-2xl shadow-lg p-4 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
-            <h3 className={`text-center text-sm font-semibold mb-3 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
-              {getText('Live Preview', 'लाइव प्रीव्यू', 'लाइव्ह प्रीव्यू')}
-            </h3>
-            <div className="flex justify-center">
-              <div
-                className="relative overflow-hidden rounded-lg shadow-lg"
-                style={{
-                  width: '252px',
-                  height: '356px',
-                }}
+              <motion.div
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${
+                  isDark ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-100 text-amber-700'
+                }`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={featuresInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ delay: 0.2 }}
               >
-                <div style={{ '--preview-scale': '0.318' } as React.CSSProperties}>
-                  <BiodataPreview
-                    theme={currentTheme}
-                    border={currentBorder}
-                    language={language}
-                  />
-                </div>
-              </div>
+                {icons.sparkles}
+                <span>{getText('Features', 'विशेषताएं', 'वैशिष्ट्ये')}</span>
+              </motion.div>
+              <h2
+                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                {getText('Everything You Need', 'वह सब कुछ जो आपको चाहिए', 'तुम्हाला हवे असलेले सर्वकाही')}
+              </h2>
+              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {getText(
+                  'Create professional marriage biodatas with our easy-to-use builder',
+                  'हमारे आसान बिल्डर से प्रोफेशनल बायोडाटा बनाएं',
+                  'आमच्या सोप्या बिल्डरने प्रोफेशनल बायोडाटा बनवा'
+                )}
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate={featuresInView ? 'visible' : 'hidden'}
+            >
+              {[
+                {
+                  icon: icons.palette,
+                  title: getText('Beautiful Themes', 'सुंदर थीम', 'सुंदर थीम'),
+                  desc: getText(
+                    `${themes.length} elegant color themes`,
+                    `${themes.length} खूबसूरत कलर थीम`,
+                    `${themes.length} सुंदर कलर थीम`
+                  ),
+                  gradient: 'from-violet-500 to-purple-600',
+                },
+                {
+                  icon: icons.frame,
+                  title: getText('Decorative Borders', 'सजावटी बॉर्डर', 'सजावटीच्या बॉर्डर'),
+                  desc: getText(
+                    `${borderDesigns.length} traditional designs`,
+                    `${borderDesigns.length} पारंपरिक डिजाइन`,
+                    `${borderDesigns.length} पारंपारिक डिझाइन`
+                  ),
+                  gradient: 'from-rose-500 to-pink-600',
+                },
+                {
+                  icon: icons.globe,
+                  title: getText('Multi-language', 'बहुभाषी', 'बहुभाषिक'),
+                  desc: getText(
+                    'English, Hindi & Marathi',
+                    'इंग्लिश, हिंदी और मराठी',
+                    'इंग्रजी, हिंदी आणि मराठी'
+                  ),
+                  gradient: 'from-blue-500 to-cyan-600',
+                },
+                {
+                  icon: icons.download,
+                  title: getText('Easy Export', 'आसान एक्सपोर्ट', 'सोपा एक्सपोर्ट'),
+                  desc: getText(
+                    'PDF or high-quality images',
+                    'PDF या HD इमेज',
+                    'PDF किंवा HD इमेज'
+                  ),
+                  gradient: 'from-amber-500 to-orange-600',
+                },
+              ].map((feature, i) => (
+                <motion.div
+                  key={i}
+                  className={`group relative p-8 rounded-3xl transition-all duration-300 overflow-hidden ${
+                    isDark
+                      ? 'bg-slate-800/50 hover:bg-slate-800/80'
+                      : 'bg-white hover:shadow-2xl'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                >
+                  {/* Gradient border on hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ padding: '1px', borderRadius: '1.5rem' }}>
+                    <div className={`w-full h-full rounded-3xl ${isDark ? 'bg-slate-800' : 'bg-white'}`} />
+                  </div>
+
+                  <div className="relative z-10">
+                    <motion.div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-r ${feature.gradient} text-white`}
+                      whileHover={{ rotate: 5, scale: 1.1 }}
+                      transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                      {feature.icon}
+                    </motion.div>
+                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {feature.title}
+                    </h3>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {feature.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* How It Works Section */}
+        <motion.section
+          ref={stepsRef}
+          className="py-20 px-6"
+        >
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              animate={stepsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6 }}
+            >
+              <h2
+                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                {getText('How It Works', 'यह कैसे काम करता है', 'हे कसे कार्य करते')}
+              </h2>
+              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {getText('Three simple steps to your perfect biodata', 'तीन आसान कदम', 'तीन सोप्या पायऱ्या')}
+              </p>
+            </motion.div>
+
+            <div className="relative">
+              {/* Connecting line */}
+              <div className={`absolute top-1/2 left-0 right-0 h-0.5 hidden md:block ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
+
+              <motion.div
+                className="grid md:grid-cols-3 gap-8 relative"
+                variants={containerVariants}
+                initial="hidden"
+                animate={stepsInView ? 'visible' : 'hidden'}
+              >
+                {[
+                  {
+                    step: '01',
+                    icon: icons.cursor,
+                    title: getText('Choose Style', 'स्टाइल चुनें', 'स्टाइल निवडा'),
+                    desc: getText('Pick a theme and border', 'थीम और बॉर्डर चुनें', 'थीम आणि बॉर्डर निवडा'),
+                  },
+                  {
+                    step: '02',
+                    icon: icons.document,
+                    title: getText('Fill Details', 'विवरण भरें', 'तपशील भरा'),
+                    desc: getText('Add your information', 'अपनी जानकारी डालें', 'तुमची माहिती टाका'),
+                  },
+                  {
+                    step: '03',
+                    icon: icons.share,
+                    title: getText('Download & Share', 'डाउनलोड और शेयर', 'डाउनलोड आणि शेअर'),
+                    desc: getText('Export and share', 'एक्सपोर्ट करें', 'एक्सपोर्ट करा'),
+                  },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    className="relative text-center"
+                    variants={itemVariants}
+                  >
+                    <motion.div
+                      className={`relative mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 ${
+                        isDark
+                          ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-500/30'
+                          : 'bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200'
+                      }`}
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                      <div className={`${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                        {item.icon}
+                      </div>
+                      <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                        isDark
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                      }`}>
+                        {item.step}
+                      </div>
+                    </motion.div>
+                    <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {item.title}
+                    </h3>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {item.desc}
+                    </p>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
-            <p className={`text-center mt-3 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          </div>
+        </motion.section>
+
+        {/* Template Gallery Section */}
+        <motion.section
+          ref={templatesRef}
+          id="templates"
+          className={`py-20 px-6 ${isDark ? 'bg-gradient-to-b from-slate-900/40 to-slate-900/80' : 'bg-gradient-to-b from-white/40 to-white/80'}`}
+        >
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={templatesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6 }}
+            >
+              <h2
+                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                {getText('Choose Your Template', 'अपना टेम्पलेट चुनें', 'तुमचा टेम्पलेट निवडा')}
+              </h2>
+              <p className={`text-lg max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {getText(
+                  'Select a template and start customizing immediately',
+                  'टेम्पलेट चुनें और तुरंत शुरू करें',
+                  'टेम्पलेट निवडा आणि लगेच सुरू करा'
+                )}
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5"
+              variants={containerVariants}
+              initial="hidden"
+              animate={templatesInView ? 'visible' : 'hidden'}
+            >
+              {allTemplates.map((template, i) => (
+                <motion.button
+                  key={template.id}
+                  onClick={() => {
+                    onThemeChange(template.theme);
+                    onBorderChange(template.border);
+                    onUseTemplate();
+                  }}
+                  className={`group relative rounded-2xl overflow-hidden cursor-pointer ${
+                    isDark ? 'ring-1 ring-slate-700' : 'ring-1 ring-gray-200'
+                  }`}
+                  variants={itemVariants}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div
+                    className="aspect-[3/4] relative"
+                    style={{ backgroundColor: template.theme.colors.background }}
+                  >
+                    <BorderRenderer
+                      borderId={template.border.id}
+                      primaryColor={template.theme.colors.primary}
+                      secondaryColor={template.theme.colors.secondary}
+                    />
+                    <div className="absolute inset-4 flex flex-col items-center justify-center">
+                      <div className="text-2xl mb-2" style={{ color: template.theme.colors.primary }}>ॐ</div>
+                      <div className="w-8 h-10 rounded-sm mb-3" style={{ border: `1.5px solid ${template.theme.colors.primary}`, opacity: 0.5 }} />
+                      <div className="w-full space-y-1.5">
+                        <div className="h-1 w-3/4 mx-auto rounded-full" style={{ backgroundColor: template.theme.colors.primary, opacity: 0.4 }} />
+                        <div className="h-0.5 w-1/2 mx-auto rounded-full" style={{ backgroundColor: template.theme.colors.text, opacity: 0.2 }} />
+                      </div>
+                    </div>
+                    {/* Hover overlay */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end justify-center pb-6"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                        {getText('Use Template', 'उपयोग करें', 'वापरा')}
+                      </span>
+                    </motion.div>
+                  </div>
+                  <div className={`py-3 text-center ${isDark ? 'bg-slate-800' : 'bg-gray-50'}`}>
+                    <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                      {isHindi ? template.nameHi : isMarathi ? template.nameMr : template.name}
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* Footer */}
+        <footer className="py-12 px-6">
+          <div className="max-w-6xl mx-auto text-center">
+            <motion.div
+              className="mb-6"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${isDark ? 'bg-slate-800/60' : 'bg-white/80'} shadow-sm`}>
+                <span className="text-green-500">●</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {getText('100% Free • No Signup Required', '100% मुफ्त • साइनअप की जरूरत नहीं', '100% मोफत • साइनअपची गरज नाही')}
+                </span>
+              </div>
+            </motion.div>
+            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
               {getText(
-                'Changes reflect instantly',
-                'बदलाव तुरंत दिखते हैं',
-                'बदल लगेच दिसतात'
+                'Your data stays on your device. We never see or store your information.',
+                'आपका डेटा आपके डिवाइस पर रहता है।',
+                'तुमचा डेटा तुमच्या डिव्हाइसवर राहतो.'
               )}
             </p>
           </div>
-        </div>
+        </footer>
       </div>
 
       {/* Privacy Modal */}
-      {showPrivacyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className={`relative max-w-md w-full rounded-2xl shadow-2xl p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
-            {/* Close button */}
-            <button
-              onClick={() => setShowPrivacyModal(false)}
-              className={`absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors cursor-pointer ${
-                isDark ? 'hover:bg-slate-700 text-gray-400 hover:text-gray-200' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
-              }`}
+      <AnimatePresence>
+        {showPrivacyModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className={`relative max-w-md w-full rounded-3xl shadow-2xl p-8 ${isDark ? 'bg-slate-800' : 'bg-white'}`}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', duration: 0.5 }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              <button
+                onClick={() => setShowPrivacyModal(false)}
+                className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-colors ${
+                  isDark ? 'hover:bg-slate-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
+              </button>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? 'bg-green-500/20' : 'bg-green-100'}`}>
+                  <svg className="w-7 h-7 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className={`text-xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
+                    {getText('Your Privacy is Protected', 'आपकी गोपनीयता सुरक्षित है', 'तुमची गोपनीयता संरक्षित आहे')}
+                  </h3>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {getText('We take your privacy seriously', 'हम गोपनीयता को गंभीरता से लेते हैं', 'आम्ही गोपनीयतेला गांभीर्याने घेतो')}
+                  </p>
+                </div>
               </div>
-              <h3 className={`text-lg font-bold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-                {getText('Your Privacy is Protected', 'आपकी गोपनीयता सुरक्षित है', 'तुमची गोपनीयता सुरक्षित आहे')}
-              </h3>
-            </div>
 
-            {/* Privacy points */}
-            <ul className="space-y-3 mb-6">
-              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {getText(
-                    'All data is stored locally in your browser - we never see or store your biodata on any server.',
-                    'सारा डेटा आपके ब्राउज़र में लोकली स्टोर होता है - हम आपका बायोडाटा कभी नहीं देखते या किसी सर्वर पर स्टोर नहीं करते।',
-                    'सर्व डेटा तुमच्या ब्राउझरमध्ये लोकली स्टोअर होतो - आम्ही तुमचा बायोडाटा कधीही पाहत नाही किंवा सर्व्हरवर स्टोअर करत नाही.'
-                  )}
-                </span>
-              </li>
-              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {getText(
-                    'No account or login required - your data belongs only to you.',
-                    'कोई अकाउंट या लॉगिन जरूरी नहीं - आपका डेटा केवल आपका है।',
-                    'कोणताही अकाउंट किंवा लॉगिन आवश्यक नाही - तुमचा डेटा फक्त तुमचाच आहे.'
-                  )}
-                </span>
-              </li>
-              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {getText(
-                    'PDF and image exports are created directly on your device.',
-                    'PDF और इमेज एक्सपोर्ट सीधे आपके डिवाइस पर बनते हैं।',
-                    'PDF आणि इमेज एक्सपोर्ट थेट तुमच्या डिव्हाइसवर तयार होतात.'
-                  )}
-                </span>
-              </li>
-              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {getText(
-                    'Share links use URL encoding - data travels directly to recipient, not through our servers.',
-                    'शेयर लिंक URL एनकोडिंग का उपयोग करते हैं - डेटा सीधे प्राप्तकर्ता को जाता है, हमारे सर्वर से नहीं।',
-                    'शेअर लिंक्स URL एनकोडिंग वापरतात - डेटा थेट प्राप्तकर्त्याकडे जातो, आमच्या सर्व्हरमधून नाही.'
-                  )}
-                </span>
-              </li>
-              <li className={`flex items-start gap-3 text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {getText(
-                    'Clear browser data anytime to remove all traces.',
-                    'सब हटाने के लिए कभी भी ब्राउज़र डेटा क्लियर करें।',
-                    'सर्व ट्रेसेस काढण्यासाठी कधीही ब्राउझर डेटा क्लिअर करा.'
-                  )}
-                </span>
-              </li>
-            </ul>
+              <ul className="space-y-4 mb-8">
+                {[
+                  { icon: '💾', text: getText('All data stored locally in your browser', 'सारा डेटा ब्राउज़र में स्टोर', 'सर्व डेटा ब्राउझरमध्ये स्टोअर') },
+                  { icon: '🚫', text: getText('No account or signup required', 'कोई साइनअप जरूरी नहीं', 'कोणताही साइनअप आवश्यक नाही') },
+                  { icon: '📱', text: getText('PDF exports created on your device', 'PDF डिवाइस पर बनते हैं', 'PDF डिव्हाइसवर बनतात') },
+                  { icon: '🔐', text: getText('We never see or store your data', 'हम डेटा कभी नहीं देखते', 'आम्ही डेटा कधीही पाहत नाही') },
+                  { icon: '🌐', text: getText('Works offline after first load', 'पहली बार के बाद ऑफलाइन', 'पहिल्यांदा नंतर ऑफलाइन') },
+                ].map((item, i) => (
+                  <motion.li
+                    key={i}
+                    className={`flex items-center gap-4 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <span className="text-2xl">{item.icon}</span>
+                    <span>{item.text}</span>
+                  </motion.li>
+                ))}
+              </ul>
 
-            {/* Close button */}
-            <button
-              onClick={() => setShowPrivacyModal(false)}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 cursor-pointer"
-            >
-              {getText('Got it!', 'समझ गया!', 'समजले!')}
-            </button>
-          </div>
-        </div>
-      )}
+              <motion.button
+                onClick={() => setShowPrivacyModal(false)}
+                className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-2xl cursor-pointer transition-all text-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {getText('Got it!', 'समझ गया!', 'समजले!')}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
