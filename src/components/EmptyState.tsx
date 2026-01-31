@@ -330,6 +330,35 @@ export default function EmptyState({
               <span>{getText('Print Ready', 'प्रिंट रेडी', 'प्रिंट रेडी')}</span>
             </div>
           </div>
+
+          {/* Primary CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+            <button
+              onClick={onUseTemplate}
+              className="group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                {getText('Create Biodata', 'बायोडाटा बनाएं', 'बायोडाटा बनवा')}
+              </span>
+              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
+            <button
+              onClick={onStartBuilding}
+              className={`px-6 py-3 font-semibold rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+                isDark
+                  ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:border-amber-400'
+                  : 'border-amber-400 text-amber-700 hover:bg-amber-50 hover:border-amber-500'
+              }`}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              {getText('Start from Scratch', 'शुरू से शुरू करें', 'रिक्त बायोडाटा')}
+            </button>
+          </div>
         </div>
 
         {/* Theme Selection */}
