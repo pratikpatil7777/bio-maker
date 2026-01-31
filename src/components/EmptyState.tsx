@@ -8,6 +8,7 @@ import { BorderDesign, borderDesigns } from '@/lib/borders';
 import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
+import BiodataPreview from './BiodataPreview';
 
 interface EmptyStateProps {
   language: Language;
@@ -151,9 +152,36 @@ export default function EmptyState({
       {/* Animated Background */}
       <FloatingElements isDark={isDark} />
 
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Top Bar - Dark Mode & Language */}
-        <div className="flex justify-between items-center mb-6">
+      {/* Mobile Preview - Top */}
+      <div className="lg:hidden relative z-10 mb-6 px-4">
+        <div className="flex justify-center">
+          <div
+            className="relative overflow-hidden rounded-xl shadow-2xl"
+            style={{
+              width: '240px',
+              height: '340px',
+            }}
+          >
+            <div style={{ '--preview-scale': '0.303' } as React.CSSProperties}>
+              <BiodataPreview
+                theme={currentTheme}
+                border={currentBorder}
+                language={language}
+              />
+            </div>
+          </div>
+        </div>
+        <p className={`text-center mt-3 text-sm ${isDark ? 'text-amber-400/80' : 'text-amber-700/80'}`}>
+          {getText('Live Preview', 'लाइव प्रीव्यू', 'लाइव्ह प्रीव्यू')}
+        </p>
+      </div>
+
+      {/* Desktop Layout - Two columns */}
+      <div className="max-w-7xl mx-auto relative z-10 lg:flex lg:gap-8 lg:px-4">
+        {/* Left Column - Controls */}
+        <div className="max-w-4xl mx-auto lg:mx-0 lg:flex-1 px-4 lg:px-0">
+          {/* Top Bar - Dark Mode & Language */}
+          <div className="flex justify-between items-center mb-6">
           {/* Language Selector - Creative Floating Pills */}
           <div className="relative">
             <div className={`flex items-center gap-1 p-1 rounded-full ${isDark ? 'bg-slate-800/80' : 'bg-white/80'} backdrop-blur-sm shadow-lg border ${isDark ? 'border-slate-700' : 'border-amber-200/50'}`}>
@@ -525,6 +553,41 @@ export default function EmptyState({
                 'English, Hindi & Marathi',
                 'अंग्रेजी, हिंदी और मराठी',
                 'इंग्रजी, हिंदी आणि मराठी'
+              )}
+            </p>
+          </div>
+        </div>
+        </div>
+        {/* End of Left Column */}
+
+        {/* Right Column - Desktop Preview (hidden on mobile) */}
+        <div className="hidden lg:block lg:w-[320px] lg:flex-shrink-0 lg:sticky lg:top-8 lg:self-start">
+          <div className={`rounded-2xl shadow-lg p-4 ${isDark ? 'bg-slate-800/80' : 'bg-white'}`}>
+            <h3 className={`text-center text-sm font-semibold mb-3 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>
+              {getText('Live Preview', 'लाइव प्रीव्यू', 'लाइव्ह प्रीव्यू')}
+            </h3>
+            <div className="flex justify-center">
+              <div
+                className="relative overflow-hidden rounded-lg shadow-lg"
+                style={{
+                  width: '252px',
+                  height: '356px',
+                }}
+              >
+                <div style={{ '--preview-scale': '0.318' } as React.CSSProperties}>
+                  <BiodataPreview
+                    theme={currentTheme}
+                    border={currentBorder}
+                    language={language}
+                  />
+                </div>
+              </div>
+            </div>
+            <p className={`text-center mt-3 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              {getText(
+                'Changes reflect instantly',
+                'बदलाव तुरंत दिखते हैं',
+                'बदल लगेच दिसतात'
               )}
             </p>
           </div>
