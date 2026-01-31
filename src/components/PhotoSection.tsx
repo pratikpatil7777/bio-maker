@@ -12,6 +12,8 @@ interface PhotoSectionProps {
   secondaryColor?: string;
   backgroundColor?: string;
   language?: Language;
+  showPhoto?: boolean;
+  onTogglePhoto?: () => void;
 }
 
 export default function PhotoSection({
@@ -22,6 +24,8 @@ export default function PhotoSection({
   secondaryColor = '#800020',
   backgroundColor = '#FFFEF0',
   language = 'en',
+  showPhoto = true,
+  onTogglePhoto,
 }: PhotoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showWarning } = useAlert();
@@ -101,9 +105,35 @@ export default function PhotoSection({
     <div className="flex flex-col items-center">
       {/* Photo Frame Container */}
       <div
-        className="relative"
+        className="relative group"
         style={{ width: frameWidth + 16, height: frameHeight + 16 }}
       >
+        {/* Hide/Show Toggle Button - Top Right Corner */}
+        {isEditMode && onTogglePhoto && (
+          <button
+            onClick={onTogglePhoto}
+            className={`absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center shadow-md transition-all duration-200 ${
+              showPhoto
+                ? 'bg-white border-2 border-amber-400 text-amber-500 hover:bg-amber-50'
+                : 'bg-gray-200 border-2 border-gray-400 text-gray-500 hover:bg-gray-300'
+            }`}
+            title={showPhoto
+              ? getText('Hide photo from biodata', 'बायोडाटा से फोटो छुपाएं', 'बायोडाटामधून फोटो लपवा')
+              : getText('Show photo in biodata', 'बायोडाटा में फोटो दिखाएं', 'बायोडाटामध्ये फोटो दाखवा')
+            }
+          >
+            {showPhoto ? (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            )}
+          </button>
+        )}
         {/* Decorative Outer Border */}
         <svg
           className="absolute inset-0"
@@ -226,6 +256,21 @@ export default function PhotoSection({
                   Click to add
                 </span>
               )}
+            </div>
+          )}
+
+          {/* Hidden overlay - shows when photo is hidden in edit mode */}
+          {isEditMode && !showPhoto && (
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center bg-gray-500/60"
+              style={{ pointerEvents: 'none' }}
+            >
+              <svg className="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+              <span className="text-white text-[9px] font-medium text-center px-2">
+                {getText('Hidden', 'छुपा हुआ', 'लपलेला')}
+              </span>
             </div>
           )}
         </div>

@@ -156,10 +156,19 @@ export default function BiodataPagedView({
     return () => clearTimeout(measureTimer);
   }, [data, language, showPhoto, firstPageUsableHeight, otherPageUsableHeight, onPageCountChange, PHOTO_HEIGHT]);
 
-  // Render a section
+  // Render a section (filters hidden sections and attributes)
   const renderSection = (section: BiodataSection, index: number) => {
+    // Skip hidden sections
+    if (section.hidden) return null;
+
     const title = getTitleById(section.titleId);
     const displayTitle = section.customTitle || (isMarathi ? title?.labelMarathi : title?.label) || 'Section';
+
+    // Filter out hidden attributes
+    const visibleAttributes = section.attributes.filter(attr => !attr.hidden);
+
+    // Skip if no visible attributes
+    if (visibleAttributes.length === 0) return null;
 
     return (
       <div key={section.id} className="section-compact" data-section-index={index}>
@@ -167,7 +176,7 @@ export default function BiodataPagedView({
           {displayTitle}
         </h3>
         <div className="space-y-0.5">
-          {section.attributes.map((attr) => {
+          {visibleAttributes.map((attr) => {
             // Get proper label from collection, fallback to custom label or attributeId
             const attrOption = getAttributeById(attr.attributeId);
             const displayLabel =

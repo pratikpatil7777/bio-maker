@@ -13,6 +13,7 @@ interface TransliterateInputProps {
   style?: React.CSSProperties;
   type?: string;
   maxSuggestions?: number;
+  disabled?: boolean;
 }
 
 /**
@@ -37,6 +38,7 @@ export default function TransliterateInput({
   style,
   type = 'text',
   maxSuggestions = 5,
+  disabled = false,
 }: TransliterateInputProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -260,14 +262,18 @@ export default function TransliterateInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={className}
-        style={style}
+        className={`${className} ${disabled ? '!bg-gray-100' : ''}`}
+        style={{
+          ...style,
+          ...(disabled ? { backgroundColor: '#f3f4f6' } : {})
+        }}
+        disabled={disabled}
       />
     );
   }
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${disabled ? 'bg-gray-100 rounded' : ''}`}>
       <input
         ref={inputRef}
         type={type}
@@ -279,8 +285,12 @@ export default function TransliterateInput({
           setTimeout(() => setShowSuggestions(false), 150);
         }}
         placeholder={placeholder}
-        className={className}
-        style={style}
+        className={`${className} ${disabled ? '!bg-gray-100' : ''}`}
+        style={{
+          ...style,
+          ...(disabled ? { backgroundColor: '#f3f4f6' } : {})
+        }}
+        disabled={disabled}
       />
 
       {/* Transliteration badge */}

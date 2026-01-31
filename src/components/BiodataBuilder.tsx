@@ -21,8 +21,7 @@ import SectionBuilder from './SectionBuilder';
 import PhotoGallerySection from './PhotoGallerySection';
 import Footer from './Footer';
 import LanguageToggle from './LanguageToggle';
-import EditModeToggle from './EditModeToggle';
-import PDFExportButton from './PDFExportButton';
+import DownloadButton from './DownloadButton';
 import ShareButton from './ShareButton';
 import ThemeSelector from './ThemeSelector';
 import BorderSelector from './BorderSelector';
@@ -32,6 +31,7 @@ import EmptyState from './EmptyState';
 import BiodataPagedView from './BiodataPagedView';
 import AIBioWriter from './AIBioWriter';
 import TransliterateInput from './TransliterateInput';
+import EditActionsSidebar from './EditActionsSidebar';
 import { DarkModeToggleCompact } from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
 import { useAlert } from './AlertDialog';
@@ -396,28 +396,6 @@ export default function BiodataBuilder() {
                 <ThemeSelector language={language} currentTheme={currentTheme} onThemeChange={handleThemeChange} />
                 <BorderSelector language={language} currentBorder={currentBorder} primaryColor={currentTheme.colors.primary} onBorderChange={handleBorderChange} />
 
-                {/* Photo Toggle */}
-                <button
-                  onClick={() => setShowPhoto(!showPhoto)}
-                  className={`h-8 sm:h-9 px-2 sm:px-3 flex items-center gap-1 rounded-lg text-xs font-medium transition-all duration-300 cursor-pointer shadow-sm ${
-                    showPhoto
-                      ? 'bg-white dark:bg-slate-700 text-[#D4AF37] border border-[#D4AF37]/40 hover:shadow-md'
-                      : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:border-gray-300'
-                  }`}
-                  title={showPhoto ? getText('Hide photo', 'फोटो छुपाएं', 'फोटो लपवा') : getText('Show photo', 'फोटो दिखाएं', 'फोटो दाखवा')}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {showPhoto ? (
-                      <>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </>
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    )}
-                  </svg>
-                </button>
-
                 <DataBackupNew language={language} data={data} onRestore={handleDataRestore} />
 
                 {/* AI Bio Writer Button */}
@@ -432,47 +410,7 @@ export default function BiodataBuilder() {
                   <span className="text-sm">✨</span>
                 </button>
 
-                {/* Undo/Redo Buttons */}
-                <div className="flex items-center">
-                  <button
-                    onClick={handleUndo}
-                    disabled={!canUndo}
-                    className={`h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-l-lg border transition-all duration-300 ${
-                      canUndo
-                        ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                        : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
-                    }`}
-                    title={getText('Undo (Ctrl+Z)', 'पूर्ववत करें (Ctrl+Z)', 'पूर्ववत करा (Ctrl+Z)')}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handleRedo}
-                    disabled={!canRedo}
-                    className={`h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-r-lg border-t border-r border-b transition-all duration-300 ${
-                      canRedo
-                        ? 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 cursor-pointer shadow-sm hover:shadow-md'
-                        : 'bg-gray-100 dark:bg-slate-800/50 border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'
-                    }`}
-                    title={getText('Redo (Ctrl+Y)', 'पुनः करें (Ctrl+Y)', 'पुन्हा करा (Ctrl+Y)')}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <EditModeToggle
-                  language={language}
-                  isEditMode={isEditMode}
-                  onToggle={setIsEditMode}
-                  onReset={handleReset}
-                  hasChanges={hasChanges}
-                />
-
-                <PDFExportButton
+                <DownloadButton
                   language={language}
                   targetRef={isEditMode ? biodataRef : pagedViewRef}
                   fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
@@ -593,19 +531,19 @@ export default function BiodataBuilder() {
               {/* Photo and Sections */}
               <div className="relative mt-2">
                 {/* Photo floated right - biodata is at fixed A4 width */}
-                {showPhoto && (
-                  <div className="absolute right-0 top-0 z-10">
-                    <PhotoSection
-                      mainPhoto={data.photo}
-                      isEditMode={true}
-                      onPhotoChange={handlePhotoChange}
-                      primaryColor={currentTheme.colors.primary}
-                      secondaryColor={currentTheme.colors.secondary}
-                      backgroundColor={currentTheme.colors.background}
-                      language={language}
-                    />
-                  </div>
-                )}
+                <div className="absolute right-0 top-0 z-10">
+                  <PhotoSection
+                    mainPhoto={data.photo}
+                    isEditMode={true}
+                    onPhotoChange={handlePhotoChange}
+                    primaryColor={currentTheme.colors.primary}
+                    secondaryColor={currentTheme.colors.secondary}
+                    backgroundColor={currentTheme.colors.background}
+                    language={language}
+                    showPhoto={showPhoto}
+                    onTogglePhoto={() => setShowPhoto(!showPhoto)}
+                  />
+                </div>
 
                 <div className={showPhoto ? 'pr-48' : ''}>
                   {data.sections.map((section, index) => (
@@ -692,6 +630,19 @@ export default function BiodataBuilder() {
           onClose={() => setShowAIWriter(false)}
         />
       )}
+
+      {/* Edit Actions Sidebar - Vertical bar on right side */}
+      <EditActionsSidebar
+        language={language}
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onReset={handleReset}
+        hasChanges={hasChanges}
+      />
     </main>
   );
 }

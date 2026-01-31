@@ -15,6 +15,7 @@ interface AttributeRowProps {
   showAddButton?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  disabled?: boolean; // When parent section is hidden
 }
 
 export default function AttributeRow({
@@ -27,6 +28,7 @@ export default function AttributeRow({
   showAddButton = true,
   isFirst = false,
   isLast = false,
+  disabled = false,
 }: AttributeRowProps) {
   const [isSelectingAttribute, setIsSelectingAttribute] = useState(!attribute.attributeId);
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,8 +132,15 @@ export default function AttributeRow({
     return 'Enter value';
   };
 
-  // VIEW MODE
+  // Toggle visibility
+  const handleToggleVisibility = () => {
+    onUpdate({ ...attribute, hidden: !attribute.hidden });
+  };
+
+  // VIEW MODE - hide if hidden
   if (!isEditMode) {
+    if (attribute.hidden) return null;
+
     let displayValue = attribute.value;
     if (isHindi) displayValue = attribute.valueHindi || attribute.valueMarathi || attribute.value;
     else if (isMarathi) displayValue = attribute.valueMarathi || attribute.value;
@@ -161,9 +170,48 @@ export default function AttributeRow({
     );
   }
 
+  // Determine if this field should appear disabled
+  // When parent section is hidden (disabled=true), everything is disabled including toggle
+  // When only this field is hidden, inputs are disabled but toggle remains active
+  const isDisabled = disabled || attribute.hidden;
+  const showAsHidden = disabled || attribute.hidden; // Visual state for the eye icon
+
   // EDIT MODE
   return (
-    <div className="group relative flex items-start gap-2 py-1 hover:bg-amber-50/50 rounded transition-colors">
+    <div className={`group relative flex items-start gap-2 py-1 rounded transition-colors ${
+      isDisabled ? '' : 'hover:bg-amber-50/50'
+    }`}>
+      {/* Hide/View Toggle - disabled when parent section is hidden */}
+      <button
+        onClick={handleToggleVisibility}
+        disabled={disabled}
+        className={`biodata-btn p-1 rounded transition-colors flex-shrink-0 ${
+          disabled
+            ? 'text-gray-300 cursor-not-allowed'
+            : showAsHidden
+              ? 'text-gray-400 hover:text-gray-600'
+              : 'text-amber-500 hover:text-amber-700'
+        }`}
+        title={disabled
+          ? ''
+          : showAsHidden
+            ? (isHindi ? 'दिखाएं' : isMarathi ? 'दाखवा' : 'Show')
+            : (isHindi ? 'छुपाएं' : isMarathi ? 'लपवा' : 'Hide')
+        }
+      >
+        {/* Always show eye-slash when disabled by parent or self-hidden */}
+        {showAsHidden ? (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        )}
+      </button>
+
       {/* Attribute Label Selector */}
       <div className="row-label relative" ref={dropdownRef}>
         {isSelectingAttribute || !attribute.attributeId ? (
@@ -177,8 +225,13 @@ export default function AttributeRow({
                 setShowDropdown(true);
               }}
               onFocus={() => setShowDropdown(true)}
+              disabled={isDisabled}
               placeholder={isHindi ? 'विशेषता खोजें...' : isMarathi ? 'विशेषता शोधा...' : 'Search attribute...'}
-              className="w-full text-[11px] px-2 py-1 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              className={`w-full text-[11px] px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 ${
+                isDisabled
+                  ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border-amber-300'
+              }`}
               style={{ fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
             />
 
@@ -227,13 +280,18 @@ export default function AttributeRow({
           </div>
         ) : (
           <button
-            onClick={() => setIsSelectingAttribute(true)}
-            className="w-full text-left text-[11px] px-2 py-1 border border-dashed border-amber-300 rounded hover:bg-amber-50 truncate"
+            onClick={() => !isDisabled && setIsSelectingAttribute(true)}
+            disabled={isDisabled}
+            className={`w-full text-left text-[11px] px-2 py-1 border border-dashed rounded truncate ${
+              isDisabled
+                ? 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'border-amber-300 hover:bg-amber-50'
+            }`}
             style={{
-              color: 'var(--theme-header-text, #800020)',
+              color: isDisabled ? undefined : 'var(--theme-header-text, #800020)',
               fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
             }}
-            title={isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
+            title={isDisabled ? '' : (isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change')}
           >
             {getLabel()}:
           </button>
@@ -249,18 +307,31 @@ export default function AttributeRow({
           enabled={isDevanagari}
           lang={isHindi ? 'hi' : 'mr'}
           placeholder={getPlaceholder()}
-          className={`w-full text-[11px] px-2 py-1 border-b border-dashed border-amber-300 bg-transparent focus:outline-none focus:border-amber-500 ${isDevanagari ? 'marathi-text' : ''}`}
-          style={{ fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif" }}
+          disabled={isDisabled}
+          className={`w-full text-[11px] px-2 py-1 border-b border-dashed focus:outline-none ${
+            isDisabled
+              ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+              : 'bg-transparent border-amber-300 focus:border-amber-500'
+          } ${isDevanagari ? 'marathi-text' : ''}`}
+          style={{
+            fontFamily: isDevanagari ? "'Noto Sans Devanagari', sans-serif" : "'Poppins', sans-serif",
+            backgroundColor: isDisabled ? '#f3f4f6' : 'transparent'
+          }}
         />
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Action Buttons - disabled when section is disabled */}
+      <div className={`flex items-center gap-0.5 transition-opacity ${
+        disabled ? 'opacity-30 pointer-events-none' : 'opacity-0 group-hover:opacity-100'
+      }`}>
         {showAddButton && (
           <button
             onClick={onAddBelow}
-            className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
-            title={isHindi ? 'नीचे जोड़ें' : isMarathi ? 'खाली जोडा' : 'Add below'}
+            disabled={disabled}
+            className={`biodata-btn p-1.5 rounded transition-colors ${
+              disabled ? 'text-gray-300 cursor-not-allowed' : 'text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50'
+            }`}
+            title={disabled ? '' : (isHindi ? 'नीचे जोड़ें' : isMarathi ? 'खाली जोडा' : 'Add below')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -269,8 +340,11 @@ export default function AttributeRow({
         )}
         <button
           onClick={onDelete}
-          className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-          title={isHindi ? 'हटाएं' : isMarathi ? 'काढून टाका' : 'Remove'}
+          disabled={disabled}
+          className={`biodata-btn p-1.5 rounded transition-colors ${
+            disabled ? 'text-gray-300 cursor-not-allowed' : 'text-red-400 hover:text-red-600 hover:bg-red-50'
+          }`}
+          title={disabled ? '' : (isHindi ? 'हटाएं' : isMarathi ? 'काढून टाका' : 'Remove')}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

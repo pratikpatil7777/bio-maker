@@ -16,6 +16,8 @@ export interface BiodataAttribute {
   customLabel?: string;
   customLabelMarathi?: string;
   customLabelHindi?: string;
+  // Visibility control
+  hidden?: boolean;     // If true, field is hidden in view/export mode
 }
 
 // A section in the biodata (e.g., "Personal Details", "Education")
@@ -27,6 +29,8 @@ export interface BiodataSection {
   customTitleMarathi?: string;
   customTitleHindi?: string;
   attributes: BiodataAttribute[];
+  // Visibility control
+  hidden?: boolean;     // If true, entire section is hidden in view/export mode
 }
 
 // The main biodata structure

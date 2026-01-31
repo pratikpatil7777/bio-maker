@@ -125,13 +125,22 @@ export default function SectionBuilder({
     return 'Select Title';
   };
 
+  // Toggle section visibility
+  const handleToggleSectionVisibility = () => {
+    onUpdate({ ...section, hidden: !section.hidden });
+  };
+
   // VIEW MODE
   if (!isEditMode) {
+    // Hide if section is hidden
+    if (section.hidden) return null;
+
     // Don't render empty sections
     if (section.attributes.length === 0) return null;
 
-    // Check if all attributes are empty
-    const hasContent = section.attributes.some(attr => {
+    // Filter visible attributes and check if any have content
+    const visibleAttributes = section.attributes.filter(attr => !attr.hidden);
+    const hasContent = visibleAttributes.some(attr => {
       if (isHindi) return attr.valueHindi || attr.valueMarathi || attr.value;
       if (isMarathi) return attr.valueMarathi || attr.value;
       return attr.value;
@@ -150,7 +159,7 @@ export default function SectionBuilder({
           {getTitle()}
         </h3>
         <div className="space-y-0.5">
-          {section.attributes.map((attr, index) => (
+          {visibleAttributes.map((attr) => (
             <AttributeRow
               key={attr.id}
               attribute={attr}
@@ -169,9 +178,38 @@ export default function SectionBuilder({
 
   // EDIT MODE
   return (
-    <section className="group/section relative mb-4 p-3 border border-dashed border-amber-200 rounded-lg hover:border-amber-300 transition-colors bg-white/50">
+    <section className={`group/section relative mb-4 p-3 border border-dashed rounded-lg transition-colors ${
+      section.hidden
+        ? 'border-gray-300 bg-gray-100/50 dark:bg-slate-700/30'
+        : 'border-amber-200 hover:border-amber-300 bg-white/50'
+    }`}>
       {/* Section Header */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-3 px-2">
+        {/* Hide/View Toggle for Section */}
+        <button
+          onClick={handleToggleSectionVisibility}
+          className={`biodata-btn p-1.5 rounded transition-colors flex-shrink-0 ${
+            section.hidden
+              ? 'text-gray-400 hover:text-gray-600 bg-gray-200'
+              : 'text-amber-500 hover:text-amber-700 bg-amber-50'
+          }`}
+          title={section.hidden
+            ? (isHindi ? 'सेक्शन दिखाएं' : isMarathi ? 'सेक्शन दाखवा' : 'Show Section')
+            : (isHindi ? 'सेक्शन छुपाएं' : isMarathi ? 'सेक्शन लपवा' : 'Hide Section')
+          }
+        >
+          {section.hidden ? (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          )}
+        </button>
+
         {/* Title Selector */}
         <div className="flex-1 relative" ref={dropdownRef}>
           {isSelectingTitle || !section.titleId ? (
@@ -184,10 +222,15 @@ export default function SectionBuilder({
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
+                disabled={section.hidden}
                 placeholder={isHindi ? 'शीर्षक खोजें...' : isMarathi ? 'शीर्षक शोधा...' : 'Search section title...'}
-                className="w-full text-sm font-semibold px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                className={`w-full text-sm font-semibold px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 ${
+                  section.hidden
+                    ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                    : 'bg-white border-amber-300'
+                }`}
                 style={{
-                  color: 'var(--theme-header-text, #800020)',
+                  color: section.hidden ? undefined : 'var(--theme-header-text, #800020)',
                   fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
                 }}
               />
@@ -231,28 +274,38 @@ export default function SectionBuilder({
             </div>
           ) : (
             <button
-              onClick={() => setIsSelectingTitle(true)}
-              className="w-full text-left text-sm font-semibold px-3 py-2 border border-dashed border-amber-300 rounded hover:bg-amber-50 flex items-center gap-2"
+              onClick={() => !section.hidden && setIsSelectingTitle(true)}
+              disabled={section.hidden}
+              className={`w-full text-left text-sm font-semibold px-3 py-2 border border-dashed rounded flex items-center gap-2 ${
+                section.hidden
+                  ? 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'border-amber-300 hover:bg-amber-50'
+              }`}
               style={{
-                color: 'var(--theme-header-text, #800020)',
+                color: section.hidden ? undefined : 'var(--theme-header-text, #800020)',
                 fontFamily: isDevanagari ? "'Noto Serif Devanagari', serif" : "'Playfair Display', serif",
               }}
-              title={isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change'}
+              title={section.hidden ? '' : (isHindi ? 'बदलने के लिए क्लिक करें' : isMarathi ? 'क्लिक करून बदला' : 'Click to change')}
             >
-              {selectedTitle?.icon && <span className="text-lg">{selectedTitle.icon}</span>}
+              {selectedTitle?.icon && <span className={`text-lg ${section.hidden ? 'opacity-50' : ''}`}>{selectedTitle.icon}</span>}
               <span>{getTitle()}</span>
             </button>
           )}
         </div>
 
-        {/* Section Actions */}
-        <div className="flex items-center gap-0.5 opacity-0 group-hover/section:opacity-100 transition-opacity">
+        {/* Section Actions - disabled when section is hidden */}
+        <div className={`flex items-center gap-0.5 transition-opacity ${
+          section.hidden ? 'opacity-30 pointer-events-none' : 'opacity-0 group-hover/section:opacity-100'
+        }`}>
           {/* Move Up */}
           {!isFirst && onMoveUp && (
             <button
               onClick={onMoveUp}
-              className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
-              title={isHindi ? 'ऊपर ले जाएं' : isMarathi ? 'वर हलवा' : 'Move up'}
+              disabled={section.hidden}
+              className={`biodata-btn p-1.5 rounded transition-colors ${
+                section.hidden ? 'text-gray-300 cursor-not-allowed' : 'text-amber-500 hover:text-amber-700 hover:bg-amber-50'
+              }`}
+              title={section.hidden ? '' : (isHindi ? 'ऊपर ले जाएं' : isMarathi ? 'वर हलवा' : 'Move up')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -264,8 +317,11 @@ export default function SectionBuilder({
           {!isLast && onMoveDown && (
             <button
               onClick={onMoveDown}
-              className="biodata-btn p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
-              title={isHindi ? 'नीचे ले जाएं' : isMarathi ? 'खाली हलवा' : 'Move down'}
+              disabled={section.hidden}
+              className={`biodata-btn p-1.5 rounded transition-colors ${
+                section.hidden ? 'text-gray-300 cursor-not-allowed' : 'text-amber-500 hover:text-amber-700 hover:bg-amber-50'
+              }`}
+              title={section.hidden ? '' : (isHindi ? 'नीचे ले जाएं' : isMarathi ? 'खाली हलवा' : 'Move down')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -276,8 +332,11 @@ export default function SectionBuilder({
           {/* Add Section Below */}
           <button
             onClick={onAddSectionBelow}
-            className="biodata-btn p-1.5 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded transition-colors"
-            title={isHindi ? 'नीचे अनुभाग जोड़ें' : isMarathi ? 'खाली विभाग जोडा' : 'Add section below'}
+            disabled={section.hidden}
+            className={`biodata-btn p-1.5 rounded transition-colors ${
+              section.hidden ? 'text-gray-300 cursor-not-allowed' : 'text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50'
+            }`}
+            title={section.hidden ? '' : (isHindi ? 'नीचे अनुभाग जोड़ें' : isMarathi ? 'खाली विभाग जोडा' : 'Add section below')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -287,8 +346,11 @@ export default function SectionBuilder({
           {/* Delete Section */}
           <button
             onClick={onDelete}
-            className="biodata-btn p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-            title={isHindi ? 'अनुभाग हटाएं' : isMarathi ? 'विभाग काढून टाका' : 'Remove section'}
+            disabled={section.hidden}
+            className={`biodata-btn p-1.5 rounded transition-colors ${
+              section.hidden ? 'text-gray-300 cursor-not-allowed' : 'text-red-400 hover:text-red-600 hover:bg-red-50'
+            }`}
+            title={section.hidden ? '' : (isHindi ? 'अनुभाग हटाएं' : isMarathi ? 'विभाग काढून टाका' : 'Remove section')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -298,7 +360,7 @@ export default function SectionBuilder({
       </div>
 
       {/* Attributes List */}
-      <div className="space-y-1 pl-2 border-l-2 border-amber-100">
+      <div className={`space-y-1 pl-4 pr-2 border-l-2 ${section.hidden ? 'border-gray-200' : 'border-amber-100'}`}>
         {section.attributes.map((attr, index) => (
           <AttributeRow
             key={attr.id}
@@ -311,6 +373,7 @@ export default function SectionBuilder({
             showAddButton={true}
             isFirst={index === 0}
             isLast={index === section.attributes.length - 1}
+            disabled={section.hidden}
           />
         ))}
       </div>
@@ -319,7 +382,12 @@ export default function SectionBuilder({
       {section.attributes.length === 0 && (
         <button
           onClick={() => handleAddAttribute()}
-          className="biodata-btn w-full mt-2 py-2.5 text-sm text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 border border-dashed border-amber-300 rounded-lg flex items-center justify-center gap-2 transition-colors"
+          disabled={section.hidden}
+          className={`biodata-btn w-full mt-2 py-2.5 text-sm border border-dashed rounded-lg flex items-center justify-center gap-2 transition-colors ${
+            section.hidden
+              ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+              : 'border-amber-300 text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50'
+          }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -329,7 +397,7 @@ export default function SectionBuilder({
       )}
 
       {/* Add Attribute Button (when has attributes) */}
-      {section.attributes.length > 0 && (
+      {section.attributes.length > 0 && !section.hidden && (
         <button
           onClick={() => handleAddAttribute()}
           className="biodata-btn w-full mt-2 py-1.5 text-xs text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50 rounded-lg flex items-center justify-center gap-1.5 transition-colors opacity-0 group-hover/section:opacity-100"
