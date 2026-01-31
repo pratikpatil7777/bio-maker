@@ -4,13 +4,18 @@ import React, { useState } from 'react';
 import { Language } from '@/lib/translations';
 import { DynamicBiodataData } from '@/lib/types';
 import { encodeShareLink } from '@/lib/shareLink';
+import { createRedactedBiodata } from '@/lib/privacyUtils';
 import { useAlert } from './AlertDialog';
+import PrivacyConsentModal from './PrivacyConsentModal';
+
+type ShareAction = 'image' | 'webshare' | 'whatsapp' | 'link' | 'shareableLink' | null;
 
 interface ShareButtonProps {
   language: Language;
   targetRef: React.RefObject<HTMLDivElement | null>;
   fileName?: string;
   biodataData?: DynamicBiodataData;
+  onPrivateShare?: (redactedData: DynamicBiodataData) => void;
 }
 
 export default function ShareButton({
@@ -18,9 +23,12 @@ export default function ShareButton({
   targetRef,
   fileName = 'Marriage_Biodata',
   biodataData,
+  onPrivateShare,
 }: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<ShareAction>(null);
   const { showSuccess, showError } = useAlert();
 
   const isDevanagari = language === 'mr' || language === 'hi';
@@ -114,9 +122,47 @@ export default function ShareButton({
     }
   };
 
-  const handleDownloadImage = async () => {
-    setIsSharing(true);
+  // Initiate share with privacy modal
+  const initiateShare = (action: ShareAction) => {
     setShowOptions(false);
+    setPendingAction(action);
+    setShowPrivacyModal(true);
+  };
+
+  // Handle privacy modal confirmation
+  const handlePrivacyConfirm = async (sharePrivately: boolean) => {
+    setShowPrivacyModal(false);
+
+    if (sharePrivately && biodataData && onPrivateShare) {
+      // Create redacted data and trigger callback
+      const redactedData = createRedactedBiodata(biodataData);
+      onPrivateShare(redactedData);
+
+      // Small delay to allow UI to update with redacted data
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    // Execute the pending action
+    switch (pendingAction) {
+      case 'image':
+        await executeDownloadImage();
+        break;
+      case 'webshare':
+        await executeWebShare();
+        break;
+      case 'whatsapp':
+        await executeWhatsAppShare();
+        break;
+      case 'shareableLink':
+        await executeCopyShareableLink(sharePrivately);
+        break;
+    }
+
+    setPendingAction(null);
+  };
+
+  const executeDownloadImage = async () => {
+    setIsSharing(true);
 
     try {
       const imageBlob = await generateImageBlob();
@@ -145,9 +191,8 @@ export default function ShareButton({
     }
   };
 
-  const handleWebShare = async () => {
+  const executeWebShare = async () => {
     setIsSharing(true);
-    setShowOptions(false);
 
     try {
       // Try sharing image first (more universally supported on mobile)
@@ -205,9 +250,8 @@ export default function ShareButton({
     }
   };
 
-  const handleWhatsAppShare = async () => {
+  const executeWhatsAppShare = async () => {
     setIsSharing(true);
-    setShowOptions(false);
 
     try {
       // On mobile, try Web Share API with image for WhatsApp
@@ -275,9 +319,7 @@ export default function ShareButton({
     }
   };
 
-  const handleCopyShareableLink = async () => {
-    setShowOptions(false);
-
+  const executeCopyShareableLink = async (isPrivate: boolean) => {
     if (!biodataData) {
       await showError(
         getText('Biodata data not available.', 'बायोडाटा डेटा उपलब्ध नहीं है।', 'बायोडाटा डेटा उपलब्ध नाही.'),
@@ -288,11 +330,25 @@ export default function ShareButton({
 
     try {
       const baseUrl = window.location.origin + window.location.pathname;
-      const shareUrl = encodeShareLink(biodataData, baseUrl);
+      const dataToShare = isPrivate ? createRedactedBiodata(biodataData) : biodataData;
+      const shareUrl = encodeShareLink(dataToShare, baseUrl);
 
       await navigator.clipboard.writeText(shareUrl);
+
+      const message = isPrivate
+        ? getText(
+            'Private link copied! Sensitive info (contact, address, income) is hidden.',
+            'निजी लिंक कॉपी हो गई! संवेदनशील जानकारी (संपर्क, पता, आय) छुपी है।',
+            'खाजगी लिंक कॉपी झाली! संवेदनशील माहिती (संपर्क, पत्ता, उत्पन्न) लपवली आहे.'
+          )
+        : getText(
+            'Shareable link copied! Anyone with this link can view your biodata.',
+            'शेयर करने योग्य लिंक कॉपी हो गई! इस लिंक से कोई भी आपका बायोडाटा देख सकता है।',
+            'शेअर करण्यायोग्य लिंक कॉपी झाली! या लिंकवरून कोणीही तुमचा बायोडाटा पाहू शकतो.'
+          );
+
       await showSuccess(
-        getText('Shareable link copied! Anyone with this link can view your biodata.', 'शेयर करने योग्य लिंक कॉपी हो गई! इस लिंक से कोई भी आपका बायोडाटा देख सकता है।', 'शेअर करण्यायोग्य लिंक कॉपी झाली! या लिंकवरून कोणीही तुमचा बायोडाटा पाहू शकतो.'),
+        message,
         getText('Link Ready!', 'लिंक तैयार!', 'लिंक तयार!')
       );
     } catch (error) {
@@ -350,7 +406,7 @@ export default function ShareButton({
           <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[200px]">
             {/* Download as Image */}
             <button
-              onClick={handleDownloadImage}
+              onClick={() => initiateShare('image')}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
@@ -363,7 +419,7 @@ export default function ShareButton({
 
             {/* Share via Web Share API */}
             <button
-              onClick={handleWebShare}
+              onClick={() => initiateShare('webshare')}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
@@ -376,7 +432,7 @@ export default function ShareButton({
 
             {/* WhatsApp */}
             <button
-              onClick={handleWhatsAppShare}
+              onClick={() => initiateShare('whatsapp')}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center">
@@ -403,7 +459,7 @@ export default function ShareButton({
             {/* Copy Shareable Link (with embedded data) */}
             {biodataData && (
               <button
-                onClick={handleCopyShareableLink}
+                onClick={() => initiateShare('shareableLink')}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
               >
                 <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
@@ -422,6 +478,17 @@ export default function ShareButton({
           </div>
         </>
       )}
+
+      {/* Privacy Consent Modal */}
+      <PrivacyConsentModal
+        isOpen={showPrivacyModal}
+        onClose={() => {
+          setShowPrivacyModal(false);
+          setPendingAction(null);
+        }}
+        onConfirm={handlePrivacyConfirm}
+        language={language}
+      />
     </div>
   );
 }
