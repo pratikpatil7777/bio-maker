@@ -23,7 +23,8 @@
       "WebFetch(domain:prometheusfuels.com)",
       "WebFetch(domain:bio-maker-in.vercel.app)",
       "WebFetch(domain:dribbble.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

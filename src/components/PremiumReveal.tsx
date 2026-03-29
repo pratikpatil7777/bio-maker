@@ -8,105 +8,225 @@ interface PremiumRevealProps {
   skipReveal?: boolean;
 }
 
-// Animated SVG Logo that draws itself - Ganesh-inspired Om symbol
-function AnimatedLogo({ onComplete }: { onComplete?: () => void }) {
+// Krishna's Bansuri (Flute) - Self-drawing animated SVG
+function AnimatedBansuri({ onComplete }: { onComplete?: () => void }) {
   return (
-    <motion.div className="relative w-24 h-24">
+    <motion.div className="relative w-40 h-32">
       {/* Outer glow */}
       <motion.div
-        className="absolute inset-0 rounded-full"
+        className="absolute inset-0"
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1.5, opacity: [0, 0.5, 0] }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
+        animate={{ scale: 1.3, opacity: [0, 0.6, 0.3] }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
         style={{
-          background: 'radial-gradient(circle, rgba(212, 175, 55, 0.6) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(212, 175, 55, 0.5) 0%, transparent 70%)',
         }}
       />
 
-      {/* Main logo container */}
+      {/* Main Bansuri SVG */}
       <motion.div
         className="relative w-full h-full flex items-center justify-center"
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 20,
-          duration: 0.8,
-        }}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         onAnimationComplete={onComplete}
       >
-        {/* Om symbol SVG - draws itself */}
         <svg
-          viewBox="0 0 100 100"
-          className="w-20 h-20"
-          style={{ filter: 'drop-shadow(0 4px 20px rgba(212, 175, 55, 0.5))' }}
+          viewBox="0 0 200 80"
+          className="w-full h-full"
+          style={{ filter: 'drop-shadow(0 4px 20px rgba(212, 175, 55, 0.6))' }}
         >
           <defs>
-            <linearGradient id="omGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            {/* Golden gradient for flute body */}
+            <linearGradient id="fluteGradient" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#FFD700" />
-              <stop offset="50%" stopColor="#D4AF37" />
-              <stop offset="100%" stopColor="#B8860B" />
+              <stop offset="30%" stopColor="#D4AF37" />
+              <stop offset="70%" stopColor="#B8860B" />
+              <stop offset="100%" stopColor="#8B6914" />
             </linearGradient>
+
+            {/* Shine effect */}
+            <linearGradient id="fluteShine" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+              <stop offset="50%" stopColor="rgba(255,255,255,0)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+            </linearGradient>
+
+            {/* Peacock feather gradient */}
+            <linearGradient id="peacockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1E90FF" />
+              <stop offset="30%" stopColor="#00CED1" />
+              <stop offset="60%" stopColor="#32CD32" />
+              <stop offset="100%" stopColor="#FFD700" />
+            </linearGradient>
+
+            {/* Feather eye gradient */}
+            <radialGradient id="featherEye" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#000080" />
+              <stop offset="40%" stopColor="#4169E1" />
+              <stop offset="70%" stopColor="#00CED1" />
+              <stop offset="100%" stopColor="#32CD32" />
+            </radialGradient>
           </defs>
 
-          {/* Om symbol path - simplified artistic version */}
-          <motion.path
-            d="M50 15 C30 15 20 30 20 45 C20 60 35 70 50 70 C65 70 75 60 75 50 C75 40 65 35 55 40 C45 45 45 55 55 60"
-            fill="none"
-            stroke="url(#omGradient)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+          {/* Flute body - main tube */}
+          <motion.rect
+            x="30"
+            y="35"
+            width="150"
+            height="16"
+            rx="8"
+            fill="url(#fluteGradient)"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{ transformOrigin: 'left center' }}
           />
 
-          {/* Decorative dot */}
-          <motion.circle
-            cx="55"
-            cy="25"
-            r="5"
-            fill="url(#omGradient)"
+          {/* Flute shine overlay */}
+          <motion.rect
+            x="30"
+            y="35"
+            width="150"
+            height="6"
+            rx="3"
+            fill="url(#fluteShine)"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+            style={{ transformOrigin: 'left center' }}
+          />
+
+          {/* Flute holes */}
+          {[55, 80, 105, 130, 150].map((x, i) => (
+            <motion.ellipse
+              key={i}
+              cx={x}
+              cy="43"
+              rx="4"
+              ry="3"
+              fill="#5C4033"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.4 + i * 0.08, duration: 0.2, type: "spring" }}
+            />
+          ))}
+
+          {/* Decorative bands */}
+          {[45, 165].map((x, i) => (
+            <motion.rect
+              key={i}
+              x={x}
+              y="33"
+              width="4"
+              height="20"
+              rx="2"
+              fill="#8B4513"
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+              style={{ transformOrigin: 'center' }}
+            />
+          ))}
+
+          {/* Mouthpiece end */}
+          <motion.ellipse
+            cx="30"
+            cy="43"
+            rx="6"
+            ry="10"
+            fill="url(#fluteGradient)"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.8, duration: 0.3, type: "spring" }}
+            transition={{ delay: 0.3, duration: 0.3, type: "spring" }}
           />
 
-          {/* Crescent moon */}
+          {/* Peacock feather - stem */}
           <motion.path
-            d="M45 20 Q55 15 65 20"
+            d="M25 38 Q15 25 20 10"
             fill="none"
-            stroke="url(#omGradient)"
-            strokeWidth="2.5"
+            stroke="#228B22"
+            strokeWidth="2"
             strokeLinecap="round"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ delay: 0.6, duration: 0.4 }}
+            transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
           />
+
+          {/* Peacock feather - main plume */}
+          <motion.path
+            d="M20 10 Q5 5 8 18 Q10 25 20 22 Q30 20 28 10 Q25 2 20 10"
+            fill="url(#peacockGradient)"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.4, type: "spring" }}
+            style={{ transformOrigin: '20px 15px' }}
+          />
+
+          {/* Peacock feather - eye */}
+          <motion.ellipse
+            cx="18"
+            cy="14"
+            rx="5"
+            ry="4"
+            fill="url(#featherEye)"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 1, duration: 0.3, type: "spring" }}
+          />
+
+          {/* Peacock feather - eye highlight */}
+          <motion.circle
+            cx="17"
+            cy="13"
+            r="1.5"
+            fill="white"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 1.1, duration: 0.2 }}
+          />
+
+          {/* Music notes floating */}
+          {[
+            { x: 175, y: 25, delay: 0.7 },
+            { x: 185, y: 35, delay: 0.9 },
+            { x: 190, y: 20, delay: 1.1 },
+          ].map((note, i) => (
+            <motion.g key={i}>
+              <motion.path
+                d={`M${note.x} ${note.y} v8 M${note.x} ${note.y} q5 -3 3 -6 q-2 -2 -3 1`}
+                fill="none"
+                stroke="#D4AF37"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: [0, 1, 0], y: [10, -10, -20] }}
+                transition={{ delay: note.delay, duration: 1.2, ease: "easeOut" }}
+              />
+            </motion.g>
+          ))}
         </svg>
       </motion.div>
 
-      {/* Particle burst */}
-      {[...Array(8)].map((_, i) => (
+      {/* Sparkle particles */}
+      {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-2 h-2 rounded-full"
+          className="absolute w-1.5 h-1.5 rounded-full"
           style={{
-            background: 'linear-gradient(135deg, #FFD700, #D4AF37)',
-            left: '50%',
+            background: 'linear-gradient(135deg, #FFD700, #FFF)',
+            left: `${20 + i * 15}%`,
             top: '50%',
           }}
-          initial={{ x: '-50%', y: '-50%', scale: 0 }}
+          initial={{ scale: 0, opacity: 0 }}
           animate={{
-            x: `calc(-50% + ${Math.cos((i * Math.PI * 2) / 8) * 60}px)`,
-            y: `calc(-50% + ${Math.sin((i * Math.PI * 2) / 8) * 60}px)`,
-            scale: [0, 1, 0],
+            scale: [0, 1.2, 0],
             opacity: [0, 1, 0],
+            y: [0, -20, -30],
           }}
           transition={{
-            duration: 0.8,
-            delay: 0.3,
+            duration: 1,
+            delay: 0.5 + i * 0.1,
             ease: "easeOut",
           }}
         />
@@ -233,13 +353,13 @@ export default function PremiumReveal({ onRevealComplete, skipReveal = false }: 
 
         {/* Main content */}
         <div className="relative z-10 flex flex-col items-center">
-          {/* Logo animation */}
+          {/* Bansuri animation */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <AnimatedLogo />
+            <AnimatedBansuri />
           </motion.div>
 
           {/* Brand name - appears after logo */}
