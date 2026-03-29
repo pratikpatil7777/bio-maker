@@ -9,7 +9,7 @@ import { BorderDesign, borderDesigns } from '@/lib/borders';
 import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
-import { motion, useInView, AnimatePresence, useMotionValue, useTransform, useSpring, useScroll, useMotionTemplate } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 // Dynamically import 3D background to avoid SSR issues
 const Background3D = dynamic(() => import('./Background3D'), {
@@ -55,22 +55,166 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
     </svg>
   ),
-  cursor: (
-    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
-    </svg>
-  ),
-  document: (
-    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-    </svg>
-  ),
-  share: (
-    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-    </svg>
-  ),
 };
+
+// Film Grain Overlay Component
+function FilmGrain({ isDark }: { isDark: boolean }) {
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none z-[100]"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        opacity: isDark ? 0.08 : 0.04,
+        mixBlendMode: 'overlay',
+      }}
+    />
+  );
+}
+
+// Animated Word Component for Premium Typography
+function AnimatedWord({
+  word,
+  index,
+  isDark,
+  isHero = false
+}: {
+  word: string;
+  index: number;
+  isDark: boolean;
+  isHero?: boolean;
+}) {
+  return (
+    <motion.span
+      className="inline-block mr-[0.25em]"
+      initial={{ opacity: 0, y: 80, rotateX: -90 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      transition={{
+        delay: 0.5 + index * 0.12,
+        duration: 0.8,
+        ease: [0.19, 1, 0.22, 1], // Custom cubic-bezier like Prometheus
+      }}
+    >
+      <motion.span
+        className={`inline-block ${isHero ? 'hover:scale-105' : ''}`}
+        style={{
+          backgroundImage: isDark
+            ? 'linear-gradient(135deg, #F5DEB3 0%, #FFD700 25%, #DAA520 50%, #FFD700 75%, #F5DEB3 100%)'
+            : 'linear-gradient(135deg, #800020 0%, #A52A2A 25%, #800020 50%, #C41E3A 75%, #800020 100%)',
+          backgroundSize: '200% 200%',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}
+        animate={{
+          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+        }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+        whileHover={isHero ? { scale: 1.05 } : undefined}
+      >
+        {word}
+      </motion.span>
+    </motion.span>
+  );
+}
+
+// Parallax Decorative Element
+function ParallaxElement({
+  children,
+  speed = 0.5,
+  className = ''
+}: {
+  children: React.ReactNode;
+  speed?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start']
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [100 * speed, -100 * speed]);
+
+  return (
+    <motion.div ref={ref} style={{ y }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+// Journey Progress Indicator (Decorative Thread)
+function JourneyThread({ isDark }: { isDark: boolean }) {
+  const { scrollYProgress } = useScroll();
+  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+  return (
+    <div className="fixed left-8 top-0 bottom-0 w-px hidden xl:block z-20 pointer-events-none">
+      <svg className="h-full w-8" viewBox="0 0 32 1000" preserveAspectRatio="none">
+        <motion.path
+          d="M16 0 Q24 100 16 200 Q8 300 16 400 Q24 500 16 600 Q8 700 16 800 Q24 900 16 1000"
+          fill="none"
+          stroke={isDark ? 'rgba(212, 175, 55, 0.3)' : 'rgba(128, 0, 32, 0.2)'}
+          strokeWidth="2"
+          strokeDasharray="8 4"
+        />
+        <motion.path
+          d="M16 0 Q24 100 16 200 Q8 300 16 400 Q24 500 16 600 Q8 700 16 800 Q24 900 16 1000"
+          fill="none"
+          stroke={isDark ? '#D4AF37' : '#800020'}
+          strokeWidth="2"
+          style={{ pathLength }}
+        />
+      </svg>
+      {/* Journey Markers */}
+      {[0, 0.25, 0.5, 0.75, 1].map((position, i) => (
+        <motion.div
+          key={i}
+          className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
+          style={{
+            top: `${position * 100}%`,
+            background: isDark
+              ? 'radial-gradient(circle, #FFD700, #D4AF37)'
+              : 'radial-gradient(circle, #A52A2A, #800020)',
+            boxShadow: isDark
+              ? '0 0 10px rgba(212, 175, 55, 0.5)'
+              : '0 0 10px rgba(128, 0, 32, 0.3)',
+          }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.5 + i * 0.2 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Decorative Mandala for Parallax
+function FloatingMandala({ isDark, size = 200, position }: { isDark: boolean; size?: number; position: 'left' | 'right' }) {
+  return (
+    <ParallaxElement speed={0.3} className={`absolute ${position === 'left' ? '-left-20' : '-right-20'} pointer-events-none`}>
+      <svg width={size} height={size} viewBox="0 0 100 100" className="opacity-10">
+        <defs>
+          <linearGradient id={`mandala-gradient-${position}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={isDark ? '#D4AF37' : '#800020'} />
+            <stop offset="100%" stopColor={isDark ? '#FFD700' : '#A52A2A'} />
+          </linearGradient>
+        </defs>
+        {[...Array(8)].map((_, i) => (
+          <g key={i} transform={`rotate(${i * 45} 50 50)`}>
+            <path
+              d="M50 10 Q60 30 50 50 Q40 30 50 10"
+              fill="none"
+              stroke={`url(#mandala-gradient-${position})`}
+              strokeWidth="0.5"
+            />
+            <circle cx="50" cy="15" r="3" fill={`url(#mandala-gradient-${position})`} />
+          </g>
+        ))}
+        <circle cx="50" cy="50" r="8" fill="none" stroke={`url(#mandala-gradient-${position})`} strokeWidth="0.5" />
+        <circle cx="50" cy="50" r="20" fill="none" stroke={`url(#mandala-gradient-${position})`} strokeWidth="0.3" />
+      </svg>
+    </ParallaxElement>
+  );
+}
 
 export default function EmptyState({
   language,
@@ -90,28 +234,33 @@ export default function EmptyState({
   // Dynamic preview state
   const [previewThemeIndex, setPreviewThemeIndex] = useState(0);
   const [previewBorderIndex, setPreviewBorderIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Scroll-based animations
+  const heroRef = useRef<HTMLElement>(null);
   const featuresRef = useRef<HTMLElement>(null);
   const stepsRef = useRef<HTMLElement>(null);
+  const journeyRef = useRef<HTMLElement>(null);
+
+  const heroInView = useInView(heroRef, { once: true });
   const featuresInView = useInView(featuresRef, { once: true, margin: '-100px' });
   const stepsInView = useInView(stepsRef, { once: true, margin: '-100px' });
+  const journeyInView = useInView(journeyRef, { once: true, margin: '-100px' });
+
+  // Parallax scroll values
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
 
   // Auto-rotate preview
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setPreviewThemeIndex((prev) => {
-          const nextTheme = (prev + 1) % themes.length;
-          if (nextTheme === 0) {
-            setPreviewBorderIndex((prevBorder) => (prevBorder + 1) % borderDesigns.length);
-          }
-          return nextTheme;
-        });
-        setIsTransitioning(false);
-      }, 300);
+      setPreviewThemeIndex((prev) => {
+        const nextTheme = (prev + 1) % themes.length;
+        if (nextTheme === 0) {
+          setPreviewBorderIndex((prevBorder) => (prevBorder + 1) % borderDesigns.length);
+        }
+        return nextTheme;
+      });
     }, 2500);
     return () => clearInterval(interval);
   }, []);
@@ -124,6 +273,10 @@ export default function EmptyState({
     if (isMarathi) return mr;
     return en;
   };
+
+  // Split hero text into words for animation
+  const heroLine1 = getText('Create Beautiful', 'सुंदर विवाह', 'सुंदर विवाह');
+  const heroLine2 = getText('Marriage Biodatas', 'बायोडाटा बनाएं', 'बायोडाटा तयार करा');
 
   // Animation variants
   const containerVariants = {
@@ -139,7 +292,11 @@ export default function EmptyState({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring' as const, stiffness: 100, damping: 15 }
+      transition: {
+        type: 'spring' as const,
+        stiffness: 100,
+        damping: 15
+      }
     }
   };
 
@@ -149,28 +306,6 @@ export default function EmptyState({
       y: [-8, 8, -8],
       transition: { duration: 6, repeat: Infinity, ease: 'easeInOut' as const }
     }
-  };
-
-  // Animated text reveal for hero
-  const titleText = getText(
-    'Create Beautiful Marriage Biodatas',
-    'सुंदर विवाह बायोडाटा बनाएं',
-    'सुंदर विवाह बायोडाटा तयार करा'
-  );
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 50, rotateX: -90 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      rotateX: 0,
-      transition: {
-        delay: i * 0.03,
-        type: 'spring' as const,
-        stiffness: 100,
-        damping: 12
-      }
-    })
   };
 
   // Glow effect animation
@@ -185,116 +320,81 @@ export default function EmptyState({
     }
   };
 
-  // Mouse tracking for parallax effects
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springConfig = { stiffness: 100, damping: 30 };
-  const mouseXSpring = useSpring(mouseX, springConfig);
-  const mouseYSpring = useSpring(mouseY, springConfig);
-
-  // Handle mouse move for parallax
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    mouseX.set((clientX - innerWidth / 2) / 50);
-    mouseY.set((clientY - innerHeight / 2) / 50);
-  };
 
   return (
-    <main
-      className="min-h-screen transition-colors duration-500 relative overflow-hidden"
-      onMouseMove={handleMouseMove}
-      style={{
-        background: isDark
-          ? 'linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-          : 'linear-gradient(180deg, #FFFEF0 0%, #FFF9E6 30%, #FFEDD5 60%, #FFF9E6 100%)'
-      }}
-    >
-      {/* 3D Background */}
+    <main className="min-h-screen transition-colors duration-500 relative overflow-hidden">
+      {/* Film Grain Overlay - Premium texture */}
+      <FilmGrain isDark={isDark} />
+
+      {/* Journey Thread - Scroll Progress */}
+      <JourneyThread isDark={isDark} />
+
+      {/* Base gradient background - bottommost layer */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: isDark
+            ? 'linear-gradient(180deg, #0a0a15 0%, #0f172a 30%, #1a1a2e 50%, #0f172a 70%, #0a0a15 100%)'
+            : 'linear-gradient(180deg, #FFFEF8 0%, #FFF9E8 25%, #FFEDD5 50%, #FFF9E8 75%, #FFFEF8 100%)',
+          zIndex: -5,
+        }}
+      />
+
+      {/* Vintage Paper Texture Overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: isDark
+            ? 'none'
+            : `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23FFFEF8' surfaceScale='2'%3E%3CfeDistantLight azimuth='45' elevation='60'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)'/%3E%3C/svg%3E")`,
+          opacity: 0.3,
+          zIndex: -4,
+          mixBlendMode: 'multiply',
+        }}
+      />
+
+      {/* 3D Background - above base gradient, below content */}
       <Suspense fallback={null}>
         <Background3D isDark={isDark} />
       </Suspense>
 
-      {/* Animated gradient mesh background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Glassmorphism overlay */}
-        <div className={`absolute inset-0 ${isDark ? 'bg-slate-900/40' : 'bg-white/30'} backdrop-blur-[1px]`} />
-
-        {/* Animated gradient orbs with parallax */}
-        <motion.div
-          className="absolute top-0 left-1/4 w-[800px] h-[800px] rounded-full blur-[150px] opacity-25"
-          style={{
-            background: isDark
-              ? 'radial-gradient(circle, #D4AF37 0%, transparent 70%)'
-              : 'radial-gradient(circle, #FBBF24 0%, transparent 70%)',
-            x: useTransform(mouseXSpring, (v) => v * -2),
-            y: useTransform(mouseYSpring, (v) => v * -2),
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-20"
-          style={{
-            background: isDark
-              ? 'radial-gradient(circle, #800020 0%, transparent 70%)'
-              : 'radial-gradient(circle, #E8A598 0%, transparent 70%)',
-            x: useTransform(mouseXSpring, (v) => v * 2),
-            y: useTransform(mouseYSpring, (v) => v * 2),
-          }}
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.15, 0.25, 0.15],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[100px] opacity-10"
-          style={{
-            background: isDark
-              ? 'radial-gradient(circle, #FFD700 0%, transparent 70%)'
-              : 'radial-gradient(circle, #B8860B 0%, transparent 70%)',
-            x: useTransform(mouseXSpring, (v) => v * 1.5),
-            y: useTransform(mouseYSpring, (v) => v * 1.5),
-          }}
-          animate={{
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </div>
-
       <div className="relative z-10">
         {/* Navigation Bar */}
         <motion.nav
-          className="py-4 px-6"
+          className="py-4 px-6 sticky top-0 z-50"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div
+            className={`max-w-6xl mx-auto flex justify-between items-center px-4 py-2 rounded-2xl backdrop-blur-md ${
+              isDark ? 'bg-slate-900/70' : 'bg-white/70'
+            } shadow-lg border ${isDark ? 'border-slate-700/50' : 'border-amber-200/50'}`}
+          >
             <div className="flex items-center gap-3">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={44}
-                height={44}
-                className="rounded-lg"
-                style={{
-                  filter: isDark
-                    ? 'drop-shadow(0 4px 12px rgba(251, 191, 36, 0.3))'
-                    : 'drop-shadow(0 4px 12px rgba(128, 0, 32, 0.2))',
-                }}
-                priority
-              />
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={44}
+                  height={44}
+                  className="rounded-lg"
+                  style={{
+                    filter: isDark
+                      ? 'drop-shadow(0 4px 12px rgba(251, 191, 36, 0.3))'
+                      : 'drop-shadow(0 4px 12px rgba(128, 0, 32, 0.2))',
+                  }}
+                  priority
+                />
+              </motion.div>
               <span
                 className={`hidden sm:block text-lg font-bold ${isDark ? 'text-amber-100' : 'text-[#800020]'}`}
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                {getText('Biodata Builder', 'बायोडाटा बिल्डर', 'बायोडाटा बिल्डर')}
+                {getText('Bio Maker', 'Bio Maker', 'Bio Maker')}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -318,56 +418,82 @@ export default function EmptyState({
           </div>
         </motion.nav>
 
-        {/* Hero Section with Live Preview */}
-        <section className="py-8 md:py-16 px-6">
-          <div className="max-w-6xl mx-auto">
+        {/* Hero Section - Cinematic Typography */}
+        <motion.section
+          ref={heroRef}
+          className="min-h-[80vh] flex items-center py-6 md:py-12 px-6 relative"
+          style={{ opacity: heroOpacity, scale: heroScale }}
+        >
+          {/* Floating Mandalas for Parallax Effect */}
+          <FloatingMandala isDark={isDark} size={300} position="left" />
+          <FloatingMandala isDark={isDark} size={250} position="right" />
+
+          <div className="max-w-6xl mx-auto w-full">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-              {/* Left: Content */}
+              {/* Left: Premium Typography Content */}
               <motion.div
                 className="text-center lg:text-left order-2 lg:order-1"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
               >
-                <motion.h1
-                  className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight ${
-                    isDark
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200'
-                      : 'text-transparent bg-clip-text bg-gradient-to-r from-[#800020] via-[#a02040] to-[#800020]'
-                  }`}
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    backgroundSize: '200% 200%',
-                  }}
-                  animate={{
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                  }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+                {/* Large Hero Typography - Word by Word Animation */}
+                <h1
+                  className="mb-6"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
                 >
-                  {titleText.split('').map((char, i) => (
-                    <motion.span
-                      key={i}
-                      custom={i}
-                      variants={letterVariants}
-                      initial="hidden"
-                      animate="visible"
-                      style={{ display: 'inline-block' }}
-                    >
-                      {char === ' ' ? '\u00A0' : char}
-                    </motion.span>
-                  ))}
-                </motion.h1>
+                  {/* First Line */}
+                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.15] mb-1">
+                    {heroLine1.split(' ').map((word, i) => (
+                      <AnimatedWord key={i} word={word} index={i} isDark={isDark} isHero />
+                    ))}
+                  </div>
+                  {/* Second Line - Slightly Larger for Impact */}
+                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-bold leading-[1.15]">
+                    {heroLine2.split(' ').map((word, i) => (
+                      <AnimatedWord key={i} word={word} index={i + heroLine1.split(' ').length} isDark={isDark} isHero />
+                    ))}
+                  </div>
+                </h1>
 
-                <p className={`text-base sm:text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                {/* Elegant Divider */}
+                <motion.div
+                  className="flex items-center justify-center lg:justify-start gap-4 mb-6"
+                  initial={{ opacity: 0, scaleX: 0 }}
+                  animate={{ opacity: 1, scaleX: 1 }}
+                  transition={{ delay: 1.2, duration: 0.8 }}
+                >
+                  <div className={`h-px w-16 ${isDark ? 'bg-gradient-to-r from-transparent to-amber-500' : 'bg-gradient-to-r from-transparent to-[#800020]'}`} />
+                  <motion.div
+                    className={`w-2 h-2 rounded-full ${isDark ? 'bg-amber-500' : 'bg-[#800020]'}`}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                  <div className={`h-px w-16 ${isDark ? 'bg-gradient-to-l from-transparent to-amber-500' : 'bg-gradient-to-l from-transparent to-[#800020]'}`} />
+                </motion.div>
+
+                {/* Subtitle with Stagger */}
+                <motion.p
+                  className={`text-lg sm:text-xl mb-8 max-w-xl mx-auto lg:mx-0 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.4, duration: 0.6 }}
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
                   {getText(
-                    'Professional, print-ready biodatas in minutes. Choose from beautiful themes, multiple languages, and elegant borders.',
-                    'कुछ ही मिनटों में प्रोफेशनल, प्रिंट-रेडी बायोडाटा। सुंदर थीम, कई भाषाएं और खूबसूरत बॉर्डर।',
-                    'काही मिनिटांत प्रोफेशनल, प्रिंट-रेडी बायोडाटा. सुंदर थीम, अनेक भाषा आणि सुंदर बॉर्डर.'
+                    'Professional, print-ready biodatas crafted with elegance. Beautiful themes, multiple languages, and traditional borders.',
+                    'सुंदरता से तैयार प्रोफेशनल बायोडाटा। सुंदर थीम, कई भाषाएं और पारंपरिक बॉर्डर।',
+                    'सुंदरतेने तयार केलेले प्रोफेशनल बायोडाटा. सुंदर थीम, अनेक भाषा आणि पारंपारिक बॉर्डर.'
                   )}
-                </p>
+                </motion.p>
 
                 {/* Trust badges */}
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-6">
+                <motion.div
+                  className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.6 }}
+                >
                   {[
                     { icon: '🔒', text: getText('100% Private', '100% निजी', '100% खाजगी') },
                     { icon: '🌐', text: getText('3 Languages', '3 भाषाएं', '3 भाषा') },
@@ -375,30 +501,31 @@ export default function EmptyState({
                   ].map((badge, i) => (
                     <motion.div
                       key={i}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
-                        isDark ? 'bg-slate-800/60 text-gray-300' : 'bg-white/80 text-gray-700'
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${
+                        isDark ? 'bg-slate-800/60 text-gray-300 border border-slate-700/50' : 'bg-white/80 text-gray-700 border border-amber-200/50'
                       } shadow-sm backdrop-blur-sm`}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5 + i * 0.1 }}
+                      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ delay: 1.6 + i * 0.1 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
                     >
-                      <span>{badge.icon}</span>
+                      <span className="text-lg">{badge.icon}</span>
                       <span className="font-medium">{badge.text}</span>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
 
                 {/* CTA Buttons */}
                 <motion.div
-                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3"
+                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 1.8 }}
                 >
                   <motion.button
                     onClick={onStartBuilding}
-                    className="w-full sm:w-auto group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all cursor-pointer overflow-hidden"
-                    whileHover={{ scale: 1.05 }}
+                    className="w-full sm:w-auto group relative px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-lg rounded-2xl shadow-xl transition-all cursor-pointer overflow-hidden"
+                    whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     {...glowAnimation}
                   >
@@ -409,17 +536,14 @@ export default function EmptyState({
                       animate={{ x: '200%' }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                     />
-                    <span className="relative flex items-center justify-center gap-2">
-                      <motion.svg
-                        className="w-5 h-5"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        animate={{ rotate: [0, 90, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
+                    <span className="relative flex items-center justify-center gap-3">
+                      <motion.span
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                       >
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                      </motion.svg>
-                      {getText('Create Your Biodata', 'अपना बायोडाटा बनाएं', 'तुमचा बायोडाटा बनवा')}
+                        ✨
+                      </motion.span>
+                      {getText('Begin Your Journey', 'अपनी यात्रा शुरू करें', 'तुमचा प्रवास सुरू करा')}
                     </span>
                   </motion.button>
                   <motion.button
@@ -428,10 +552,10 @@ export default function EmptyState({
                       onBorderChange(currentPreviewBorder);
                       onUseTemplate();
                     }}
-                    className={`w-full sm:w-auto px-6 py-3 font-semibold rounded-xl border-2 transition-all cursor-pointer ${
+                    className={`w-full sm:w-auto px-8 py-4 font-semibold rounded-2xl border-2 transition-all cursor-pointer backdrop-blur-sm ${
                       isDark
-                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10'
-                        : 'border-amber-600/50 text-amber-700 hover:bg-amber-50'
+                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10 bg-slate-900/50'
+                        : 'border-[#800020]/50 text-[#800020] hover:bg-[#800020]/5 bg-white/50'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -443,12 +567,12 @@ export default function EmptyState({
                 {/* Privacy note */}
                 <motion.button
                   onClick={() => setShowPrivacyModal(true)}
-                  className={`mt-4 inline-flex items-center gap-1.5 text-sm cursor-pointer hover:underline ${
+                  className={`mt-6 inline-flex items-center gap-2 text-sm cursor-pointer hover:underline ${
                     isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
                   }`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.9 }}
+                  transition={{ delay: 2 }}
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -464,133 +588,207 @@ export default function EmptyState({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                <motion.div
-                  className="relative"
-                  variants={floatVariants}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {/* Decorative glow */}
+                <ParallaxElement speed={-0.2}>
                   <motion.div
-                    className="absolute -inset-8 rounded-3xl blur-3xl opacity-30"
-                    style={{ background: currentPreviewTheme.colors.primary }}
-                    animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.35, 0.2] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                  />
-
-                  {/* Main preview card */}
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`${currentPreviewTheme.id}-${currentPreviewBorder.id}`}
-                      className="relative rounded-2xl shadow-2xl overflow-hidden"
-                      style={{
-                        width: '280px',
-                        height: '380px',
-                        backgroundColor: currentPreviewTheme.colors.background,
-                      }}
-                      initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
-                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, rotateY: 10 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <BorderRenderer
-                        borderId={currentPreviewBorder.id}
-                        primaryColor={currentPreviewTheme.colors.primary}
-                        secondaryColor={currentPreviewTheme.colors.secondary}
-                      />
-                      <div className="absolute inset-0 z-10 p-6 flex flex-col items-center">
-                        <div className="text-3xl mb-2" style={{ color: currentPreviewTheme.colors.primary }}>ॐ</div>
-                        <div className="text-xs font-medium mb-3" style={{ color: currentPreviewTheme.colors.secondary }}>
-                          || श्री गणेशाय नमः ||
-                        </div>
-                        <div className="text-sm font-bold mb-3" style={{ color: currentPreviewTheme.colors.headerText }}>
-                          {getText('MARRIAGE BIODATA', 'विवाह बायोडाटा', 'विवाह बायोडाटा')}
-                        </div>
-                        <div
-                          className="w-16 h-20 rounded-sm mb-3 flex items-center justify-center"
-                          style={{
-                            border: `2px solid ${currentPreviewTheme.colors.primary}`,
-                            backgroundColor: currentPreviewTheme.colors.backgroundAlt,
-                          }}
-                        >
-                          <svg className="w-6 h-6" fill={currentPreviewTheme.colors.primary} viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                          </svg>
-                        </div>
-                        <div className="text-sm font-semibold mb-4" style={{ color: currentPreviewTheme.colors.text }}>
-                          {getText('Your Name Here', 'आपका नाम यहां', 'तुमचे नाव येथे')}
-                        </div>
-                        <div className="w-full">
-                          <div
-                            className="text-xs font-semibold pb-1 mb-2 border-b"
-                            style={{ color: currentPreviewTheme.colors.headerText, borderColor: currentPreviewTheme.colors.primary }}
-                          >
-                            {getText('Personal Details', 'व्यक्तिगत विवरण', 'वैयक्तिक तपशील')}
-                          </div>
-                          <div className="space-y-1.5 text-[10px]">
-                            {[
-                              getText('Date of Birth', 'जन्म तिथि', 'जन्म तारीख'),
-                              getText('Height', 'ऊंचाई', 'उंची'),
-                              getText('Education', 'शिक्षा', 'शिक्षण'),
-                            ].map((field, i) => (
-                              <div key={i} className="flex">
-                                <span className="w-1/2" style={{ color: currentPreviewTheme.colors.textMuted }}>{field}</span>
-                                <span className="w-1/2" style={{ color: currentPreviewTheme.colors.text }}>: ................</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-
-                  {/* Theme/Border indicator */}
-                  <motion.div
-                    className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2 ${isDark ? 'bg-slate-800 text-gray-200' : 'bg-white text-gray-700'}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
+                    className="relative"
+                    variants={floatVariants}
+                    initial="initial"
+                    animate="animate"
                   >
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ background: `linear-gradient(135deg, ${currentPreviewTheme.preview[0]}, ${currentPreviewTheme.preview[1]})` }}
+                    {/* Decorative glow */}
+                    <motion.div
+                      className="absolute -inset-8 rounded-3xl blur-3xl opacity-30"
+                      style={{ background: currentPreviewTheme.colors.primary }}
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.35, 0.2] }}
+                      transition={{ duration: 4, repeat: Infinity }}
                     />
-                    <span>
-                      {isHindi ? currentPreviewTheme.nameHindi : isMarathi ? currentPreviewTheme.nameMarathi : currentPreviewTheme.name}
-                    </span>
-                    <span className="text-gray-400">•</span>
-                    <span>
-                      {isHindi ? currentPreviewBorder.nameHindi : isMarathi ? currentPreviewBorder.nameMarathi : currentPreviewBorder.name}
-                    </span>
-                  </motion.div>
 
-                  {/* Preview cycle indicators */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">
-                    {themes.map((_, i) => (
+                    {/* Main preview card */}
+                    <AnimatePresence mode="wait">
                       <motion.div
-                        key={i}
-                        className="h-1.5 rounded-full"
+                        key={`${currentPreviewTheme.id}-${currentPreviewBorder.id}`}
+                        className="relative rounded-2xl shadow-2xl overflow-hidden"
                         style={{
-                          width: i === previewThemeIndex ? 16 : 6,
-                          backgroundColor: i === previewThemeIndex
-                            ? '#f59e0b'
-                            : isDark ? '#334155' : '#d1d5db'
+                          width: '300px',
+                          height: '400px',
+                          backgroundColor: currentPreviewTheme.colors.background,
                         }}
-                        animate={{ width: i === previewThemeIndex ? 16 : 6 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
+                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, rotateY: 10 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <BorderRenderer
+                          borderId={currentPreviewBorder.id}
+                          primaryColor={currentPreviewTheme.colors.primary}
+                          secondaryColor={currentPreviewTheme.colors.secondary}
+                        />
+                        <div className="absolute inset-0 z-10 p-6 flex flex-col items-center">
+                          <div className="text-3xl mb-2" style={{ color: currentPreviewTheme.colors.primary }}>ॐ</div>
+                          <div className="text-xs font-medium mb-3" style={{ color: currentPreviewTheme.colors.secondary }}>
+                            || श्री गणेशाय नमः ||
+                          </div>
+                          <div className="text-sm font-bold mb-3" style={{ color: currentPreviewTheme.colors.headerText }}>
+                            {getText('MARRIAGE BIODATA', 'विवाह बायोडाटा', 'विवाह बायोडाटा')}
+                          </div>
+                          <div
+                            className="w-16 h-20 rounded-sm mb-3 flex items-center justify-center"
+                            style={{
+                              border: `2px solid ${currentPreviewTheme.colors.primary}`,
+                              backgroundColor: currentPreviewTheme.colors.backgroundAlt,
+                            }}
+                          >
+                            <svg className="w-6 h-6" fill={currentPreviewTheme.colors.primary} viewBox="0 0 24 24">
+                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                          </div>
+                          <div className="text-sm font-semibold mb-4" style={{ color: currentPreviewTheme.colors.text }}>
+                            {getText('Your Name Here', 'आपका नाम यहां', 'तुमचे नाव येथे')}
+                          </div>
+                          <div className="w-full">
+                            <div
+                              className="text-xs font-semibold pb-1 mb-2 border-b"
+                              style={{ color: currentPreviewTheme.colors.headerText, borderColor: currentPreviewTheme.colors.primary }}
+                            >
+                              {getText('Personal Details', 'व्यक्तिगत विवरण', 'वैयक्तिक तपशील')}
+                            </div>
+                            <div className="space-y-1.5 text-[10px]">
+                              {[
+                                getText('Date of Birth', 'जन्म तिथि', 'जन्म तारीख'),
+                                getText('Height', 'ऊंचाई', 'उंची'),
+                                getText('Education', 'शिक्षा', 'शिक्षण'),
+                              ].map((field, i) => (
+                                <div key={i} className="flex">
+                                  <span className="w-1/2" style={{ color: currentPreviewTheme.colors.textMuted }}>{field}</span>
+                                  <span className="w-1/2" style={{ color: currentPreviewTheme.colors.text }}>: ................</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+
+                    {/* Theme/Border indicator */}
+                    <motion.div
+                      className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2 ${isDark ? 'bg-slate-800 text-gray-200' : 'bg-white text-gray-700'}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ background: `linear-gradient(135deg, ${currentPreviewTheme.preview[0]}, ${currentPreviewTheme.preview[1]})` }}
                       />
-                    ))}
-                  </div>
-                </motion.div>
+                      <span>
+                        {isHindi ? currentPreviewTheme.nameHindi : isMarathi ? currentPreviewTheme.nameMarathi : currentPreviewTheme.name}
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <span>
+                        {isHindi ? currentPreviewBorder.nameHindi : isMarathi ? currentPreviewBorder.nameMarathi : currentPreviewBorder.name}
+                      </span>
+                    </motion.div>
+
+                    {/* Preview cycle indicators */}
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {themes.map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="h-1.5 rounded-full"
+                          style={{
+                            width: i === previewThemeIndex ? 16 : 6,
+                            backgroundColor: i === previewThemeIndex
+                              ? '#f59e0b'
+                              : isDark ? '#334155' : '#d1d5db'
+                          }}
+                          animate={{ width: i === previewThemeIndex ? 16 : 6 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                </ParallaxElement>
               </motion.div>
             </div>
+
           </div>
-        </section>
+        </motion.section>
+
+        {/* Journey Section - Elegant Statistics */}
+        <motion.section
+          ref={journeyRef}
+          className="py-16 px-6 relative overflow-hidden"
+        >
+          <div className="max-w-5xl mx-auto relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={journeyInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-12"
+            >
+              <h2
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                {getText(
+                  'Trusted by Thousands',
+                  'हजारों का भरोसा',
+                  'हजारोंचा विश्वास'
+                )}
+              </h2>
+              <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {getText(
+                  'Join families who have found their perfect match through professionally crafted biodatas.',
+                  'उन परिवारों से जुड़ें जिन्होंने पेशेवर बायोडाटा के माध्यम से अपना साथी खोजा।',
+                  'त्या कुटुंबांसोबत जोडले जा ज्यांनी व्यावसायिक बायोडाटाद्वारे आपला जोडीदार शोधला.'
+                )}
+              </p>
+            </motion.div>
+
+            {/* Elegant Stats Grid */}
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-4 gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={journeyInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              {[
+                { value: '10K+', label: getText('Biodatas Created', 'बायोडाटा बनाए', 'बायोडाटा तयार केले') },
+                { value: '15+', label: getText('Beautiful Themes', 'सुंदर थीम', 'सुंदर थीम') },
+                { value: '100%', label: getText('Free Forever', 'हमेशा मुफ्त', 'कायम मोफत') },
+                { value: '3', label: getText('Languages', 'भाषाएं', 'भाषा') },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  className={`relative p-6 rounded-2xl text-center ${
+                    isDark
+                      ? 'bg-slate-800/40 border border-slate-700/50'
+                      : 'bg-white/60 border border-amber-100/50 shadow-sm'
+                  }`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={journeyInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.4 + i * 0.1 }}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                >
+                  <div
+                    className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    {stat.value}
+                  </div>
+                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {stat.label}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </motion.section>
 
         {/* Features Section */}
         <motion.section
           ref={featuresRef}
-          className={`py-20 px-6 ${isDark ? 'bg-gradient-to-b from-slate-900/80 to-slate-900/40' : 'bg-gradient-to-b from-white/80 to-white/40'}`}
+          className="py-12 px-6 relative"
         >
           <div className="max-w-6xl mx-auto">
             <motion.div
@@ -681,8 +879,8 @@ export default function EmptyState({
                   key={i}
                   className={`group relative p-8 rounded-3xl transition-all duration-300 overflow-hidden ${
                     isDark
-                      ? 'bg-slate-800/50 hover:bg-slate-800/80'
-                      : 'bg-white/80 backdrop-blur-sm hover:shadow-2xl'
+                      ? 'bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50'
+                      : 'bg-white/80 backdrop-blur-sm hover:shadow-2xl border border-white/50'
                   }`}
                   variants={itemVariants}
                   whileHover={{
@@ -726,7 +924,7 @@ export default function EmptyState({
                   <div className="relative z-10">
                     <motion.div
                       className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-r ${feature.gradient} text-white shadow-lg`}
-                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                      whileHover={{ rotate: 5, scale: 1.1 }}
                       transition={{ type: 'spring' as const, stiffness: 300 }}
                     >
                       {feature.icon}
@@ -747,16 +945,11 @@ export default function EmptyState({
         {/* How It Works Section - Modern Timeline */}
         <motion.section
           ref={stepsRef}
-          className="py-24 px-6 relative overflow-hidden"
+          className="py-16 px-6 relative"
         >
-          {/* Background decoration */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] ${isDark ? 'opacity-10' : 'opacity-5'}`} style={{ background: 'linear-gradient(135deg, #D4AF37, #800020)' }} />
-          </div>
-
           <div className="max-w-6xl mx-auto relative z-10">
             <motion.div
-              className="text-center mb-20"
+              className="text-center mb-12"
               initial={{ opacity: 0, y: 30 }}
               animate={stepsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
@@ -894,7 +1087,7 @@ export default function EmptyState({
             >
               <motion.button
                 onClick={onStartBuilding}
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-2xl transition-all cursor-pointer"
+                className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all cursor-pointer"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -908,7 +1101,7 @@ export default function EmptyState({
         </motion.section>
 
         {/* Footer */}
-        <footer className="py-12 px-6">
+        <footer className="py-12 px-6 relative">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
               className="mb-6"
@@ -916,7 +1109,7 @@ export default function EmptyState({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${isDark ? 'bg-slate-800/60' : 'bg-white/80'} shadow-sm`}>
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${isDark ? 'bg-slate-800/60' : 'bg-white/80'} shadow-sm backdrop-blur-sm`}>
                 <span className="text-green-500">●</span>
                 <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   {getText('100% Free • No Signup Required', '100% मुफ्त • साइनअप की जरूरत नहीं', '100% मोफत • साइनअपची गरज नाही')}
@@ -930,6 +1123,17 @@ export default function EmptyState({
                 'तुमचा डेटा तुमच्या डिव्हाइसवर राहतो.'
               )}
             </p>
+            {/* Decorative footer line */}
+            <motion.div
+              className="mt-8 flex items-center justify-center gap-2"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <div className={`h-px w-16 ${isDark ? 'bg-amber-500/30' : 'bg-[#800020]/30'}`} />
+              <span className={`text-lg ${isDark ? 'text-amber-500/50' : 'text-[#800020]/50'}`}>❦</span>
+              <div className={`h-px w-16 ${isDark ? 'bg-amber-500/30' : 'bg-[#800020]/30'}`} />
+            </motion.div>
           </div>
         </footer>
       </div>
@@ -938,7 +1142,7 @@ export default function EmptyState({
       <AnimatePresence>
         {showPrivacyModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -1,13 +1,82 @@
-/* Import Google Fonts - must be before other imports */
+/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=Tiro+Devanagari+Hindi:ital@0;1&family=Great+Vibes&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600&display=swap');
 
 @import "tailwindcss";
 
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
 /* Configure dark mode to use class selector instead of prefers-color-scheme */
 @variant dark (&:where(.dark, .dark *));
 
+/* ============================================
+   DESIGN SYSTEM - Bio Maker
+   Central location for all design tokens
+   ============================================ */
+
 :root {
-  /* Krishna / Spiritual Theme Colors */
+  /* ===========================================
+     SEMANTIC DESIGN TOKENS
+     Change these to update the entire app
+     =========================================== */
+
+  /* Backgrounds */
+  --ds-bg: #FFFEF8;                    /* Main page background */
+  --ds-bg-alt: #FFF9E6;                /* Alternative/secondary background */
+  --ds-surface: #FFFFFF;               /* Cards, panels, elevated surfaces */
+  --ds-surface-hover: #FEF7E0;         /* Surface hover state */
+
+  /* Borders */
+  --ds-border: #E8DFC4;                /* Default border color */
+  --ds-border-hover: #D4AF37;          /* Border on hover/focus */
+  --ds-border-subtle: #F0E6D0;         /* Subtle/light border */
+
+  /* Primary CTA (Golden gradient) */
+  --ds-cta-primary: #F59E0B;           /* Primary button base */
+  --ds-cta-primary-hover: #D97706;     /* Primary button hover */
+  --ds-cta-primary-from: #F59E0B;      /* Gradient start (amber-500) */
+  --ds-cta-primary-to: #EA580C;        /* Gradient end (orange-600) */
+  --ds-cta-primary-text: #FFFFFF;      /* Text on primary button */
+
+  /* Secondary CTA */
+  --ds-cta-secondary: #FFFFFF;         /* Secondary button base */
+  --ds-cta-secondary-hover: #FEF3C7;   /* Secondary button hover */
+  --ds-cta-secondary-text: #92400E;    /* Text on secondary button */
+  --ds-cta-secondary-border: #FCD34D;  /* Border for secondary button */
+
+  /* Accent Colors */
+  --ds-accent: #D4AF37;                /* Gold accent - primary theme color */
+  --ds-accent-light: #F4C430;          /* Light gold */
+  --ds-accent-dark: #B8860B;           /* Dark gold */
+
+  /* Text Colors */
+  --ds-text-primary: #1F2937;          /* Main text (gray-800) */
+  --ds-text-secondary: #4B5563;        /* Secondary text (gray-600) */
+  --ds-text-muted: #9CA3AF;            /* Muted/placeholder text (gray-400) */
+  --ds-text-inverse: #FFFFFF;          /* Text on dark backgrounds */
+
+  /* Semantic Colors */
+  --ds-success: #10B981;               /* Success green */
+  --ds-success-bg: #D1FAE5;            /* Success background */
+  --ds-error: #EF4444;                 /* Error red */
+  --ds-error-bg: #FEE2E2;              /* Error background */
+  --ds-warning: #F59E0B;               /* Warning amber */
+  --ds-warning-bg: #FEF3C7;            /* Warning background */
+  --ds-info: #3B82F6;                  /* Info blue */
+  --ds-info-bg: #DBEAFE;               /* Info background */
+
+  /* Shadows */
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ds-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --ds-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --ds-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --ds-shadow-glow: 0 0 20px rgba(212, 175, 55, 0.3);
+
+  /* ===========================================
+     BIODATA TEMPLATE COLORS
+     (Used inside the biodata paper - always light)
+     =========================================== */
   --gold-primary: #D4AF37;
   --gold-light: #F4C430;
   --gold-dark: #B8860B;
@@ -17,33 +86,130 @@
   --burgundy: #800020;
   --maroon: #722F37;
 
-  /* Text colors */
-  --text-dark: #333333;
-  --text-medium: #555555;
-  --text-light: #777777;
+  /* ===========================================
+     SHADCN/RADIX COMPONENT TOKENS
+     =========================================== */
+  --radius: 0.625rem;
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text-primary);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text-primary);
+  --popover: var(--ds-surface);
+  --popover-foreground: var(--ds-text-primary);
+  --primary: var(--ds-cta-primary);
+  --primary-foreground: var(--ds-cta-primary-text);
+  --secondary: var(--ds-cta-secondary);
+  --secondary-foreground: var(--ds-cta-secondary-text);
+  --muted: var(--ds-bg-alt);
+  --muted-foreground: var(--ds-text-muted);
+  --accent: var(--ds-accent);
+  --accent-foreground: var(--ds-text-primary);
+  --destructive: var(--ds-error);
+  --destructive-foreground: var(--ds-text-inverse);
+  --border: var(--ds-border);
+  --input: var(--ds-border);
+  --ring: var(--ds-accent);
 
-  /* Background */
-  --background: #FFFEF0;
-  --foreground: #333333;
+  /* Chart colors */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
 
-  /* Dark Mode Variables (UI only - not the biodata paper) */
-  --ui-bg: #FFFEF0;
-  --ui-bg-alt: #FFF9E6;
-  --ui-text: #333333;
-  --ui-text-muted: #666666;
-  --ui-border: #E8DFC4;
-  --ui-card-bg: #FFFFFF;
+  /* Sidebar */
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text-primary);
+  --sidebar-primary: var(--ds-cta-primary);
+  --sidebar-primary-foreground: var(--ds-cta-primary-text);
+  --sidebar-accent: var(--ds-bg-alt);
+  --sidebar-accent-foreground: var(--ds-text-primary);
+  --sidebar-border: var(--ds-border);
+  --sidebar-ring: var(--ds-accent);
+
+  /* Legacy UI variables (for backwards compatibility) */
+  --ui-bg: var(--ds-bg);
+  --ui-bg-alt: var(--ds-bg-alt);
+  --ui-text: var(--ds-text-primary);
+  --ui-text-muted: var(--ds-text-muted);
+  --ui-border: var(--ds-border);
+  --ui-card-bg: var(--ds-surface);
   --ui-shadow: rgba(0, 0, 0, 0.1);
 }
 
-/* Dark Mode - Only affects UI wrapper, NOT the biodata paper */
+/* ===========================================
+   DARK MODE DESIGN TOKENS
+   Only affects UI, NOT the biodata paper
+   =========================================== */
 .dark {
-  --ui-bg: #0f172a;
-  --ui-bg-alt: #1e293b;
-  --ui-text: #f1f5f9;
-  --ui-text-muted: #94a3b8;
-  --ui-border: #334155;
-  --ui-card-bg: #1e293b;
+  /* Backgrounds */
+  --ds-bg: #0f172a;                    /* slate-900 */
+  --ds-bg-alt: #1e293b;                /* slate-800 */
+  --ds-surface: #1e293b;               /* slate-800 */
+  --ds-surface-hover: #334155;         /* slate-700 */
+
+  /* Borders */
+  --ds-border: #334155;                /* slate-700 */
+  --ds-border-hover: #D4AF37;          /* Gold stays same */
+  --ds-border-subtle: #475569;         /* slate-600 */
+
+  /* Primary CTA (Golden gradient - same in dark mode) */
+  --ds-cta-primary: #F59E0B;
+  --ds-cta-primary-hover: #FBBF24;
+  --ds-cta-primary-from: #F59E0B;
+  --ds-cta-primary-to: #EA580C;
+  --ds-cta-primary-text: #FFFFFF;
+
+  /* Secondary CTA */
+  --ds-cta-secondary: #334155;
+  --ds-cta-secondary-hover: #475569;
+  --ds-cta-secondary-text: #F1F5F9;
+  --ds-cta-secondary-border: #475569;
+
+  /* Text Colors */
+  --ds-text-primary: #F1F5F9;          /* slate-100 */
+  --ds-text-secondary: #CBD5E1;        /* slate-300 */
+  --ds-text-muted: #64748B;            /* slate-500 */
+  --ds-text-inverse: #0F172A;          /* slate-900 */
+
+  /* Semantic Colors */
+  --ds-success: #34D399;               /* emerald-400 */
+  --ds-success-bg: #064E3B;            /* emerald-900 */
+  --ds-error: #F87171;                 /* red-400 */
+  --ds-error-bg: #7F1D1D;              /* red-900 */
+  --ds-warning: #FBBF24;               /* amber-400 */
+  --ds-warning-bg: #78350F;            /* amber-900 */
+  --ds-info: #60A5FA;                  /* blue-400 */
+  --ds-info-bg: #1E3A8A;               /* blue-900 */
+
+  /* Shadows */
+  --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ds-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --ds-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --ds-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  --ds-shadow-glow: 0 0 30px rgba(212, 175, 55, 0.2);
+
+  /* Update shadcn tokens */
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text-primary);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text-primary);
+  --popover: var(--ds-surface);
+  --popover-foreground: var(--ds-text-primary);
+  --muted: var(--ds-bg-alt);
+  --muted-foreground: var(--ds-text-muted);
+  --accent: var(--ds-bg-alt);
+  --accent-foreground: var(--ds-text-primary);
+  --border: var(--ds-border);
+  --input: var(--ds-border);
+
+  /* Legacy UI variables */
+  --ui-bg: var(--ds-bg);
+  --ui-bg-alt: var(--ds-bg-alt);
+  --ui-text: var(--ds-text-primary);
+  --ui-text-muted: var(--ds-text-muted);
+  --ui-border: var(--ds-border);
+  --ui-card-bg: var(--ds-surface);
   --ui-shadow: rgba(0, 0, 0, 0.4);
 }
 
@@ -61,8 +227,48 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* ===========================================
+     DESIGN SYSTEM COLORS
+     Use: bg-ds-bg, text-ds-text-primary, etc.
+     =========================================== */
+  --color-ds-bg: var(--ds-bg);
+  --color-ds-bg-alt: var(--ds-bg-alt);
+  --color-ds-surface: var(--ds-surface);
+  --color-ds-surface-hover: var(--ds-surface-hover);
+  --color-ds-border: var(--ds-border);
+  --color-ds-border-hover: var(--ds-border-hover);
+  --color-ds-border-subtle: var(--ds-border-subtle);
+
+  /* CTA Colors */
+  --color-ds-cta-primary: var(--ds-cta-primary);
+  --color-ds-cta-primary-hover: var(--ds-cta-primary-hover);
+  --color-ds-cta-primary-text: var(--ds-cta-primary-text);
+  --color-ds-cta-secondary: var(--ds-cta-secondary);
+  --color-ds-cta-secondary-hover: var(--ds-cta-secondary-hover);
+  --color-ds-cta-secondary-text: var(--ds-cta-secondary-text);
+
+  /* Accent Colors */
+  --color-ds-accent: var(--ds-accent);
+  --color-ds-accent-light: var(--ds-accent-light);
+  --color-ds-accent-dark: var(--ds-accent-dark);
+
+  /* Text Colors */
+  --color-ds-text-primary: var(--ds-text-primary);
+  --color-ds-text-secondary: var(--ds-text-secondary);
+  --color-ds-text-muted: var(--ds-text-muted);
+  --color-ds-text-inverse: var(--ds-text-inverse);
+
+  /* Semantic Colors */
+  --color-ds-success: var(--ds-success);
+  --color-ds-success-bg: var(--ds-success-bg);
+  --color-ds-error: var(--ds-error);
+  --color-ds-error-bg: var(--ds-error-bg);
+  --color-ds-warning: var(--ds-warning);
+  --color-ds-warning-bg: var(--ds-warning-bg);
+  --color-ds-info: var(--ds-info);
+  --color-ds-info-bg: var(--ds-info-bg);
+
+  /* Biodata Template Colors (always light themed) */
   --color-gold-primary: var(--gold-primary);
   --color-gold-light: var(--gold-light);
   --color-gold-dark: var(--gold-dark);
@@ -72,12 +278,72 @@
   --color-burgundy: var(--burgundy);
   --color-maroon: var(--maroon);
 
+  /* Legacy shadcn colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ===========================================
+     TYPOGRAPHY - Fonts
+     Use: font-heading, font-body, etc.
+     =========================================== */
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Poppins', sans-serif;
   --font-playfair: 'Playfair Display', serif;
   --font-poppins: 'Poppins', sans-serif;
   --font-devanagari: 'Tiro Devanagari Hindi', serif;
   --font-devanagari-serif: 'Noto Serif Devanagari', serif;
   --font-devanagari-sans: 'Noto Sans Devanagari', sans-serif;
   --font-script: 'Great Vibes', cursive;
+
+  /* ===========================================
+     RADIUS TOKENS
+     =========================================== */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* ===========================================
+     SHADOW TOKENS
+     Use: shadow-ds-sm, shadow-ds-glow, etc.
+     =========================================== */
+  --shadow-ds-sm: var(--ds-shadow-sm);
+  --shadow-ds: var(--ds-shadow);
+  --shadow-ds-md: var(--ds-shadow-md);
+  --shadow-ds-lg: var(--ds-shadow-lg);
+  --shadow-ds-glow: var(--ds-shadow-glow);
 }
 
 * {
@@ -85,29 +351,29 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   font-size: 13px;
   line-height: 1.5;
   min-height: 100vh;
+  background-color: var(--ds-bg);
+  color: var(--ds-text-primary);
 }
 
 /* Playfair Display for headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-playfair), 'Playfair Display', serif;
 }
 
 /* Marathi text styling - body text */
 .marathi-text {
-  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-family: var(--font-devanagari-sans), 'Noto Sans Devanagari', sans-serif;
   font-size: 1em;
   line-height: 1.6;
 }
 
 /* Marathi text styling - headers/name */
 .marathi-header {
-  font-family: 'Noto Serif Devanagari', serif;
+  font-family: var(--font-devanagari-serif), 'Noto Serif Devanagari', serif;
   line-height: 1.4;
 }
 
@@ -768,4 +1034,13 @@ select,
 .biodata-page button.biodata-btn:active,
 .biodata-page .biodata-btn:active {
   cursor: var(--cursor-peacock-active) !important;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

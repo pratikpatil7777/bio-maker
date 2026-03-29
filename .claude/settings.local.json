@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(del \"C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\components\\MarathiInput.tsx\")",
+      "Bash(del \"C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\lib\\marathiTransliteration.ts\")",
+      "Bash(npm install:*)",
+      "Bash(cmd /c \"del /f C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\components\\MarathiInput.tsx && del /f C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\lib\\marathiTransliteration.ts\")",
+      "Bash(npm info:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:xlit-api.ai4bharat.org)",
+      "Bash(npx next:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(cmd /c \"del /f \"\"C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\lib\\marathiTransliteration.ts\"\" & del /f \"\"C:\\Users\\prati\\Desktop\\Biodata\\biodata-website\\src\\components\\MarathiInput.tsx\"\"\")",
+      "Bash(grep:*)",
+      "Bash(npm run build:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:webflow.com)",
+      "WebFetch(domain:prometheusfuels.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

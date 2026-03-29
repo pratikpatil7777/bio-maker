@@ -128,7 +128,7 @@ export default function BiodataBuilder() {
     return en;
   };
 
-  // Back to home function
+  // Back to home function - navigates to marketing landing page
   const handleBackToHome = async () => {
     if (hasChanges) {
       const confirmMessage = getText(
@@ -143,9 +143,8 @@ export default function BiodataBuilder() {
       });
       if (!confirmed) return;
     }
-    clearLocalStorage(STORAGE_KEY);
-    setData(createEmptyBiodata());
-    setIsEditMode(false);
+    // Navigate to landing page
+    window.location.href = '/';
   };
 
   // Handle client-side initialization
@@ -335,19 +334,11 @@ export default function BiodataBuilder() {
     );
   }
 
+  // In app zone, always start in edit mode if empty
+  // EmptyState is now shown on the marketing landing page (/)
   if (isEmpty && !isEditMode) {
-    return (
-      <EmptyState
-        language={language}
-        onLanguageChange={setLanguage}
-        currentTheme={currentTheme}
-        onThemeChange={handleThemeChange}
-        currentBorder={currentBorder}
-        onBorderChange={handleBorderChange}
-        onStartBuilding={handleStartBuilding}
-        onUseTemplate={handleUseTemplate}
-      />
-    );
+    // Auto-enable edit mode in app zone
+    setIsEditMode(true);
   }
 
   const isMarathi = language === 'mr';

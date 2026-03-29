@@ -1,66 +1,49 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type Theme = 'light' | 'dark';
+import React, { createContext, useContext } from 'react';
+import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
 
 interface DarkModeContextType {
-  theme: Theme;
+  theme: 'light' | 'dark';
   toggleTheme: () => void;
   isDark: boolean;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
 }
 
 const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'biodata-dark-mode';
-
-export function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
-
-  // Initialize theme from localStorage or system preference
-  useEffect(() => {
-    setMounted(true);
-
-    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    }
-  }, []);
-
-  // Apply theme to document
-  useEffect(() => {
-    if (!mounted) return;
-
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme, mounted]);
+function DarkModeProviderInner({ children }: { children: React.ReactNode }) {
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <DarkModeContext.Provider value={{ theme: 'light', toggleTheme: () => {}, isDark: false }}>
-        {children}
-      </DarkModeContext.Provider>
-    );
-  }
+  const contextValue: DarkModeContextType = {
+    theme: (resolvedTheme as 'light' | 'dark') || 'light',
+    toggleTheme,
+    isDark: resolvedTheme === 'dark',
+    setTheme: setTheme as (theme: 'light' | 'dark' | 'system') => void,
+  };
 
   return (
-    <DarkModeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+    <DarkModeContext.Provider value={contextValue}>
       {children}
     </DarkModeContext.Provider>
+  );
+}
+
+export function DarkModeProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem
+      disableTransitionOnChange={false}
+      storageKey="bio-maker-theme"
+    >
+      <DarkModeProviderInner>{children}</DarkModeProviderInner>
+    </NextThemesProvider>
   );
 }
 
@@ -71,3 +54,6 @@ export function useDarkMode() {
   }
   return context;
 }
+
+// Export the ThemeProvider for use in other places if needed
+export { useTheme } from 'next-themes';
