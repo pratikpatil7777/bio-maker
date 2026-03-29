@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '@/lib/types';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -68,6 +69,9 @@ export default function FeedbackModal({ isOpen, onClose, language }: FeedbackMod
         existingFeedback.push(feedbackData);
         localStorage.setItem('bio-maker-feedback', JSON.stringify(existingFeedback));
         localStorage.setItem('bio-maker-feedback-given', 'true');
+
+        // Track feedback submission
+        AnalyticsEvents.FEEDBACK_SUBMITTED(rating);
 
         setSubmitted(true);
 

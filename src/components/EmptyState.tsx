@@ -10,6 +10,7 @@ import BorderRenderer from './borders';
 import DarkModeToggle from './DarkModeToggle';
 import { useDarkMode } from '@/lib/DarkModeContext';
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import Testimonials from './Testimonials';
 
 // Dynamically import 3D background to avoid SSR issues
 const Background3D = dynamic(() => import('./Background3D'), {
@@ -1315,6 +1316,9 @@ export default function EmptyState({
             </motion.div>
           </div>
         </motion.section>
+
+        {/* Testimonials Section */}
+        <Testimonials language={language} />
 
         {/* Footer */}
         <footer className="py-12 px-6 relative">

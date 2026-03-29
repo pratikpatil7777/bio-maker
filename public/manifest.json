@@ -1,0 +1,42 @@
+{
+  "name": "Bio Maker - Marriage Biodata Creator",
+  "short_name": "Bio Maker",
+  "description": "Create beautiful marriage biodata online for FREE. Professional templates in Hindi, Marathi & English. No signup required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFEF0",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["lifestyle", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Bio Maker Preview"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create New Biodata",
+      "short_name": "New",
+      "description": "Start creating a new marriage biodata",
+      "url": "/app",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

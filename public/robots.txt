@@ -1,0 +1,29 @@
+# Bio Maker - robots.txt
+# https://bio-maker-in.vercel.app
+
+# INTERVIEW CONCEPT: robots.txt
+# ==============================
+# This file tells search engine crawlers which pages to index.
+# Format: User-agent: [bot name], Disallow: [path]
+#
+# Common bots:
+# - Googlebot: Google Search
+# - Bingbot: Bing Search
+# - Yandex: Russian search engine
+# - Baiduspider: Chinese search engine
+
+# Allow all bots to crawl everything
+User-agent: *
+Allow: /
+
+# Block API routes (no need to index these)
+Disallow: /api/
+
+# Block internal app routes that shouldn't appear in search
+Disallow: /app/share?*
+
+# Point to sitemap
+Sitemap: https://bio-maker-in.vercel.app/sitemap.xml
+
+# Crawl delay (optional - be nice to bots)
+# Crawl-delay: 1

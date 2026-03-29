@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '@/lib/types';
 import FeedbackModal from './FeedbackModal';
+import { generateReferralLink, ShareMessages, trackReferralEvent } from '@/lib/referral';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 interface PostDownloadModalProps {
   isOpen: boolean;
@@ -28,23 +30,30 @@ export default function PostDownloadModal({
   };
 
   const handleCreateAnother = () => {
+    // Track viral loop: family member creating another biodata
+    AnalyticsEvents.CREATE_FOR_FAMILY_CLICKED();
     onCreateAnother();
     onClose();
   };
 
   const handleRecommend = (platform: 'whatsapp' | 'copy') => {
-    const shareText = getText(
-      'I just created my marriage biodata using Bio Maker - free, no signup, beautiful designs! Try it: ',
-      'मैंने Bio Maker से अपना बायोडाटा बनाया - मुफ्त, बिना साइनअप, सुंदर डिज़ाइन! आप भी बनाएं: ',
-      'मी Bio Maker वापरून माझा बायोडाटा बनवला - मोफत, साइनअप नाही, सुंदर डिझाइन! तुम्हीही बनवा: '
-    );
-    const url = 'https://bio-maker-in.vercel.app';
+    // Generate tracked referral link
+    const referralLink = generateReferralLink(platform);
+    trackReferralEvent('link_generated');
+
+    // Get localized message with referral link
+    const langKey = language === 'hi' ? 'hi' : language === 'mr' ? 'mr' : 'en';
+    const shareText = ShareMessages.whatsapp[langKey](referralLink);
 
     if (platform === 'whatsapp') {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + url)}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+      trackReferralEvent('link_shared');
+      AnalyticsEvents.SHARE_INITIATED('whatsapp');
       onClose();
     } else {
-      navigator.clipboard.writeText(shareText + url);
+      navigator.clipboard.writeText(shareText);
+      trackReferralEvent('link_shared');
+      AnalyticsEvents.SHARE_INITIATED('copy_link');
       setLinkCopied(true);
       setTimeout(() => {
         setLinkCopied(false);

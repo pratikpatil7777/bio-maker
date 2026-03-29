@@ -7,6 +7,7 @@ import { encodeShareLink } from '@/lib/shareLink';
 import { createRedactedBiodata } from '@/lib/privacyUtils';
 import { useAlert } from './AlertDialog';
 import PrivacyConsentModal from './PrivacyConsentModal';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 interface ShareButtonProps {
   language: Language;
@@ -76,6 +77,7 @@ export default function ShareButton({
             text: getText('Please find the marriage biodata attached.', 'कृपया बायोडाटा देखें।', 'कृपया बायोडाटा पहा.'),
             files: [imageFile],
           });
+          AnalyticsEvents.SHARE_COMPLETED('native');
           return;
         }
       }
@@ -125,6 +127,7 @@ export default function ShareButton({
         )
       );
       window.open(`https://wa.me/?text=${message}`, '_blank');
+      AnalyticsEvents.SHARE_COMPLETED('whatsapp');
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         console.error('Error:', error);
@@ -144,6 +147,7 @@ export default function ShareButton({
     try {
       const url = window.location.href;
       await navigator.clipboard.writeText(url);
+      AnalyticsEvents.SHARE_COMPLETED('copy_link');
       await showSuccess(
         getText('Link copied to clipboard!', 'लिंक कॉपी हो गई!', 'लिंक कॉपी झाली!'),
         getText('Copied', 'कॉपी सम्पन्न', 'कॉपी पूर्ण')

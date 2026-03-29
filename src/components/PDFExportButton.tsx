@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { translations, Language } from '@/lib/translations';
 import { useAlert } from './AlertDialog';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 interface PDFExportButtonProps {
   language: Language;
@@ -140,8 +141,13 @@ export default function PDFExportButton({
       setProgress(getText('Saving...', 'सेव हो रहा है...', 'सेव्ह करत आहे...'));
       pdf.save(`${fileName}.pdf`);
 
+      // Track conversion - this is our primary success metric!
+      AnalyticsEvents.PDF_DOWNLOADED();
+
     } catch (error) {
       console.error('Error generating PDF:', error);
+      // Track errors for debugging
+      AnalyticsEvents.ERROR_OCCURRED('pdf_generation', String(error));
       await showError(
         getText(
           'Failed to generate PDF. Please try again.',

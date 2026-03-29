@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { DarkModeProvider } from "@/lib/DarkModeContext";
 import { AlertProvider } from "@/components/AlertDialog";
+import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { AttributionTracker } from "@/components/AttributionTracker";
 
 // Fonts are loaded via @import in globals.css
 // Using CSS @import for better Turbopack compatibility
@@ -110,7 +113,7 @@ export const metadata: Metadata = {
   },
   category: "lifestyle",
   other: {
-    "google-site-verification": "", // Add your verification code
+    "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
     "application-name": "Bio Maker",
     "apple-mobile-web-app-title": "Bio Maker",
     "apple-mobile-web-app-capable": "yes",
@@ -159,7 +162,7 @@ const jsonLd = {
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
-        "ratingCount": "150",
+        "ratingCount": "6",
         "bestRating": "5",
         "worstRating": "1"
       }
@@ -270,7 +273,13 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <DarkModeProvider>
           <AlertProvider>
-            {children}
+            {/* Suspense needed for useSearchParams in AnalyticsProvider */}
+            <Suspense fallback={null}>
+              <AnalyticsProvider>
+                <AttributionTracker />
+                {children}
+              </AnalyticsProvider>
+            </Suspense>
           </AlertProvider>
         </DarkModeProvider>
       </body>

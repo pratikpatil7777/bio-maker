@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Language } from '@/lib/types';
 import { useDarkMode } from '@/lib/DarkModeContext';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 interface AIBioWriterProps {
   language: Language;
@@ -151,9 +152,15 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
       setGeneratedSections(data.bio.sections || []);
       setRemainingCredits(data.remainingCredits);
       setStep('result');
+
+      // Track successful AI bio generation
+      AnalyticsEvents.AI_BIO_GENERATED(formData.tone);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      const errorMsg = err instanceof Error ? err.message : 'Something went wrong';
+      setError(errorMsg);
       setStep('form');
+      // Track AI generation errors
+      AnalyticsEvents.AI_BIO_ERROR(errorMsg);
     }
   };
 

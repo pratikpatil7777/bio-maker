@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { useDarkMode } from '@/lib/DarkModeContext';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import { themes } from '@/lib/themes';
 import { borderDesigns } from '@/lib/borders';
+import { PRICING_TIERS } from '@/lib/monetization';
 
 const features = [
   { name: 'Unlimited Biodatas', free: true },
@@ -26,6 +27,7 @@ const features = [
 
 export default function PricingPage() {
   const { isDark } = useDarkMode();
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   return (
     <main className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-slate-900' : 'bg-[#FFFEF8]'}`}>
@@ -129,6 +131,200 @@ export default function PricingPage() {
               </Link>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Coming Soon Premium Section */}
+      <section className="py-12 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            className="text-center mb-10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
+              isDark ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-700'
+            } font-medium mb-4`}>
+              <span>Coming Soon</span>
+            </div>
+            <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}
+              style={{ fontFamily: "'Playfair Display', serif" }}>
+              Premium Features (Optional)
+            </h2>
+            <p className={`max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              We&apos;re working on optional premium add-ons for power users. The core biodata creator will always remain free!
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Free Tier */}
+            <motion.div
+              className={`rounded-2xl p-6 ${
+                isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-white border-2 border-gray-200'
+              }`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="text-center mb-6">
+                <div className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {PRICING_TIERS.free.name}
+                </div>
+                <div className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {PRICING_TIERS.free.priceDisplay}
+                </div>
+                <div className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>forever</div>
+              </div>
+              <ul className="space-y-3 mb-6">
+                {PRICING_TIERS.free.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>{f.en}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/app"
+                className={`block w-full text-center py-3 rounded-xl font-semibold ${
+                  isDark
+                    ? 'bg-slate-700 text-white hover:bg-slate-600'
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {PRICING_TIERS.free.cta.en}
+              </Link>
+            </motion.div>
+
+            {/* Premium Tier (Coming Soon) */}
+            <motion.div
+              className={`rounded-2xl p-6 relative ${
+                isDark
+                  ? 'bg-gradient-to-br from-amber-900/30 to-orange-900/30 border-2 border-amber-500/50'
+                  : 'bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-400'
+              }`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              {/* Badge */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full">
+                  {PRICING_TIERS.basic.badge?.en}
+                </span>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className={`text-sm font-medium mb-2 ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
+                  {PRICING_TIERS.basic.name}
+                </div>
+                <div className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {PRICING_TIERS.basic.priceDisplay}
+                </div>
+                <div className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {PRICING_TIERS.basic.pricePeriod?.en}
+                </div>
+              </div>
+              <ul className="space-y-3 mb-6">
+                {PRICING_TIERS.basic.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>{f.en}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => setShowComingSoon(true)}
+                className="block w-full text-center py-3 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white opacity-50 cursor-not-allowed"
+              >
+                Coming Soon
+              </button>
+            </motion.div>
+
+            {/* Family Pack (Coming Soon) */}
+            <motion.div
+              className={`rounded-2xl p-6 relative ${
+                isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-white border-2 border-gray-200'
+              }`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              {/* Badge */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                  isDark ? 'bg-slate-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {PRICING_TIERS.premium.badge?.en}
+                </span>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {PRICING_TIERS.premium.name}
+                </div>
+                <div className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {PRICING_TIERS.premium.priceDisplay}
+                </div>
+                <div className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {PRICING_TIERS.premium.pricePeriod?.en}
+                </div>
+              </div>
+              <ul className="space-y-3 mb-6">
+                {PRICING_TIERS.premium.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>{f.en}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => setShowComingSoon(true)}
+                className={`block w-full text-center py-3 rounded-xl font-semibold ${
+                  isDark
+                    ? 'bg-slate-700 text-gray-400'
+                    : 'bg-gray-100 text-gray-400'
+                } opacity-50 cursor-not-allowed`}
+              >
+                Coming Soon
+              </button>
+            </motion.div>
+          </div>
+
+          {/* Email Signup for Launch */}
+          {showComingSoon && (
+            <motion.div
+              className={`mt-8 p-6 rounded-2xl text-center ${
+                isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-amber-50 border border-amber-200'
+              }`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <p className={`mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Interested in premium features?
+              </p>
+              <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                We&apos;ll notify you when premium features launch. Meanwhile, enjoy Bio Maker for free!
+              </p>
+              <Link
+                href="/app"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl"
+              >
+                Continue with Free
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </motion.div>
+          )}
         </div>
       </section>
 
