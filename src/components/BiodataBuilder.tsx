@@ -406,6 +406,11 @@ export default function BiodataBuilder() {
                   targetRef={isEditMode ? biodataRef : pagedViewRef}
                   fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
                   pageCount={pageCount}
+                  onCreateAnother={() => {
+                    clearLocalStorage(STORAGE_KEY);
+                    setData(createEmptyBiodata());
+                    setIsEditMode(true);
+                  }}
                 />
                 <ShareButton
                   language={language}

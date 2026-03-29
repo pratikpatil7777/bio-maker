@@ -55,21 +55,14 @@ function DarkModeStars() {
 }
 
 function ShootingStar({ delay = 0 }: { delay?: number }) {
-  const lineRef = useRef<THREE.Line>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
   const progressRef = useRef(0);
   const activeRef = useRef(false);
   const startPosRef = useRef({ x: 0, y: 0 });
   const delayRef = useRef(delay + Math.random() * 12 + 8);
 
-  const geometry = useMemo(() => {
-    const geo = new THREE.BufferGeometry();
-    const positions = new Float32Array(6);
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    return geo;
-  }, []);
-
   useFrame((_, delta) => {
-    if (!lineRef.current) return;
+    if (!meshRef.current) return;
 
     delayRef.current -= delta;
 
@@ -86,29 +79,24 @@ function ShootingStar({ delay = 0 }: { delay?: number }) {
 
     if (activeRef.current) {
       progressRef.current += delta * 2.5;
-
-      const positions = lineRef.current.geometry.attributes.position.array as Float32Array;
-      const length = 4;
       const progress = progressRef.current;
 
-      // Classic shooting star direction: top-left to bottom-right diagonal
-      positions[0] = startPosRef.current.x + progress * 18;
-      positions[1] = startPosRef.current.y - progress * 10;
-      positions[2] = -15;
-      positions[3] = positions[0] - length;
-      positions[4] = positions[1] + length * 0.55;
-      positions[5] = -15;
+      // Move the mesh (shooting star head)
+      meshRef.current.position.x = startPosRef.current.x + progress * 18;
+      meshRef.current.position.y = startPosRef.current.y - progress * 10;
+      meshRef.current.position.z = -15;
 
-      lineRef.current.geometry.attributes.position.needsUpdate = true;
-
-      const material = lineRef.current.material as THREE.LineBasicMaterial;
-      if (progress < 0.2) {
-        material.opacity = 0.6 * (progress / 0.2);
+      // Fade in and out
+      const material = meshRef.current.material as THREE.MeshBasicMaterial;
+      if (progress < 0.15) {
+        material.opacity = 0.8 * (progress / 0.15);
+        meshRef.current.scale.setScalar(1 + progress * 2);
       } else {
-        material.opacity = Math.max(0, 0.6 * (1 - (progress - 0.2) / 1.0));
+        material.opacity = Math.max(0, 0.8 * (1 - (progress - 0.15) / 0.8));
+        meshRef.current.scale.setScalar(Math.max(0.5, 1.3 - progress * 0.5));
       }
 
-      if (progress > 1.3) {
+      if (progress > 1.0) {
         activeRef.current = false;
         delayRef.current = Math.random() * 15 + 10;
         material.opacity = 0;
@@ -117,9 +105,10 @@ function ShootingStar({ delay = 0 }: { delay?: number }) {
   });
 
   return (
-    <line ref={lineRef} geometry={geometry}>
-      <lineBasicMaterial color="#FFD700" transparent opacity={0} linewidth={2} />
-    </line>
+    <mesh ref={meshRef} position={[0, 100, -15]}>
+      <circleGeometry args={[0.15, 8]} />
+      <meshBasicMaterial color="#FFD700" transparent opacity={0} />
+    </mesh>
   );
 }
 

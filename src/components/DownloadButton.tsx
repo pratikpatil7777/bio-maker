@@ -3,13 +3,14 @@
 import React, { useState, useCallback } from 'react';
 import { Language } from '@/lib/translations';
 import { useAlert } from './AlertDialog';
-import FeedbackModal, { useFeedbackModal } from './FeedbackModal';
+import PostDownloadModal, { usePostDownloadModal } from './PostDownloadModal';
 
 interface DownloadButtonProps {
   language: Language;
   targetRef: React.RefObject<HTMLDivElement | null>;
   fileName?: string;
   pageCount?: number;
+  onCreateAnother?: () => void;
 }
 
 // A4 dimensions
@@ -35,12 +36,13 @@ export default function DownloadButton({
   targetRef,
   fileName = 'Marriage_Biodata',
   pageCount = 1,
+  onCreateAnother,
 }: DownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [progress, setProgress] = useState<string>('');
   const { showSuccess, showError } = useAlert();
-  const { isOpen: isFeedbackOpen, showFeedback, closeFeedback } = useFeedbackModal();
+  const { isOpen: isPostDownloadOpen, showModal: showPostDownload, closeModal: closePostDownload } = usePostDownloadModal();
 
   const isHindi = language === 'hi';
   const isMarathi = language === 'mr';
@@ -139,8 +141,8 @@ export default function DownloadButton({
         getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
       );
 
-      // Show feedback modal after successful download
-      setTimeout(() => showFeedback(), 1000);
+      // Show post-download modal after successful download
+      setTimeout(() => showPostDownload(), 1000);
     } catch (error) {
       console.error('Error generating PDF:', error);
       await showError(
@@ -151,7 +153,7 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError, showFeedback]);
+  }, [targetRef, fileName, language, showSuccess, showError, showPostDownload]);
 
   const handleDownloadImage = useCallback(async () => {
     if (!targetRef.current) return;
@@ -254,8 +256,8 @@ export default function DownloadButton({
           getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
         );
 
-        // Show feedback modal after successful download
-        setTimeout(() => showFeedback(), 1000);
+        // Show post-download modal after successful download
+        setTimeout(() => showPostDownload(), 1000);
       }
     } catch (error) {
       console.error('Error downloading image:', error);
@@ -267,13 +269,20 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError, showFeedback]);
+  }, [targetRef, fileName, language, showSuccess, showError, showPostDownload]);
+
+  const handleCreateAnother = () => {
+    if (onCreateAnother) {
+      onCreateAnother();
+    }
+  };
 
   return (
     <>
-      <FeedbackModal
-        isOpen={isFeedbackOpen}
-        onClose={closeFeedback}
+      <PostDownloadModal
+        isOpen={isPostDownloadOpen}
+        onClose={closePostDownload}
+        onCreateAnother={handleCreateAnother}
         language={language}
       />
       <div className="relative">
