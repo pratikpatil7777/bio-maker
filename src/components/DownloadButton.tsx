@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Language } from '@/lib/translations';
 import { useAlert } from './AlertDialog';
+import FeedbackModal, { useFeedbackModal } from './FeedbackModal';
 
 interface DownloadButtonProps {
   language: Language;
@@ -39,6 +40,7 @@ export default function DownloadButton({
   const [showOptions, setShowOptions] = useState(false);
   const [progress, setProgress] = useState<string>('');
   const { showSuccess, showError } = useAlert();
+  const { isOpen: isFeedbackOpen, showFeedback, closeFeedback } = useFeedbackModal();
 
   const isHindi = language === 'hi';
   const isMarathi = language === 'mr';
@@ -136,6 +138,9 @@ export default function DownloadButton({
         getText('PDF downloaded successfully!', 'PDF डाउनलोड हो गई!', 'PDF डाउनलोड झाली!'),
         getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
       );
+
+      // Show feedback modal after successful download
+      setTimeout(() => showFeedback(), 1000);
     } catch (error) {
       console.error('Error generating PDF:', error);
       await showError(
@@ -146,7 +151,7 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError]);
+  }, [targetRef, fileName, language, showSuccess, showError, showFeedback]);
 
   const handleDownloadImage = useCallback(async () => {
     if (!targetRef.current) return;
@@ -248,6 +253,9 @@ export default function DownloadButton({
           getText('Image downloaded successfully!', 'इमेज डाउनलोड हो गई!', 'इमेज डाउनलोड झाली!'),
           getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
         );
+
+        // Show feedback modal after successful download
+        setTimeout(() => showFeedback(), 1000);
       }
     } catch (error) {
       console.error('Error downloading image:', error);
@@ -259,11 +267,17 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError]);
+  }, [targetRef, fileName, language, showSuccess, showError, showFeedback]);
 
   return (
-    <div className="relative">
-      <button
+    <>
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={closeFeedback}
+        language={language}
+      />
+      <div className="relative">
+        <button
         onClick={() => setShowOptions(!showOptions)}
         disabled={isGenerating}
         className={`h-9 flex items-center gap-1.5 px-4 rounded-lg font-semibold text-xs transition-all duration-300 ${
@@ -351,6 +365,7 @@ export default function DownloadButton({
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

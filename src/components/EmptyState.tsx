@@ -714,7 +714,7 @@ export default function EmptyState({
           </div>
         </motion.section>
 
-        {/* Journey Section - Elegant Statistics */}
+        {/* Why Choose Us Section - Ethical Social Proof */}
         <motion.section
           ref={journeyRef}
           className="py-16 px-6 relative overflow-hidden"
@@ -731,21 +731,21 @@ export default function EmptyState({
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {getText(
-                  'Trusted by Thousands',
-                  'हजारों का भरोसा',
-                  'हजारोंचा विश्वास'
+                  'Why Families Choose Us',
+                  'परिवार हमें क्यों चुनते हैं',
+                  'कुटुंबे आम्हाला का निवडतात'
                 )}
               </h2>
               <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 {getText(
-                  'Join families who have found their perfect match through professionally crafted biodatas.',
-                  'उन परिवारों से जुड़ें जिन्होंने पेशेवर बायोडाटा के माध्यम से अपना साथी खोजा।',
-                  'त्या कुटुंबांसोबत जोडले जा ज्यांनी व्यावसायिक बायोडाटाद्वारे आपला जोडीदार शोधला.'
+                  'Built with love for Indian families. Designed to honor traditions while embracing modern convenience.',
+                  'भारतीय परिवारों के लिए प्यार से बनाया गया। परंपराओं का सम्मान करते हुए आधुनिक सुविधा।',
+                  'भारतीय कुटुंबांसाठी प्रेमाने बनवले. परंपरांचा सन्मान करताना आधुनिक सोय.'
                 )}
               </p>
             </motion.div>
 
-            {/* Elegant Stats Grid */}
+            {/* Trust Indicators Grid - Real Features, Not Fake Metrics */}
             <motion.div
               className="grid grid-cols-2 md:grid-cols-4 gap-6"
               initial={{ opacity: 0, y: 20 }}
@@ -753,10 +753,30 @@ export default function EmptyState({
               transition={{ delay: 0.3, duration: 0.6 }}
             >
               {[
-                { value: '10K+', label: getText('Biodatas Created', 'बायोडाटा बनाए', 'बायोडाटा तयार केले') },
-                { value: '15+', label: getText('Beautiful Themes', 'सुंदर थीम', 'सुंदर थीम') },
-                { value: '100%', label: getText('Free Forever', 'हमेशा मुफ्त', 'कायम मोफत') },
-                { value: '3', label: getText('Languages', 'भाषाएं', 'भाषा') },
+                {
+                  icon: '🔒',
+                  value: '100%',
+                  label: getText('Private & Secure', 'निजी और सुरक्षित', 'खाजगी आणि सुरक्षित'),
+                  sublabel: getText('Data stays on your device', 'डेटा आपके डिवाइस पर रहता है', 'डेटा तुमच्या डिव्हाइसवर राहतो')
+                },
+                {
+                  icon: '🎨',
+                  value: `${themes.length}+`,
+                  label: getText('Premium Themes', 'प्रीमियम थीम', 'प्रीमियम थीम'),
+                  sublabel: getText('Traditional & modern styles', 'पारंपरिक और आधुनिक', 'पारंपारिक आणि आधुनिक')
+                },
+                {
+                  icon: '🆓',
+                  value: '₹0',
+                  label: getText('Forever Free', 'हमेशा मुफ्त', 'कायम मोफत'),
+                  sublabel: getText('No hidden charges', 'कोई छुपे शुल्क नहीं', 'कोणतेही छुपे शुल्क नाही')
+                },
+                {
+                  icon: '🌐',
+                  value: '3',
+                  label: getText('Languages', 'भाषाएं', 'भाषा'),
+                  sublabel: getText('English, Hindi, Marathi', 'अंग्रेजी, हिंदी, मराठी', 'इंग्रजी, हिंदी, मराठी')
+                },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
@@ -770,15 +790,50 @@ export default function EmptyState({
                   transition={{ delay: 0.4 + i * 0.1 }}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 >
+                  <div className="text-2xl mb-2">{stat.icon}</div>
                   <div
-                    className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
+                    className={`text-2xl md:text-3xl font-bold mb-1 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
                     style={{ fontFamily: "'Playfair Display', serif" }}
                   >
                     {stat.value}
                   </div>
-                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     {stat.label}
                   </div>
+                  <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                    {stat.sublabel}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Trust Badges Row */}
+            <motion.div
+              className="mt-10 flex flex-wrap justify-center gap-4"
+              initial={{ opacity: 0 }}
+              animate={journeyInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.8 }}
+            >
+              {[
+                { icon: '🇮🇳', text: getText('Made for India', 'भारत के लिए बना', 'भारतासाठी बनवले') },
+                { icon: '📱', text: getText('Works Offline', 'ऑफलाइन काम करता है', 'ऑफलाइन काम करते') },
+                { icon: '🖨️', text: getText('Print Ready PDF', 'प्रिंट रेडी PDF', 'प्रिंट रेडी PDF') },
+                { icon: '⚡', text: getText('Instant Download', 'तुरंत डाउनलोड', 'तात्काळ डाउनलोड') },
+              ].map((badge, i) => (
+                <motion.div
+                  key={i}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${
+                    isDark
+                      ? 'bg-slate-800/60 text-gray-300 border border-slate-700/50'
+                      : 'bg-white/80 text-gray-700 border border-amber-200/50 shadow-sm'
+                  }`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={journeyInView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ delay: 0.9 + i * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <span>{badge.icon}</span>
+                  <span className="font-medium">{badge.text}</span>
                 </motion.div>
               ))}
             </motion.div>
