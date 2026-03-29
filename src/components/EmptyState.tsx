@@ -1155,6 +1155,112 @@ export default function EmptyState({
           </div>
         </motion.section>
 
+        {/* Why Free Section - Transparency & Trust */}
+        <motion.section
+          className="py-16 px-6 relative"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <div className="max-w-3xl mx-auto">
+            <motion.div
+              className={`relative rounded-3xl p-8 md:p-12 overflow-hidden ${
+                isDark
+                  ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50'
+                  : 'bg-gradient-to-br from-amber-50/80 to-orange-50/80 border border-amber-200/50'
+              }`}
+              initial={{ y: 30 }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+                <svg viewBox="0 0 100 100" fill={isDark ? '#D4AF37' : '#800020'}>
+                  <path d="M50 5 L55 35 L85 40 L60 55 L65 85 L50 65 L35 85 L40 55 L15 40 L45 35 Z" />
+                </svg>
+              </div>
+
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                    isDark ? 'bg-amber-500/20' : 'bg-amber-100'
+                  }`}>
+                    <span className="text-2xl">💝</span>
+                  </div>
+                  <div>
+                    <h3
+                      className={`text-xl md:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      {getText('Why is Bio Maker Free?', 'Bio Maker मुफ्त क्यों है?', 'Bio Maker मोफत का आहे?')}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Story */}
+                <div className={`space-y-4 text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p>
+                    {getText(
+                      'Bio Maker is a passion project, built with love for Indian families. We believe everyone deserves a beautiful biodata for their special journey - regardless of budget.',
+                      'Bio Maker एक पैशन प्रोजेक्ट है, जो भारतीय परिवारों के लिए प्यार से बनाया गया है। हम मानते हैं कि हर किसी को अपनी विशेष यात्रा के लिए एक सुंदर बायोडाटा मिलना चाहिए।',
+                      'Bio Maker हा एक पॅशन प्रोजेक्ट आहे, भारतीय कुटुंबांसाठी प्रेमाने बनवलेला. आम्हाला विश्वास आहे की प्रत्येकाला त्यांच्या विशेष प्रवासासाठी सुंदर बायोडाटा मिळायला हवा.'
+                    )}
+                  </p>
+                </div>
+
+                {/* Promise badges */}
+                <div className="flex flex-wrap gap-3 mt-6">
+                  {[
+                    { icon: '🚫', text: getText('No Ads', 'कोई विज्ञापन नहीं', 'जाहिराती नाहीत') },
+                    { icon: '🔒', text: getText('No Data Selling', 'डेटा नहीं बेचते', 'डेटा विकत नाही') },
+                    { icon: '💳', text: getText('No Hidden Fees', 'कोई छुपे शुल्क नहीं', 'छुपे शुल्क नाहीत') },
+                  ].map((badge, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                        isDark
+                          ? 'bg-slate-700/50 text-gray-300'
+                          : 'bg-white/80 text-gray-700 shadow-sm'
+                      }`}
+                    >
+                      <span>{badge.icon}</span>
+                      <span>{badge.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Future note */}
+                <div className={`mt-6 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-amber-200/50'}`}>
+                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {getText('Our Promise:', 'हमारा वादा:', 'आमचे वचन:')}
+                    </span>{' '}
+                    {getText(
+                      'The core features will always remain free. In the future, we may add optional premium features (like AI writing assistance) - but creating and downloading biodatas will never cost a rupee.',
+                      'मुख्य सुविधाएं हमेशा मुफ्त रहेंगी। भविष्य में, हम वैकल्पिक प्रीमियम सुविधाएं जोड़ सकते हैं (जैसे AI लेखन सहायता) - लेकिन बायोडाटा बनाना और डाउनलोड करना कभी भी एक रुपया नहीं लगेगा।',
+                      'मुख्य वैशिष्ट्ये नेहमी मोफत राहतील. भविष्यात, आम्ही पर्यायी प्रीमियम वैशिष्ट्ये जोडू शकतो (जसे AI लेखन सहाय्य) - पण बायोडाटा बनवणे आणि डाउनलोड करणे कधीही एक रुपयाही लागणार नाही.'
+                    )}
+                  </p>
+                </div>
+
+                {/* Creator signature */}
+                <div className={`mt-6 flex items-center gap-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div className="text-2xl">🙏</div>
+                  <p className="text-sm italic">
+                    {getText(
+                      '— Built with love in India',
+                      '— भारत में प्यार से बनाया',
+                      '— भारतात प्रेमाने बनवले'
+                    )}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.section>
+
         {/* Footer */}
         <footer className="py-12 px-6 relative">
           <div className="max-w-6xl mx-auto text-center">

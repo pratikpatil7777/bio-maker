@@ -132,6 +132,56 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Why Free Section */}
+      <section className="py-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            className={`rounded-3xl p-8 md:p-10 ${
+              isDark
+                ? 'bg-gradient-to-br from-slate-800 to-slate-800/50 border border-slate-700'
+                : 'bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/50'
+            }`}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-3xl">💝</span>
+              <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'Playfair Display', serif" }}>
+                Why is Bio Maker Free?
+              </h3>
+            </div>
+
+            <div className={`space-y-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <p>
+                Bio Maker is a <strong>passion project</strong> built with love for Indian families.
+                We believe that creating a beautiful biodata for your special journey shouldn&apos;t
+                depend on your budget.
+              </p>
+              <p>
+                We don&apos;t show ads. We don&apos;t sell your data. We don&apos;t have hidden fees.
+                Your biodata stays on your device - we never even see it.
+              </p>
+            </div>
+
+            <div className={`mt-6 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-amber-200'}`}>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <strong className={isDark ? 'text-gray-200' : 'text-gray-800'}>Our Promise:</strong>{' '}
+                Creating and downloading biodatas will always be free. In the future, we may introduce
+                optional premium add-ons (like AI writing assistance or exclusive templates) for those
+                who want extra features - but the core product will never cost a rupee.
+              </p>
+            </div>
+
+            <div className={`mt-6 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span>🙏</span>
+              <p className="text-sm italic">— Built with love in India</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className={`py-16 px-6 ${isDark ? 'bg-slate-800/30' : 'bg-amber-50/50'}`}>
         <div className="max-w-3xl mx-auto">
@@ -144,23 +194,27 @@ export default function PricingPage() {
             {[
               {
                 q: 'Is Bio Maker really free?',
-                a: 'Yes, 100% free! We believe everyone deserves access to beautiful biodata creation tools. There are no hidden charges, premium features, or subscriptions.'
+                a: 'Yes, 100% free! We believe everyone deserves access to beautiful biodata creation tools. There are no hidden charges, premium tiers, or subscriptions required to use Bio Maker.'
               },
               {
-                q: 'How do you make money?',
-                a: 'Bio Maker is a passion project. We may add optional premium features in the future, but the core functionality will always remain free.'
+                q: 'What\'s the catch? How do you sustain this?',
+                a: 'No catch! Bio Maker is a passion project. We keep costs low by storing everything on your device (no expensive servers needed). In the future, we may offer optional premium add-ons for power users, but the core biodata creation will always remain free.'
               },
               {
-                q: 'Is my data safe?',
-                a: 'Absolutely. All your data is stored locally in your browser. We never see, store, or have access to your personal information. Your privacy is our priority.'
+                q: 'Is my data safe and private?',
+                a: 'Absolutely. All your data is stored locally in your browser - it never leaves your device. We have zero access to your personal information, photos, or biodata content. Your privacy is guaranteed by design, not just by policy.'
               },
               {
                 q: 'Do I need to create an account?',
-                a: 'No account needed! Just open the app and start creating. Your data is automatically saved in your browser.'
+                a: 'No account needed! Just open the app and start creating. Your data is automatically saved in your browser. This also means we don\'t have your email or any personal information.'
               },
               {
                 q: 'Can I use it on mobile?',
-                a: 'Yes! Bio Maker is fully responsive and works great on phones, tablets, and desktops.'
+                a: 'Yes! Bio Maker is fully responsive and works great on phones, tablets, and desktops. You can even use it offline after your first visit.'
+              },
+              {
+                q: 'Will you add paid features later?',
+                a: 'We may add optional premium features in the future (like AI-powered bio writing or exclusive design templates). But here\'s our promise: the ability to create, customize, and download beautiful biodatas will always be 100% free.'
               },
             ].map((faq, i) => (
               <motion.div
