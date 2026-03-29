@@ -1,21 +1,11 @@
 /**
  * Dynamic OG Image Generator
  *
- * INTERVIEW CONCEPTS:
- * 1. What is an OG Image?
- *    - Open Graph image shown when sharing on social media
- *    - Facebook, Twitter, LinkedIn, WhatsApp all use it
- *    - Standard size: 1200x630 pixels
- *
- * 2. Why dynamic generation?
- *    - No need to manually create images
- *    - Can include dynamic content
- *    - Cached at edge for performance
- *
- * 3. Next.js ImageResponse:
- *    - Uses Vercel's @vercel/og under the hood
- *    - Generates PNG at the edge
- *    - Supports JSX styling
+ * Design Principles:
+ * - Clean, professional look (no emojis)
+ * - Consistent language order: English, Hindi, Marathi
+ * - Traditional Indian aesthetic with modern design
+ * - Clear value proposition
  */
 
 import { ImageResponse } from 'next/og';
@@ -40,20 +30,21 @@ export default async function OGImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #FFFEF0 0%, #FFF8E1 50%, #FFFEF0 100%)',
-          fontFamily: 'system-ui, sans-serif',
+          background: 'linear-gradient(145deg, #FFFEF5 0%, #FFF9E6 50%, #FFFEF5 100%)',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          position: 'relative',
         }}
       >
-        {/* Decorative border */}
+        {/* Outer decorative border */}
         <div
           style={{
             position: 'absolute',
-            top: 20,
-            left: 20,
-            right: 20,
-            bottom: 20,
-            border: '3px solid #D4AF37',
-            borderRadius: 16,
+            top: 24,
+            left: 24,
+            right: 24,
+            bottom: 24,
+            border: '3px solid #C5A028',
+            borderRadius: 20,
             display: 'flex',
           }}
         />
@@ -62,36 +53,122 @@ export default async function OGImage() {
         <div
           style={{
             position: 'absolute',
-            top: 30,
-            left: 30,
-            right: 30,
-            bottom: 30,
+            top: 36,
+            left: 36,
+            right: 36,
+            bottom: 36,
             border: '1px solid #D4AF37',
-            borderRadius: 12,
+            borderRadius: 14,
             display: 'flex',
           }}
         />
 
-        {/* Om symbol */}
+        {/* Corner decorative elements - Top Left */}
         <div
           style={{
-            fontSize: 80,
-            marginBottom: 10,
+            position: 'absolute',
+            top: 44,
+            left: 44,
+            width: 60,
+            height: 60,
+            borderTop: '2px solid #B8860B',
+            borderLeft: '2px solid #B8860B',
+            borderRadius: '8px 0 0 0',
             display: 'flex',
           }}
+        />
+
+        {/* Corner decorative elements - Top Right */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 44,
+            right: 44,
+            width: 60,
+            height: 60,
+            borderTop: '2px solid #B8860B',
+            borderRight: '2px solid #B8860B',
+            borderRadius: '0 8px 0 0',
+            display: 'flex',
+          }}
+        />
+
+        {/* Corner decorative elements - Bottom Left */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 44,
+            left: 44,
+            width: 60,
+            height: 60,
+            borderBottom: '2px solid #B8860B',
+            borderLeft: '2px solid #B8860B',
+            borderRadius: '0 0 0 8px',
+            display: 'flex',
+          }}
+        />
+
+        {/* Corner decorative elements - Bottom Right */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 44,
+            right: 44,
+            width: 60,
+            height: 60,
+            borderBottom: '2px solid #B8860B',
+            borderRight: '2px solid #B8860B',
+            borderRadius: '0 0 8px 0',
+            display: 'flex',
+          }}
+        />
+
+        {/* Decorative line above title */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            marginBottom: 20,
+          }}
         >
-          🙏
+          <div
+            style={{
+              width: 80,
+              height: 2,
+              background: 'linear-gradient(90deg, transparent, #C5A028)',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              background: '#C5A028',
+              borderRadius: '50%',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              width: 80,
+              height: 2,
+              background: 'linear-gradient(90deg, #C5A028, transparent)',
+              display: 'flex',
+            }}
+          />
         </div>
 
         {/* Main title */}
         <div
           style={{
-            fontSize: 72,
-            fontWeight: 'bold',
-            color: '#B8860B',
-            marginBottom: 16,
+            fontSize: 82,
+            fontWeight: 700,
+            color: '#8B6914',
+            marginBottom: 12,
             textAlign: 'center',
             display: 'flex',
+            letterSpacing: '-1px',
           }}
         >
           Bio Maker
@@ -100,34 +177,37 @@ export default async function OGImage() {
         {/* Subtitle */}
         <div
           style={{
-            fontSize: 36,
-            color: '#8B7355',
-            marginBottom: 24,
+            fontSize: 34,
+            color: '#6B5A30',
+            marginBottom: 40,
             textAlign: 'center',
             display: 'flex',
+            fontWeight: 500,
           }}
         >
           Free Marriage Biodata Creator
         </div>
 
-        {/* Features */}
+        {/* Language badges - Order: English, Hindi, Marathi */}
         <div
           style={{
             display: 'flex',
-            gap: 40,
-            marginTop: 20,
+            gap: 24,
           }}
         >
-          {['Hindi', 'Marathi', 'English'].map((lang) => (
+          {['English', 'Hindi', 'Marathi'].map((lang, index) => (
             <div
               key={lang}
               style={{
-                background: 'linear-gradient(135deg, #D4AF37, #B8860B)',
-                color: 'white',
-                padding: '12px 28px',
-                borderRadius: 30,
-                fontSize: 24,
-                fontWeight: 'bold',
+                background: index === 0
+                  ? 'linear-gradient(135deg, #C5A028 0%, #A68B1E 100%)'
+                  : 'transparent',
+                border: index === 0 ? 'none' : '2px solid #C5A028',
+                color: index === 0 ? 'white' : '#8B6914',
+                padding: '14px 36px',
+                borderRadius: 40,
+                fontSize: 22,
+                fontWeight: 600,
                 display: 'flex',
               }}
             >
@@ -136,17 +216,83 @@ export default async function OGImage() {
           ))}
         </div>
 
-        {/* Bottom tagline */}
+        {/* Bottom tagline with decorative elements */}
         <div
           style={{
             position: 'absolute',
-            bottom: 60,
-            fontSize: 28,
-            color: '#666',
+            bottom: 56,
             display: 'flex',
+            alignItems: 'center',
+            gap: 12,
           }}
         >
-          100% Free • No Signup • Beautiful Templates
+          <div
+            style={{
+              width: 40,
+              height: 1,
+              background: '#C5A028',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              fontSize: 22,
+              color: '#8B7355',
+              display: 'flex',
+              fontWeight: 500,
+              letterSpacing: '0.5px',
+            }}
+          >
+            100% Free
+          </div>
+          <div
+            style={{
+              width: 6,
+              height: 6,
+              background: '#C5A028',
+              borderRadius: '50%',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              fontSize: 22,
+              color: '#8B7355',
+              display: 'flex',
+              fontWeight: 500,
+              letterSpacing: '0.5px',
+            }}
+          >
+            No Signup Required
+          </div>
+          <div
+            style={{
+              width: 6,
+              height: 6,
+              background: '#C5A028',
+              borderRadius: '50%',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              fontSize: 22,
+              color: '#8B7355',
+              display: 'flex',
+              fontWeight: 500,
+              letterSpacing: '0.5px',
+            }}
+          >
+            Beautiful Templates
+          </div>
+          <div
+            style={{
+              width: 40,
+              height: 1,
+              background: '#C5A028',
+              display: 'flex',
+            }}
+          />
         </div>
       </div>
     ),
@@ -155,19 +301,3 @@ export default async function OGImage() {
     }
   );
 }
-
-/**
- * INTERVIEW Q&A:
- *
- * Q: Why not just use a static image?
- * A: Dynamic images can be personalized, A/B tested, and
- *    automatically updated without rebuilding.
- *
- * Q: How does caching work?
- * A: Vercel caches at CDN edge. Add revalidation for dynamic content:
- *    export const revalidate = 86400; // 24 hours
- *
- * Q: Can you pass parameters?
- * A: Yes! Use searchParams to customize:
- *    /opengraph-image?title=Custom%20Title
- */
