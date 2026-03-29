@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Language } from '@/lib/types';
 import { useAlert } from './AlertDialog';
+import PhotoCropModal from './PhotoCropModal';
 
 interface PhotoSectionProps {
   mainPhoto: string;
@@ -28,7 +29,10 @@ export default function PhotoSection({
   onTogglePhoto,
 }: PhotoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showWarning } = useAlert();
+  const { showWarning, showSuccess } = useAlert();
+  const [isLoading, setIsLoading] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>('');
 
   // Trilingual text helper
   const getText = (en: string, hi: string, mr: string) => {
@@ -55,46 +59,30 @@ export default function PhotoSection({
         return;
       }
 
-      // Resize and compress image for optimal PDF export
-      const img = new Image();
+      // Read file and open crop modal
       const reader = new FileReader();
-
       reader.onloadend = () => {
-        img.onload = () => {
-          // Max dimensions for 4:5 aspect ratio
-          const maxWidth = 600;
-          const maxHeight = 750;
-
-          let { width, height } = img;
-
-          // Calculate new dimensions maintaining aspect ratio
-          if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height);
-            width = Math.round(width * ratio);
-            height = Math.round(height * ratio);
-          }
-
-          // Create canvas and draw resized image
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            // Enable high-quality image rendering
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // Convert to JPEG with 0.9 quality
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
-            onPhotoChange(compressedBase64);
-          }
-        };
-        img.src = reader.result as string;
+        const result = reader.result as string;
+        setImageToCrop(result);
+        setCropModalOpen(true);
       };
       reader.readAsDataURL(file);
     }
+
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCropComplete = async (croppedImage: string) => {
+    setIsLoading(true);
+    onPhotoChange(croppedImage);
+    setIsLoading(false);
+    await showSuccess(
+      getText('Photo uploaded successfully!', 'फोटो सफलतापूर्वक अपलोड हो गई!', 'फोटो यशस्वीरित्या अपलोड झाला!'),
+      getText('Success', 'सफल', 'यशस्वी')
+    );
   };
 
   // 4:5 aspect ratio dimensions (increased size)
@@ -102,12 +90,22 @@ export default function PhotoSection({
   const frameHeight = 175; // px (4:5 ratio)
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Photo Frame Container */}
-      <div
-        className="relative group"
-        style={{ width: frameWidth + 16, height: frameHeight + 16 }}
-      >
+    <>
+      {/* Photo Crop Modal */}
+      <PhotoCropModal
+        isOpen={cropModalOpen}
+        imageSrc={imageToCrop}
+        onClose={() => setCropModalOpen(false)}
+        onCropComplete={handleCropComplete}
+        language={language}
+      />
+
+      <div className="flex flex-col items-center">
+        {/* Photo Frame Container */}
+        <div
+          className="relative group"
+          style={{ width: frameWidth + 16, height: frameHeight + 16 }}
+        >
         {/* Hide/Show Toggle Button - Top Right Corner */}
         {isEditMode && onTogglePhoto && (
           <button
@@ -227,7 +225,20 @@ export default function PhotoSection({
           onClick={handlePhotoClick}
           title={isEditMode ? 'Click to upload photo' : ''}
         >
-          {mainPhoto ? (
+          {isLoading ? (
+            <div
+              className="flex flex-col items-center justify-center p-2 w-full h-full"
+              style={{ color: primaryColor }}
+            >
+              <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span className="text-[10px] text-center mt-1 opacity-70">
+                {getText('Processing...', 'प्रोसेसिंग...', 'प्रक्रिया करत आहे...')}
+              </span>
+            </div>
+          ) : mainPhoto ? (
             <img
               src={mainPhoto}
               alt="Profile"
@@ -253,7 +264,7 @@ export default function PhotoSection({
               </svg>
               {isEditMode && (
                 <span className="text-[10px] text-center opacity-70">
-                  Click to add
+                  {getText('Click to add', 'जोड़ने के लिए क्लिक करें', 'जोडण्यासाठी क्लिक करा')}
                 </span>
               )}
             </div>
@@ -288,15 +299,16 @@ export default function PhotoSection({
       )}
 
       {/* Remove photo button */}
-      {isEditMode && mainPhoto && (
-        <button
-          onClick={() => onPhotoChange('')}
-          className="mt-2 text-[10px] hover:underline cursor-pointer transition-colors"
-          style={{ color: secondaryColor }}
-        >
-          Remove Photo
-        </button>
-      )}
-    </div>
+        {isEditMode && mainPhoto && (
+          <button
+            onClick={() => onPhotoChange('')}
+            className="mt-2 text-[10px] hover:underline cursor-pointer transition-colors"
+            style={{ color: secondaryColor }}
+          >
+            {getText('Remove Photo', 'फोटो हटाएं', 'फोटो काढा')}
+          </button>
+        )}
+      </div>
+    </>
   );
 }

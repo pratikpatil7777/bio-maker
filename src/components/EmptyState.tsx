@@ -187,34 +187,6 @@ function JourneyThread({ isDark }: { isDark: boolean }) {
   );
 }
 
-// Decorative Mandala for Parallax
-function FloatingMandala({ isDark, size = 200, position }: { isDark: boolean; size?: number; position: 'left' | 'right' }) {
-  return (
-    <ParallaxElement speed={0.3} className={`absolute ${position === 'left' ? '-left-20' : '-right-20'} pointer-events-none`}>
-      <svg width={size} height={size} viewBox="0 0 100 100" className="opacity-10">
-        <defs>
-          <linearGradient id={`mandala-gradient-${position}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isDark ? '#D4AF37' : '#800020'} />
-            <stop offset="100%" stopColor={isDark ? '#FFD700' : '#A52A2A'} />
-          </linearGradient>
-        </defs>
-        {[...Array(8)].map((_, i) => (
-          <g key={i} transform={`rotate(${i * 45} 50 50)`}>
-            <path
-              d="M50 10 Q60 30 50 50 Q40 30 50 10"
-              fill="none"
-              stroke={`url(#mandala-gradient-${position})`}
-              strokeWidth="0.5"
-            />
-            <circle cx="50" cy="15" r="3" fill={`url(#mandala-gradient-${position})`} />
-          </g>
-        ))}
-        <circle cx="50" cy="50" r="8" fill="none" stroke={`url(#mandala-gradient-${position})`} strokeWidth="0.5" />
-        <circle cx="50" cy="50" r="20" fill="none" stroke={`url(#mandala-gradient-${position})`} strokeWidth="0.3" />
-      </svg>
-    </ParallaxElement>
-  );
-}
 
 export default function EmptyState({
   language,
@@ -424,10 +396,6 @@ export default function EmptyState({
           className="min-h-[80vh] flex items-center py-6 md:py-12 px-6 relative"
           style={{ opacity: heroOpacity, scale: heroScale }}
         >
-          {/* Floating Mandalas for Parallax Effect */}
-          <FloatingMandala isDark={isDark} size={300} position="left" />
-          <FloatingMandala isDark={isDark} size={250} position="right" />
-
           <div className="max-w-6xl mx-auto w-full">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Left: Premium Typography Content */}
@@ -628,7 +596,7 @@ export default function EmptyState({
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`${currentPreviewTheme.id}-${currentPreviewBorder.id}`}
-                        className="relative rounded-2xl shadow-2xl overflow-hidden"
+                        className="relative shadow-2xl overflow-hidden"
                         style={{
                           width: '300px',
                           height: '400px',
@@ -645,11 +613,22 @@ export default function EmptyState({
                           secondaryColor={currentPreviewTheme.colors.secondary}
                         />
                         <div className="absolute inset-0 z-10 p-6 flex flex-col items-center">
-                          <div className="text-3xl mb-2" style={{ color: currentPreviewTheme.colors.primary }}>ॐ</div>
-                          <div className="text-xs font-medium mb-3" style={{ color: currentPreviewTheme.colors.secondary }}>
-                            || श्री गणेशाय नमः ||
+                          {/* Krishna Bansuri Icon */}
+                          <div className="mb-2">
+                            <svg className="w-10 h-8" viewBox="0 0 80 40" fill="none">
+                              {/* Flute body */}
+                              <rect x="15" y="16" width="55" height="8" rx="4" fill={currentPreviewTheme.colors.primary} />
+                              {/* Flute holes */}
+                              <circle cx="30" cy="20" r="2" fill={currentPreviewTheme.colors.background} />
+                              <circle cx="42" cy="20" r="2" fill={currentPreviewTheme.colors.background} />
+                              <circle cx="54" cy="20" r="2" fill={currentPreviewTheme.colors.background} />
+                              {/* Peacock feather */}
+                              <ellipse cx="12" cy="14" rx="8" ry="12" fill={currentPreviewTheme.colors.secondary} opacity="0.8" />
+                              <ellipse cx="12" cy="12" rx="4" ry="6" fill={currentPreviewTheme.colors.primary} />
+                              <circle cx="12" cy="10" r="2" fill={currentPreviewTheme.colors.background} />
+                            </svg>
                           </div>
-                          <div className="text-sm font-bold mb-3" style={{ color: currentPreviewTheme.colors.headerText }}>
+                                                    <div className="text-sm font-bold mb-3" style={{ color: currentPreviewTheme.colors.headerText }}>
                             {getText('MARRIAGE BIODATA', 'विवाह बायोडाटा', 'विवाह बायोडाटा')}
                           </div>
                           <div
@@ -690,25 +669,32 @@ export default function EmptyState({
                       </motion.div>
                     </AnimatePresence>
 
-                    {/* Theme/Border indicator */}
-                    <motion.div
-                      className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2 ${isDark ? 'bg-slate-800 text-gray-200' : 'bg-white text-gray-700'}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ background: `linear-gradient(135deg, ${currentPreviewTheme.preview[0]}, ${currentPreviewTheme.preview[1]})` }}
-                      />
-                      <span>
-                        {isHindi ? currentPreviewTheme.nameHindi : isMarathi ? currentPreviewTheme.nameMarathi : currentPreviewTheme.name}
-                      </span>
-                      <span className="text-gray-400">•</span>
-                      <span>
-                        {isHindi ? currentPreviewBorder.nameHindi : isMarathi ? currentPreviewBorder.nameMarathi : currentPreviewBorder.name}
-                      </span>
-                    </motion.div>
+                    {/* Theme/Border indicator - animated ticker */}
+                    <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-medium shadow-lg ${isDark ? 'bg-slate-800' : 'bg-white'} overflow-hidden`}>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={`${currentPreviewTheme.id}-${currentPreviewBorder.id}`}
+                          className="flex items-center gap-2 whitespace-nowrap"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                          <motion.span
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ background: `linear-gradient(135deg, ${currentPreviewTheme.preview[0]}, ${currentPreviewTheme.preview[1]})` }}
+                            layoutId="themeColorDot"
+                          />
+                          <span className={isDark ? 'text-gray-200' : 'text-gray-700'}>
+                            {isHindi ? currentPreviewTheme.nameHindi : isMarathi ? currentPreviewTheme.nameMarathi : currentPreviewTheme.name}
+                          </span>
+                          <span className="text-gray-400">+</span>
+                          <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                            {isHindi ? currentPreviewBorder.nameHindi : isMarathi ? currentPreviewBorder.nameMarathi : currentPreviewBorder.name}
+                          </span>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
 
                     {/* Preview cycle indicators */}
                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">

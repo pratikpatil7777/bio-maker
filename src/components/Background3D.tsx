@@ -4,168 +4,272 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-// Soft floating particle field - like golden dust
-function FloatingDust({ count = 150, isDark = false }: { count?: number; isDark?: boolean }) {
-  const points = useRef<THREE.Points>(null);
-  const color = isDark ? '#D4AF37' : '#D4AF37';
+// ============================================
+// DARK MODE: Starfield with shooting stars
+// ============================================
 
-  const particlesData = useMemo(() => {
+function DarkModeStars() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 200;
+
+  const { positions, phases } = useMemo(() => {
     const positions = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 40;
+      positions[i * 3] = (Math.random() - 0.5) * 80;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 60;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
-      sizes[i] = Math.random() * 0.08 + 0.02;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 30 - 10;
+      phases[i] = Math.random() * Math.PI * 2;
     }
-    return { positions, sizes };
-  }, [count]);
 
-  useFrame((state) => {
-    if (points.current) {
-      // Very gentle rotation
-      points.current.rotation.y = state.clock.elapsedTime * 0.02;
-
-      // Subtle floating motion
-      const positions = points.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < count; i++) {
-        positions[i * 3 + 1] += Math.sin(state.clock.elapsedTime * 0.5 + i) * 0.002;
-      }
-      points.current.geometry.attributes.position.needsUpdate = true;
-    }
-  });
+    return { positions, phases };
+  }, []);
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(particlesData.positions, 3));
-    geo.setAttribute('size', new THREE.BufferAttribute(particlesData.sizes, 1));
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     return geo;
-  }, [particlesData]);
+  }, [positions]);
+
+  useFrame((state) => {
+    if (pointsRef.current) {
+      const material = pointsRef.current.material as THREE.PointsMaterial;
+      const twinkle = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
+      material.opacity = 0.7 + twinkle;
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.004;
+    }
+  });
 
   return (
-    <points ref={points} geometry={geometry}>
+    <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
-        size={0.08}
-        color={color}
+        size={0.1}
+        color="#D4AF37"
         transparent
-        opacity={isDark ? 0.6 : 0.4}
+        opacity={0.7}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
       />
     </points>
   );
 }
 
-// Elegant floating ring - like a subtle halo
-function ElegantRing({
-  position,
-  size = 1,
-  color,
-  speed = 1,
-  rotationAxis = 'y',
-}: {
-  position: [number, number, number];
-  size?: number;
-  color: string;
-  speed?: number;
-  rotationAxis?: 'x' | 'y' | 'z';
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
+function ShootingStar({ delay = 0 }: { delay?: number }) {
+  const lineRef = useRef<THREE.Line>(null);
+  const progressRef = useRef(0);
+  const activeRef = useRef(false);
+  const startPosRef = useRef({ x: 0, y: 0 });
+  const delayRef = useRef(delay + Math.random() * 12 + 8);
 
-  useFrame((state) => {
-    if (meshRef.current) {
-      const t = state.clock.elapsedTime * speed * 0.3;
-      if (rotationAxis === 'x') {
-        meshRef.current.rotation.x = t;
-        meshRef.current.rotation.y = Math.sin(t * 0.5) * 0.2;
-      } else if (rotationAxis === 'z') {
-        meshRef.current.rotation.z = t;
-        meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.2;
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(6);
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, []);
+
+  useFrame((_, delta) => {
+    if (!lineRef.current) return;
+
+    delayRef.current -= delta;
+
+    if (delayRef.current <= 0 && !activeRef.current) {
+      activeRef.current = true;
+      progressRef.current = 0;
+
+      // Random start position anywhere on screen
+      startPosRef.current = {
+        x: (Math.random() - 0.5) * 60,
+        y: (Math.random() - 0.5) * 40
+      };
+    }
+
+    if (activeRef.current) {
+      progressRef.current += delta * 2.5;
+
+      const positions = lineRef.current.geometry.attributes.position.array as Float32Array;
+      const length = 4;
+      const progress = progressRef.current;
+
+      // Classic shooting star direction: top-left to bottom-right diagonal
+      positions[0] = startPosRef.current.x + progress * 18;
+      positions[1] = startPosRef.current.y - progress * 10;
+      positions[2] = -15;
+      positions[3] = positions[0] - length;
+      positions[4] = positions[1] + length * 0.55;
+      positions[5] = -15;
+
+      lineRef.current.geometry.attributes.position.needsUpdate = true;
+
+      const material = lineRef.current.material as THREE.LineBasicMaterial;
+      if (progress < 0.2) {
+        material.opacity = 0.6 * (progress / 0.2);
       } else {
-        meshRef.current.rotation.y = t;
-        meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.1;
+        material.opacity = Math.max(0, 0.6 * (1 - (progress - 0.2) / 1.0));
+      }
+
+      if (progress > 1.3) {
+        activeRef.current = false;
+        delayRef.current = Math.random() * 15 + 10;
+        material.opacity = 0;
       }
     }
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <torusGeometry args={[size, size * 0.008, 32, 100]} />
-      <meshBasicMaterial
-        color={color}
-        transparent
-        opacity={0.15}
-        blending={THREE.AdditiveBlending}
-      />
-    </mesh>
+    <line ref={lineRef} geometry={geometry}>
+      <lineBasicMaterial color="#FFD700" transparent opacity={0} linewidth={2} />
+    </line>
   );
 }
 
-// Soft glowing orb
-function SoftOrb({
-  position,
-  size = 1,
-  color,
-  speed = 1,
-}: {
-  position: [number, number, number];
-  size?: number;
-  color: string;
-  speed?: number;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const initialY = position[1];
+function DarkModeGoldenDust() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 60;
+
+  const { positions, velocities, phases } = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const velocities = new Float32Array(count);
+    const phases = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 60;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
+      velocities[i] = Math.random() * 0.006 + 0.003;
+      phases[i] = Math.random() * Math.PI * 2;
+    }
+
+    return { positions, velocities, phases };
+  }, []);
+
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      const t = state.clock.elapsedTime * speed;
-      meshRef.current.position.y = initialY + Math.sin(t * 0.5) * 0.5;
-      // Gentle pulse
-      const scale = size * (1 + Math.sin(t) * 0.05);
-      meshRef.current.scale.setScalar(scale);
+    if (pointsRef.current) {
+      const pos = pointsRef.current.geometry.attributes.position.array as Float32Array;
+      const time = state.clock.elapsedTime;
+
+      for (let i = 0; i < count; i++) {
+        pos[i * 3] += Math.sin(time * 0.5 + phases[i]) * 0.002;
+        pos[i * 3 + 1] += velocities[i];
+
+        if (pos[i * 3 + 1] > 30) {
+          pos[i * 3 + 1] = -30;
+          pos[i * 3] = (Math.random() - 0.5) * 60;
+        }
+      }
+
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
     }
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshBasicMaterial
-        color={color}
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        size={0.07}
+        color="#B8860B"
         transparent
-        opacity={0.08}
-        blending={THREE.AdditiveBlending}
+        opacity={0.5}
+        sizeAttenuation
       />
-    </mesh>
+    </points>
   );
 }
 
-// Main Scene - Clean and elegant
-function Scene({ isDark = false }: { isDark?: boolean }) {
-  const goldColor = isDark ? '#D4AF37' : '#C5A028';
-  const accentColor = isDark ? '#FFD700' : '#B8860B';
-  const subtleColor = isDark ? '#8B7355' : '#D4AF37';
+// ============================================
+// LIGHT MODE: Subtle dust motes (like sunlight on parchment)
+// ============================================
+
+// Floating dust motes - like particles caught in sunlight on parchment
+function LightModeDust() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 80;
+
+  const { positions, velocities, phases } = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const velocities = new Float32Array(count);
+    const phases = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 70;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
+      velocities[i] = Math.random() * 0.004 + 0.002;
+      phases[i] = Math.random() * Math.PI * 2;
+    }
+
+    return { positions, velocities, phases };
+  }, []);
+
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
+
+  useFrame((state) => {
+    if (pointsRef.current) {
+      const pos = pointsRef.current.geometry.attributes.position.array as Float32Array;
+      const time = state.clock.elapsedTime;
+
+      for (let i = 0; i < count; i++) {
+        // Gentle floating motion
+        pos[i * 3] += Math.sin(time * 0.3 + phases[i]) * 0.003;
+        pos[i * 3 + 1] += velocities[i];
+
+        if (pos[i * 3 + 1] > 30) {
+          pos[i * 3 + 1] = -30;
+          pos[i * 3] = (Math.random() - 0.5) * 70;
+        }
+      }
+
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
+
+      // Shimmer effect
+      const material = pointsRef.current.material as THREE.PointsMaterial;
+      const shimmer = Math.sin(time * 0.5) * 0.08;
+      material.opacity = 0.5 + shimmer;
+    }
+  });
 
   return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        size={0.1}
+        color="#996633"
+        transparent
+        opacity={0.5}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
+// ============================================
+// SCENES
+// ============================================
+
+function DarkScene() {
+  return (
     <>
-      {/* Soft ambient light only */}
-      <ambientLight intensity={0.3} />
+      <DarkModeStars />
+      <ShootingStar delay={0} />
+      <ShootingStar delay={8} />
+      <ShootingStar delay={16} />
+      <DarkModeGoldenDust />
+    </>
+  );
+}
 
-      {/* Elegant floating rings - very subtle */}
-      <ElegantRing position={[-8, 5, -10]} size={6} color={goldColor} speed={0.3} rotationAxis="y" />
-      <ElegantRing position={[10, -3, -12]} size={5} color={accentColor} speed={0.4} rotationAxis="x" />
-      <ElegantRing position={[0, 8, -15]} size={7} color={subtleColor} speed={0.25} rotationAxis="z" />
-      <ElegantRing position={[-12, -8, -8]} size={4} color={goldColor} speed={0.35} rotationAxis="y" />
-      <ElegantRing position={[15, 10, -14]} size={5.5} color={accentColor} speed={0.3} rotationAxis="x" />
-
-      {/* Soft glowing orbs in background */}
-      <SoftOrb position={[-15, 0, -18]} size={3} color={goldColor} speed={0.4} />
-      <SoftOrb position={[12, 8, -20]} size={2.5} color={accentColor} speed={0.5} />
-      <SoftOrb position={[0, -12, -16]} size={2} color={subtleColor} speed={0.35} />
-      <SoftOrb position={[-10, 12, -22]} size={2.8} color={goldColor} speed={0.45} />
-      <SoftOrb position={[18, -5, -19]} size={2.2} color={accentColor} speed={0.4} />
-
-      {/* Floating golden dust particles */}
-      <FloatingDust count={120} isDark={isDark} />
+function LightScene() {
+  return (
+    <>
+      <LightModeDust />
     </>
   );
 }
@@ -175,10 +279,10 @@ export default function Background3D({ isDark = false }: { isDark?: boolean }) {
   return (
     <div
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: -1 }}
+      style={{ zIndex: 1 }}
     >
       <Canvas
-        camera={{ position: [0, 0, 20], fov: 60 }}
+        camera={{ position: [0, 0, 30], fov: 50 }}
         dpr={[1, 1.5]}
         style={{ background: 'transparent' }}
         gl={{
@@ -187,7 +291,7 @@ export default function Background3D({ isDark = false }: { isDark?: boolean }) {
           powerPreference: 'high-performance',
         }}
       >
-        <Scene isDark={isDark} />
+        {isDark ? <DarkScene /> : <LightScene />}
       </Canvas>
     </div>
   );
