@@ -754,25 +754,41 @@ export default function EmptyState({
             >
               {[
                 {
-                  icon: '🔒',
+                  icon: (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                  ),
                   value: '100%',
                   label: getText('Private & Secure', 'निजी और सुरक्षित', 'खाजगी आणि सुरक्षित'),
                   sublabel: getText('Data stays on your device', 'डेटा आपके डिवाइस पर रहता है', 'डेटा तुमच्या डिव्हाइसवर राहतो')
                 },
                 {
-                  icon: '🎨',
+                  icon: (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
+                    </svg>
+                  ),
                   value: `${themes.length}+`,
                   label: getText('Premium Themes', 'प्रीमियम थीम', 'प्रीमियम थीम'),
                   sublabel: getText('Traditional & modern styles', 'पारंपरिक और आधुनिक', 'पारंपारिक आणि आधुनिक')
                 },
                 {
-                  icon: '🆓',
+                  icon: (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                    </svg>
+                  ),
                   value: '₹0',
                   label: getText('Forever Free', 'हमेशा मुफ्त', 'कायम मोफत'),
                   sublabel: getText('No hidden charges', 'कोई छुपे शुल्क नहीं', 'कोणतेही छुपे शुल्क नाही')
                 },
                 {
-                  icon: '🌐',
+                  icon: (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
+                    </svg>
+                  ),
                   value: '3',
                   label: getText('Languages', 'भाषाएं', 'भाषा'),
                   sublabel: getText('English, Hindi, Marathi', 'अंग्रेजी, हिंदी, मराठी', 'इंग्रजी, हिंदी, मराठी')
@@ -790,7 +806,9 @@ export default function EmptyState({
                   transition={{ delay: 0.4 + i * 0.1 }}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 >
-                  <div className="text-2xl mb-2">{stat.icon}</div>
+                  <div className={`flex justify-center mb-3 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}>
+                    {stat.icon}
+                  </div>
                   <div
                     className={`text-2xl md:text-3xl font-bold mb-1 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
                     style={{ fontFamily: "'Playfair Display', serif" }}
@@ -815,10 +833,39 @@ export default function EmptyState({
               transition={{ delay: 0.8 }}
             >
               {[
-                { icon: '🇮🇳', text: getText('Made for India', 'भारत के लिए बना', 'भारतासाठी बनवले') },
-                { icon: '📱', text: getText('Works Offline', 'ऑफलाइन काम करता है', 'ऑफलाइन काम करते') },
-                { icon: '🖨️', text: getText('Print Ready PDF', 'प्रिंट रेडी PDF', 'प्रिंट रेडी PDF') },
-                { icon: '⚡', text: getText('Instant Download', 'तुरंत डाउनलोड', 'तात्काळ डाउनलोड') },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                  ),
+                  text: getText('Made for India', 'भारत के लिए बना', 'भारतासाठी बनवले')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                  ),
+                  text: getText('Works Offline', 'ऑफलाइन काम करता है', 'ऑफलाइन काम करते')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                    </svg>
+                  ),
+                  text: getText('Print Ready', 'प्रिंट रेडी', 'प्रिंट रेडी')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                  ),
+                  text: getText('Instant Download', 'तुरंत डाउनलोड', 'तात्काळ डाउनलोड')
+                },
               ].map((badge, i) => (
                 <motion.div
                   key={i}
@@ -832,7 +879,7 @@ export default function EmptyState({
                   transition={{ delay: 0.9 + i * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <span>{badge.icon}</span>
+                  <span className={isDark ? 'text-amber-400' : 'text-[#800020]'}>{badge.icon}</span>
                   <span className="font-medium">{badge.text}</span>
                 </motion.div>
               ))}
@@ -1174,20 +1221,15 @@ export default function EmptyState({
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-                <svg viewBox="0 0 100 100" fill={isDark ? '#D4AF37' : '#800020'}>
-                  <path d="M50 5 L55 35 L85 40 L60 55 L65 85 L50 65 L35 85 L40 55 L15 40 L45 35 Z" />
-                </svg>
-              </div>
-
               <div className="relative z-10">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                     isDark ? 'bg-amber-500/20' : 'bg-amber-100'
                   }`}>
-                    <span className="text-2xl">💝</span>
+                    <svg className={`w-6 h-6 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
                   </div>
                   <div>
                     <h3
@@ -1203,9 +1245,9 @@ export default function EmptyState({
                 <div className={`space-y-4 text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   <p>
                     {getText(
-                      'Bio Maker is a passion project, built with love for Indian families. We believe everyone deserves a beautiful biodata for their special journey - regardless of budget.',
-                      'Bio Maker एक पैशन प्रोजेक्ट है, जो भारतीय परिवारों के लिए प्यार से बनाया गया है। हम मानते हैं कि हर किसी को अपनी विशेष यात्रा के लिए एक सुंदर बायोडाटा मिलना चाहिए।',
-                      'Bio Maker हा एक पॅशन प्रोजेक्ट आहे, भारतीय कुटुंबांसाठी प्रेमाने बनवलेला. आम्हाला विश्वास आहे की प्रत्येकाला त्यांच्या विशेष प्रवासासाठी सुंदर बायोडाटा मिळायला हवा.'
+                      'We built Bio Maker because we believe every family deserves a beautifully crafted biodata — without worrying about cost. This is our small contribution to making your special journey easier.',
+                      'हमने Bio Maker इसलिए बनाया क्योंकि हम मानते हैं कि हर परिवार को एक सुंदर बायोडाटा मिलना चाहिए — बिना खर्च की चिंता के। यह आपकी विशेष यात्रा को आसान बनाने में हमारा छोटा सा योगदान है।',
+                      'आम्ही Bio Maker बनवले कारण आमचा विश्वास आहे की प्रत्येक कुटुंबाला सुंदर बायोडाटा मिळायला हवा — खर्चाची चिंता न करता. तुमचा विशेष प्रवास सोपा करण्यात हे आमचे छोटेसे योगदान आहे.'
                     )}
                   </p>
                 </div>
@@ -1213,9 +1255,30 @@ export default function EmptyState({
                 {/* Promise badges */}
                 <div className="flex flex-wrap gap-3 mt-6">
                   {[
-                    { icon: '🚫', text: getText('No Ads', 'कोई विज्ञापन नहीं', 'जाहिराती नाहीत') },
-                    { icon: '🔒', text: getText('No Data Selling', 'डेटा नहीं बेचते', 'डेटा विकत नाही') },
-                    { icon: '💳', text: getText('No Hidden Fees', 'कोई छुपे शुल्क नहीं', 'छुपे शुल्क नाहीत') },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                      ),
+                      text: getText('No Ads', 'कोई विज्ञापन नहीं', 'जाहिराती नाहीत')
+                    },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                      ),
+                      text: getText('Your Data Stays Private', 'आपका डेटा सुरक्षित', 'तुमचा डेटा खाजगी')
+                    },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                        </svg>
+                      ),
+                      text: getText('No Hidden Fees', 'कोई छुपे शुल्क नहीं', 'छुपे शुल्क नाहीत')
+                    },
                   ].map((badge, i) => (
                     <div
                       key={i}
@@ -1225,7 +1288,7 @@ export default function EmptyState({
                           : 'bg-white/80 text-gray-700 shadow-sm'
                       }`}
                     >
-                      <span>{badge.icon}</span>
+                      <span className={isDark ? 'text-amber-400' : 'text-[#800020]'}>{badge.icon}</span>
                       <span>{badge.text}</span>
                     </div>
                   ))}
@@ -1233,26 +1296,11 @@ export default function EmptyState({
 
                 {/* Future note */}
                 <div className={`mt-6 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-amber-200/50'}`}>
-                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {getText('Our Promise:', 'हमारा वादा:', 'आमचे वचन:')}
-                    </span>{' '}
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {getText(
-                      'The core features will always remain free. In the future, we may add optional premium features (like AI writing assistance) - but creating and downloading biodatas will never cost a rupee.',
-                      'मुख्य सुविधाएं हमेशा मुफ्त रहेंगी। भविष्य में, हम वैकल्पिक प्रीमियम सुविधाएं जोड़ सकते हैं (जैसे AI लेखन सहायता) - लेकिन बायोडाटा बनाना और डाउनलोड करना कभी भी एक रुपया नहीं लगेगा।',
-                      'मुख्य वैशिष्ट्ये नेहमी मोफत राहतील. भविष्यात, आम्ही पर्यायी प्रीमियम वैशिष्ट्ये जोडू शकतो (जसे AI लेखन सहाय्य) - पण बायोडाटा बनवणे आणि डाउनलोड करणे कधीही एक रुपयाही लागणार नाही.'
-                    )}
-                  </p>
-                </div>
-
-                {/* Creator signature */}
-                <div className={`mt-6 flex items-center gap-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <div className="text-2xl">🙏</div>
-                  <p className="text-sm italic">
-                    {getText(
-                      '— Built with love in India',
-                      '— भारत में प्यार से बनाया',
-                      '— भारतात प्रेमाने बनवले'
+                      'Creating and downloading biodatas will always be free. We may introduce optional premium features in the future for those who want more — but the core experience will never change.',
+                      'बायोडाटा बनाना और डाउनलोड करना हमेशा मुफ्त रहेगा। भविष्य में हम उन लोगों के लिए वैकल्पिक प्रीमियम सुविधाएं ला सकते हैं जो अधिक चाहते हैं — लेकिन मुख्य अनुभव कभी नहीं बदलेगा।',
+                      'बायोडाटा बनवणे आणि डाउनलोड करणे नेहमी मोफत राहील. भविष्यात ज्यांना अधिक हवे त्यांच्यासाठी आम्ही पर्यायी प्रीमियम वैशिष्ट्ये आणू शकतो — पण मुख्य अनुभव कधीही बदलणार नाही.'
                     )}
                   </p>
                 </div>
