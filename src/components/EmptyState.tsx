@@ -495,9 +495,30 @@ export default function EmptyState({
                   transition={{ delay: 1.6 }}
                 >
                   {[
-                    { icon: '🔒', text: getText('100% Private', '100% निजी', '100% खाजगी') },
-                    { icon: '🌐', text: getText('3 Languages', '3 भाषाएं', '3 भाषा') },
-                    { icon: '📄', text: getText('PDF & Image', 'PDF और इमेज', 'PDF आणि इमेज') },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                      ),
+                      text: getText('100% Private', '100% निजी', '100% खाजगी')
+                    },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
+                        </svg>
+                      ),
+                      text: getText('3 Languages', '3 भाषाएं', '3 भाषा')
+                    },
+                    {
+                      icon: (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                      ),
+                      text: getText('PDF & Image', 'PDF और इमेज', 'PDF आणि इमेज')
+                    },
                   ].map((badge, i) => (
                     <motion.div
                       key={i}
@@ -509,7 +530,7 @@ export default function EmptyState({
                       transition={{ delay: 1.6 + i * 0.1 }}
                       whileHover={{ scale: 1.05, y: -2 }}
                     >
-                      <span className="text-lg">{badge.icon}</span>
+                      <span className={`${isDark ? 'text-amber-400' : 'text-amber-600'}`}>{badge.icon}</span>
                       <span className="font-medium">{badge.text}</span>
                     </motion.div>
                   ))}
