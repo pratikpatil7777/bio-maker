@@ -5,6 +5,7 @@ import { DarkModeProvider } from "@/lib/DarkModeContext";
 import { AlertProvider } from "@/components/AlertDialog";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { AttributionTracker } from "@/components/AttributionTracker";
+import WhatsAppSupport from "@/components/WhatsAppSupport";
 
 // Fonts are loaded via @import in globals.css
 // Using CSS @import for better Turbopack compatibility
@@ -278,6 +279,12 @@ export default function RootLayout({
               <AnalyticsProvider>
                 <AttributionTracker />
                 {children}
+                {/* WhatsApp Support - appears on all pages */}
+                <WhatsAppSupport
+                  phoneNumber={process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210"}
+                  message="Hi! I have a question about Bio Maker."
+                  delayMs={5000}
+                />
               </AnalyticsProvider>
             </Suspense>
           </AlertProvider>
