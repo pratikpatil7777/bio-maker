@@ -1,11 +1,11 @@
 /**
- * Dynamic OG Image Generator - Premium Design
+ * Dynamic OG Image Generator - Premium Design v3
  *
  * Design Goals:
  * - Bold, readable at small sizes (WhatsApp thumbnail)
- * - Cultural connection (traditional Indian aesthetic)
+ * - Highlight AI as key differentiator
  * - Clear value proposition
- * - Memorable and professional
+ * - Professional and memorable
  */
 
 import { ImageResponse } from 'next/og';
@@ -30,15 +30,15 @@ export default async function OGImage() {
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
-        {/* Left side - Golden accent panel */}
+        {/* Left side - Golden brand panel */}
         <div
           style={{
             position: 'absolute',
             left: 0,
             top: 0,
             bottom: 0,
-            width: 400,
-            background: 'linear-gradient(180deg, #C9A227 0%, #8B6914 100%)',
+            width: 380,
+            background: 'linear-gradient(180deg, #D4AF37 0%, #996515 100%)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -46,80 +46,71 @@ export default async function OGImage() {
             padding: 40,
           }}
         >
-          {/* Decorative pattern - top */}
+          {/* Decorative frame - top */}
           <div
             style={{
               position: 'absolute',
-              top: 30,
-              left: 30,
-              right: 30,
-              height: 60,
-              borderTop: '2px solid rgba(255,255,255,0.3)',
-              borderLeft: '2px solid rgba(255,255,255,0.3)',
-              borderRight: '2px solid rgba(255,255,255,0.3)',
+              top: 25,
+              left: 25,
+              right: 25,
+              height: 50,
+              borderTop: '2px solid rgba(255,255,255,0.4)',
+              borderLeft: '2px solid rgba(255,255,255,0.4)',
+              borderRight: '2px solid rgba(255,255,255,0.4)',
               borderRadius: '8px 8px 0 0',
               display: 'flex',
             }}
           />
 
-          {/* Decorative pattern - bottom */}
+          {/* Decorative frame - bottom */}
           <div
             style={{
               position: 'absolute',
-              bottom: 30,
-              left: 30,
-              right: 30,
-              height: 60,
-              borderBottom: '2px solid rgba(255,255,255,0.3)',
-              borderLeft: '2px solid rgba(255,255,255,0.3)',
-              borderRight: '2px solid rgba(255,255,255,0.3)',
+              bottom: 25,
+              left: 25,
+              right: 25,
+              height: 50,
+              borderBottom: '2px solid rgba(255,255,255,0.4)',
+              borderLeft: '2px solid rgba(255,255,255,0.4)',
+              borderRight: '2px solid rgba(255,255,255,0.4)',
               borderRadius: '0 0 8px 8px',
               display: 'flex',
             }}
           />
 
-          {/* Shubh Vivah in Devanagari - Cultural touch */}
+          {/* Main Logo */}
           <div
             style={{
-              fontSize: 28,
-              color: 'rgba(255,255,255,0.9)',
-              marginBottom: 16,
-              letterSpacing: 4,
-              display: 'flex',
-            }}
-          >
-            शुभ विवाह
-          </div>
-
-          {/* Main Logo Text */}
-          <div
-            style={{
-              fontSize: 72,
+              fontSize: 76,
               fontWeight: 800,
               color: 'white',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+              textShadow: '0 3px 12px rgba(0,0,0,0.2)',
+              lineHeight: 1.1,
             }}
           >
             <span>Bio</span>
             <span>Maker</span>
           </div>
 
-          {/* Tagline */}
+          {/* Website URL - brand recall */}
           <div
             style={{
-              marginTop: 20,
-              fontSize: 18,
+              marginTop: 24,
+              fontSize: 16,
               color: 'rgba(255,255,255,0.9)',
               textAlign: 'center',
               display: 'flex',
-              letterSpacing: 2,
+              letterSpacing: 1,
+              padding: '8px 20px',
+              background: 'rgba(0,0,0,0.15)',
+              borderRadius: 20,
             }}
           >
-            SINCE 2024
+            biomaker.in
           </div>
         </div>
 
@@ -127,86 +118,103 @@ export default async function OGImage() {
         <div
           style={{
             position: 'absolute',
-            left: 400,
+            left: 380,
             right: 0,
             top: 0,
             bottom: 0,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            padding: '50px 60px',
+            padding: '40px 50px',
             background: '#FFFDF5',
           }}
         >
-          {/* Decorative corner */}
+          {/* Decorative corners */}
           <div
             style={{
               position: 'absolute',
-              top: 30,
-              right: 30,
-              width: 80,
-              height: 80,
-              borderTop: '3px solid #C9A227',
-              borderRight: '3px solid #C9A227',
-              borderRadius: '0 12px 0 0',
+              top: 25,
+              right: 25,
+              width: 70,
+              height: 70,
+              borderTop: '3px solid #D4AF37',
+              borderRight: '3px solid #D4AF37',
+              borderRadius: '0 10px 0 0',
+              display: 'flex',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 25,
+              right: 25,
+              width: 70,
+              height: 70,
+              borderBottom: '3px solid #D4AF37',
+              borderRight: '3px solid #D4AF37',
+              borderRadius: '0 0 10px 0',
               display: 'flex',
             }}
           />
 
+          {/* AI Badge - Key differentiator */}
           <div
             style={{
-              position: 'absolute',
-              bottom: 30,
-              right: 30,
-              width: 80,
-              height: 80,
-              borderBottom: '3px solid #C9A227',
-              borderRight: '3px solid #C9A227',
-              borderRadius: '0 0 12px 0',
               display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 20,
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
+              borderRadius: 20,
+              alignSelf: 'flex-start',
             }}
-          />
+          >
+            <span style={{ color: 'white', fontSize: 16, fontWeight: 700, display: 'flex' }}>
+              AI-Powered
+            </span>
+          </div>
 
           {/* Main headline */}
           <div
             style={{
-              fontSize: 52,
+              fontSize: 48,
               fontWeight: 700,
               color: '#1a1a1a',
-              lineHeight: 1.2,
-              marginBottom: 24,
+              lineHeight: 1.15,
+              marginBottom: 16,
               display: 'flex',
               flexDirection: 'column',
             }}
           >
             <span>Create Beautiful</span>
-            <span style={{ color: '#8B6914' }}>Marriage Biodata</span>
+            <span style={{ color: '#996515' }}>Marriage Biodata</span>
           </div>
 
           {/* Sub headline */}
           <div
             style={{
-              fontSize: 26,
+              fontSize: 24,
               color: '#555',
-              marginBottom: 36,
+              marginBottom: 32,
               display: 'flex',
             }}
           >
-            Professional templates in seconds
+            Professional biodatas in minutes, not hours
           </div>
 
-          {/* Features row */}
+          {/* USP boxes */}
           <div
             style={{
               display: 'flex',
-              gap: 20,
-              marginBottom: 40,
+              gap: 16,
+              marginBottom: 32,
             }}
           >
             {[
               { label: 'FREE', desc: 'Forever' },
+              { label: 'AI', desc: 'Bio Writer' },
               { label: 'NO', desc: 'Signup' },
-              { label: '3', desc: 'Languages' },
             ].map((item) => (
               <div
                 key={item.label}
@@ -214,17 +222,17 @@ export default async function OGImage() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  padding: '16px 28px',
-                  background: '#FFF9E6',
+                  padding: '14px 24px',
+                  background: item.label === 'AI' ? '#F3E8FF' : '#FFF9E6',
                   borderRadius: 12,
-                  border: '1px solid #E8D9A0',
+                  border: item.label === 'AI' ? '2px solid #7C3AED' : '1px solid #E8D9A0',
                 }}
               >
                 <span
                   style={{
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: 800,
-                    color: '#8B6914',
+                    color: item.label === 'AI' ? '#7C3AED' : '#996515',
                     display: 'flex',
                   }}
                 >
@@ -232,7 +240,7 @@ export default async function OGImage() {
                 </span>
                 <span
                   style={{
-                    fontSize: 16,
+                    fontSize: 14,
                     color: '#666',
                     display: 'flex',
                   }}
@@ -248,28 +256,21 @@ export default async function OGImage() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 16,
+              gap: 12,
+              padding: '10px 20px',
+              background: 'linear-gradient(135deg, #D4AF37 0%, #996515 100%)',
+              borderRadius: 25,
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 600,
+              alignSelf: 'flex-start',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 24px',
-                background: 'linear-gradient(135deg, #C9A227 0%, #A68B1E 100%)',
-                borderRadius: 30,
-                color: 'white',
-                fontSize: 18,
-                fontWeight: 600,
-              }}
-            >
-              <span>English</span>
-              <span style={{ opacity: 0.6 }}>|</span>
-              <span>हिंदी</span>
-              <span style={{ opacity: 0.6 }}>|</span>
-              <span>मराठी</span>
-            </div>
+            <span style={{ display: 'flex' }}>English</span>
+            <span style={{ opacity: 0.5, display: 'flex' }}>|</span>
+            <span style={{ display: 'flex' }}>हिंदी</span>
+            <span style={{ opacity: 0.5, display: 'flex' }}>|</span>
+            <span style={{ display: 'flex' }}>मराठी</span>
           </div>
         </div>
       </div>
