@@ -350,6 +350,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-poppins), 'Poppins', sans-serif;
   font-size: 13px;
@@ -357,6 +361,31 @@ body {
   min-height: 100vh;
   background-color: var(--ds-bg);
   color: var(--ds-text-primary);
+}
+
+/* Snap Scroll Styles for Landing Page */
+.snap-y {
+  scroll-snap-type: y mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}
+
+.snap-end {
+  scroll-snap-align: end;
+}
+
+.snap-always {
+  scroll-snap-stop: always;
+}
+
+/* Smooth snap scrolling on supported browsers */
+@supports (scroll-snap-type: y mandatory) {
+  .snap-y {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Playfair Display for headings */
@@ -1012,28 +1041,53 @@ select,
   --cursor-peacock-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 0L6.2 7L5 9.5L3.8 7Z' fill='%235D3A1A'/%3E%3Cellipse cx='5' cy='13.5' rx='4.5' ry='6.5' fill='%231b5e20'/%3E%3Cellipse cx='5' cy='13' rx='3.7' ry='5.3' fill='%232e7d32'/%3E%3Cellipse cx='5' cy='12.5' rx='2.9' ry='4' fill='%23388e3c'/%3E%3Cellipse cx='5' cy='12' rx='2.3' ry='3.2' fill='%230097a7'/%3E%3Cellipse cx='5' cy='11.5' rx='1.6' ry='2.4' fill='%231565c0'/%3E%3Cellipse cx='5' cy='11' rx='1' ry='1.6' fill='%230d47a1'/%3E%3Ccircle cx='5' cy='10.5' r='0.9' fill='%23000'/%3E%3Cellipse cx='5.4' cy='10.2' rx='0.35' ry='0.25' fill='%23fff' opacity='0.8'/%3E%3Cpath d='M3.5 20 L5 28 L6.5 20' fill='%231b5e20' opacity='0.6'/%3E%3C/svg%3E") 5 0, pointer;
 }
 
-/* Apply peacock cursor ONLY to biodata form buttons */
-.biodata-container button.biodata-btn,
-.biodata-container .biodata-btn,
-.biodata-page button.biodata-btn,
-.biodata-page .biodata-btn {
+/* Apply peacock cursor to ALL interactive elements inside biodata */
+.biodata-container button,
+.biodata-container [role="button"],
+.biodata-container input[type="file"],
+.biodata-container .cursor-pointer,
+.biodata-page button,
+.biodata-page [role="button"],
+.biodata-page input[type="file"],
+.biodata-page .cursor-pointer {
   cursor: var(--cursor-peacock) !important;
 }
 
-/* Hover state for biodata form buttons */
-.biodata-container button.biodata-btn:hover,
-.biodata-container .biodata-btn:hover,
-.biodata-page button.biodata-btn:hover,
-.biodata-page .biodata-btn:hover {
+/* Hover state for biodata interactive elements */
+.biodata-container button:hover,
+.biodata-container [role="button"]:hover,
+.biodata-container .cursor-pointer:hover,
+.biodata-page button:hover,
+.biodata-page [role="button"]:hover,
+.biodata-page .cursor-pointer:hover {
   cursor: var(--cursor-peacock) !important;
 }
 
-/* Active/pressed state for biodata form buttons */
-.biodata-container button.biodata-btn:active,
-.biodata-container .biodata-btn:active,
-.biodata-page button.biodata-btn:active,
-.biodata-page .biodata-btn:active {
+/* Active/pressed state for biodata interactive elements */
+.biodata-container button:active,
+.biodata-container [role="button"]:active,
+.biodata-container .cursor-pointer:active,
+.biodata-page button:active,
+.biodata-page [role="button"]:active,
+.biodata-page .cursor-pointer:active {
   cursor: var(--cursor-peacock-active) !important;
+}
+
+/* Text inputs inside biodata - use default text cursor */
+.biodata-container input[type="text"],
+.biodata-container input[type="email"],
+.biodata-container input[type="tel"],
+.biodata-container textarea,
+.biodata-page input[type="text"],
+.biodata-page input[type="email"],
+.biodata-page input[type="tel"],
+.biodata-page textarea {
+  cursor: text !important;
+}
+
+/* Ensure buttons OUTSIDE biodata use normal pointer cursor */
+.no-print button:not(.biodata-container button):not(.biodata-page button) {
+  cursor: pointer;
 }
 
 @layer base {

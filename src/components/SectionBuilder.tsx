@@ -97,14 +97,23 @@ export default function SectionBuilder({
     onUpdate({ ...section, attributes: newAttributes });
   };
 
-  const handleAddAttribute = (afterIndex?: number) => {
+  const handleAddAttribute = () => {
     const newAttribute = createAttribute('');
+    const newAttributes = [...section.attributes, newAttribute];
+    onUpdate({ ...section, attributes: newAttributes });
+  };
+
+  const handleMoveAttributeUp = (index: number) => {
+    if (index === 0) return;
     const newAttributes = [...section.attributes];
-    if (afterIndex !== undefined) {
-      newAttributes.splice(afterIndex + 1, 0, newAttribute);
-    } else {
-      newAttributes.push(newAttribute);
-    }
+    [newAttributes[index - 1], newAttributes[index]] = [newAttributes[index], newAttributes[index - 1]];
+    onUpdate({ ...section, attributes: newAttributes });
+  };
+
+  const handleMoveAttributeDown = (index: number) => {
+    if (index === section.attributes.length - 1) return;
+    const newAttributes = [...section.attributes];
+    [newAttributes[index], newAttributes[index + 1]] = [newAttributes[index + 1], newAttributes[index]];
     onUpdate({ ...section, attributes: newAttributes });
   };
 
@@ -167,8 +176,6 @@ export default function SectionBuilder({
               isEditMode={false}
               onUpdate={() => {}}
               onDelete={() => {}}
-              onAddBelow={() => {}}
-              showAddButton={false}
             />
           ))}
         </div>
@@ -369,8 +376,8 @@ export default function SectionBuilder({
             isEditMode={true}
             onUpdate={(updated) => handleAttributeUpdate(index, updated)}
             onDelete={() => handleAttributeDelete(index)}
-            onAddBelow={() => handleAddAttribute(index)}
-            showAddButton={true}
+            onMoveUp={() => handleMoveAttributeUp(index)}
+            onMoveDown={() => handleMoveAttributeDown(index)}
             isFirst={index === 0}
             isLast={index === section.attributes.length - 1}
             disabled={section.hidden}

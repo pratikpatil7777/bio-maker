@@ -33,6 +33,9 @@ export interface BiodataSection {
   hidden?: boolean;     // If true, entire section is hidden in view/export mode
 }
 
+// God symbol options
+export type GodSymbolId = 'krishna' | 'ganesh' | 'om' | 'swastik' | 'shiv' | 'durga' | 'custom' | 'none';
+
 // The main biodata structure
 export interface DynamicBiodataData {
   // Profile
@@ -52,6 +55,13 @@ export interface DynamicBiodataData {
   themeId: string;
   borderId: string;
 
+  // God Symbol at top
+  godSymbolId: GodSymbolId;
+  customGodSymbol?: string;  // base64 encoded image for custom symbol
+
+  // Footer visibility
+  showThankYou: boolean;
+
   // Dynamic sections - user can add/remove/reorder
   sections: BiodataSection[];
 
@@ -70,6 +80,8 @@ export const createEmptyBiodata = (): DynamicBiodataData => ({
   showPhotoGalleryQR: false,
   themeId: 'gold',
   borderId: 'classic',
+  godSymbolId: 'krishna',
+  showThankYou: true,
   sections: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),

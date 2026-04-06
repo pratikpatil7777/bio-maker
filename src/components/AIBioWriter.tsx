@@ -537,9 +537,9 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: 'traditional', label: isMarathi ? 'पारंपरिक' : 'Traditional', icon: '🙏', desc: isMarathi ? 'औपचारिक, कुटुंब-केंद्रित' : 'Formal, family-focused' },
-                  { value: 'modern', label: isMarathi ? 'आधुनिक' : 'Modern', icon: '✨', desc: isMarathi ? 'मैत्रीपूर्ण, व्यक्तिमत्व-केंद्रित' : 'Friendly, personality-focused' },
-                  { value: 'professional', label: isMarathi ? 'व्यावसायिक' : 'Professional', icon: '💼', desc: isMarathi ? 'करिअर-केंद्रित' : 'Career-focused' },
+                  { value: 'traditional', label: isMarathi ? 'पारंपरिक' : 'Traditional', desc: isMarathi ? 'औपचारिक, कुटुंब-केंद्रित' : 'Formal, family-focused' },
+                  { value: 'modern', label: isMarathi ? 'आधुनिक' : 'Modern', desc: isMarathi ? 'मैत्रीपूर्ण, व्यक्तिमत्व-केंद्रित' : 'Friendly, personality-focused' },
+                  { value: 'professional', label: isMarathi ? 'व्यावसायिक' : 'Professional', desc: isMarathi ? 'करिअर-केंद्रित' : 'Career-focused' },
                 ].map((tone) => (
                   <button
                     key={tone.value}
@@ -550,7 +550,27 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                         : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <span className="text-2xl mb-2 block">{tone.icon}</span>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 ${
+                      formData.tone === tone.value
+                        ? 'bg-amber-500 text-white'
+                        : isDark ? 'bg-slate-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {tone.value === 'traditional' && (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      )}
+                      {tone.value === 'modern' && (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      )}
+                      {tone.value === 'professional' && (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </div>
                     <span className={`font-semibold block ${isDark ? 'text-white' : 'text-gray-800'}`}>{tone.label}</span>
                     <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{tone.desc}</span>
                   </button>
@@ -565,9 +585,9 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: 'english', label: 'English Only', icon: '🇬🇧' },
-                  { value: 'marathi', label: 'मराठी Only', icon: '🇮🇳' },
-                  { value: 'both', label: isMarathi ? 'दोन्ही' : 'Both', icon: '🌐' },
+                  { value: 'english', label: 'English', sublabel: 'Only' },
+                  { value: 'marathi', label: 'मराठी', sublabel: 'Only' },
+                  { value: 'both', label: isMarathi ? 'दोन्ही' : 'Both', sublabel: isMarathi ? 'भाषा' : 'Languages' },
                 ].map((lang) => (
                   <button
                     key={lang.value}
@@ -578,8 +598,17 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                         : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <span className="text-2xl mb-1 block">{lang.icon}</span>
-                    <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-800'}`}>{lang.label}</span>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 mx-auto ${
+                      formData.outputLanguage === lang.value
+                        ? 'bg-amber-500 text-white'
+                        : isDark ? 'bg-slate-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                      </svg>
+                    </div>
+                    <span className={`font-semibold block text-center ${isDark ? 'text-white' : 'text-gray-800'}`}>{lang.label}</span>
+                    <span className={`text-xs block text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{lang.sublabel}</span>
                   </button>
                 ))}
               </div>
@@ -601,7 +630,9 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                <span className="text-2xl">✨</span>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
               </div>
               <div>
                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>
@@ -636,7 +667,11 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                         : isDark ? 'bg-slate-700 text-gray-400' : 'bg-gray-100 text-gray-400'
                     }`}
                   >
-                    {s < formStep ? '✓' : s}
+                    {s < formStep ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : s}
                   </div>
                   {s < 4 && (
                     <div className={`w-8 h-1 mx-1 rounded ${s < formStep ? 'bg-green-500' : isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
@@ -664,7 +699,9 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
                   <div className={`absolute inset-1 rounded-full ${isDark ? 'bg-slate-800' : 'bg-white'}`} />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-4xl animate-pulse">✨</span>
+                  <svg className="w-10 h-10 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                 </div>
               </div>
               <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
@@ -755,9 +792,11 @@ export default function AIBioWriter({ language, currentName, onBioGenerated, onC
               ) : (
                 <button
                   onClick={handleGenerate}
-                  className="px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>✨</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                   <span>{isMarathi ? 'बायो तयार करा' : 'Generate Bio'}</span>
                 </button>
               )}

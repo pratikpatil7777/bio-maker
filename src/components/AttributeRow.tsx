@@ -11,8 +11,8 @@ interface AttributeRowProps {
   isEditMode: boolean;
   onUpdate: (updated: BiodataAttribute) => void;
   onDelete: () => void;
-  onAddBelow: () => void;
-  showAddButton?: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   isFirst?: boolean;
   isLast?: boolean;
   disabled?: boolean; // When parent section is hidden
@@ -24,8 +24,8 @@ export default function AttributeRow({
   isEditMode,
   onUpdate,
   onDelete,
-  onAddBelow,
-  showAddButton = true,
+  onMoveUp,
+  onMoveDown,
   isFirst = false,
   isLast = false,
   disabled = false,
@@ -324,29 +324,48 @@ export default function AttributeRow({
       <div className={`flex items-center gap-0.5 transition-opacity ${
         disabled ? 'opacity-30 pointer-events-none' : 'opacity-0 group-hover:opacity-100'
       }`}>
-        {showAddButton && (
+        {/* Move Up */}
+        {!isFirst && onMoveUp && (
           <button
-            onClick={onAddBelow}
+            onClick={onMoveUp}
             disabled={disabled}
-            className={`biodata-btn p-1.5 rounded transition-colors ${
-              disabled ? 'text-gray-300 cursor-not-allowed' : 'text-[#D4AF37] hover:text-[#B8860B] hover:bg-amber-50'
+            className={`biodata-btn p-1 rounded transition-colors ${
+              disabled ? 'text-gray-300 cursor-not-allowed' : 'text-amber-500 hover:text-amber-700 hover:bg-amber-50'
             }`}
-            title={disabled ? '' : (isHindi ? 'नीचे जोड़ें' : isMarathi ? 'खाली जोडा' : 'Add below')}
+            title={disabled ? '' : (isHindi ? 'ऊपर ले जाएं' : isMarathi ? 'वर हलवा' : 'Move up')}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
           </button>
         )}
+
+        {/* Move Down */}
+        {!isLast && onMoveDown && (
+          <button
+            onClick={onMoveDown}
+            disabled={disabled}
+            className={`biodata-btn p-1 rounded transition-colors ${
+              disabled ? 'text-gray-300 cursor-not-allowed' : 'text-amber-500 hover:text-amber-700 hover:bg-amber-50'
+            }`}
+            title={disabled ? '' : (isHindi ? 'नीचे ले जाएं' : isMarathi ? 'खाली हलवा' : 'Move down')}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        )}
+
+        {/* Delete */}
         <button
           onClick={onDelete}
           disabled={disabled}
-          className={`biodata-btn p-1.5 rounded transition-colors ${
+          className={`biodata-btn p-1 rounded transition-colors ${
             disabled ? 'text-gray-300 cursor-not-allowed' : 'text-red-400 hover:text-red-600 hover:bg-red-50'
           }`}
           title={disabled ? '' : (isHindi ? 'हटाएं' : isMarathi ? 'काढून टाका' : 'Remove')}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>

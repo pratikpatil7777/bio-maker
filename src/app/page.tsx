@@ -35,17 +35,11 @@ export default function HomePage() {
     setHasSeenReveal(true);
   };
 
-  const handleStartBuilding = () => {
+  const handleCreateBiodata = () => {
     localStorage.setItem('bio-maker-language', language);
     localStorage.setItem('bio-maker-theme', currentTheme.id);
     localStorage.setItem('bio-maker-border', currentBorder.id);
-    router.push('/app');
-  };
-
-  const handleUseTemplate = () => {
-    localStorage.setItem('bio-maker-language', language);
-    localStorage.setItem('bio-maker-theme', currentTheme.id);
-    localStorage.setItem('bio-maker-border', currentBorder.id);
+    localStorage.setItem('bio-maker-load-template', 'true');
     router.push('/app');
   };
 
@@ -87,8 +81,7 @@ export default function HomePage() {
             onThemeChange={setCurrentTheme}
             currentBorder={currentBorder}
             onBorderChange={setCurrentBorder}
-            onStartBuilding={handleStartBuilding}
-            onUseTemplate={handleUseTemplate}
+            onCreateBiodata={handleCreateBiodata}
           />
         </div>
       </Suspense>

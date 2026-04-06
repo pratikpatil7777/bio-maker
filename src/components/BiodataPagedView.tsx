@@ -272,6 +272,9 @@ export default function BiodataPagedView({
                 name={data.name}
                 nameMarathi={data.nameMarathi}
                 nameHindi={data.nameHindi}
+                godSymbolId={data.godSymbolId}
+                customGodSymbol={data.customGodSymbol}
+                primaryColor={theme.colors.primary}
               />
 
               <div className="relative" style={{ marginTop: '8px' }}>
@@ -319,9 +322,9 @@ export default function BiodataPagedView({
           )}
 
           {/* Footer */}
-          {page.includeFooter && (
+          {page.includeFooter && data.showThankYou !== false && (
             <div style={{ marginTop: 'auto' }}>
-              <Footer language={language} />
+              <Footer language={language} showThankYou={true} />
             </div>
           )}
         </BiodataPage>

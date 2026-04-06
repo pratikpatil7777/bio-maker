@@ -23,19 +23,63 @@ import Footer from './Footer';
 import LanguageToggle from './LanguageToggle';
 import DownloadButton from './DownloadButton';
 import ShareButton from './ShareButton';
-import ThemeSelector from './ThemeSelector';
-import BorderSelector from './BorderSelector';
 import BorderRenderer from './borders';
-import DataBackupNew from './DataBackupNew';
 import EmptyState from './EmptyState';
 import BiodataPagedView from './BiodataPagedView';
 import AIBioWriter from './AIBioWriter';
 import TransliterateInput from './TransliterateInput';
 import EditActionsSidebar from './EditActionsSidebar';
-import { DarkModeToggleCompact } from './DarkModeToggle';
+import DesignMenu from './DesignMenu';
+import SettingsMenu from './SettingsMenu';
+import { GaneshIcon, OmIcon, SwastikIcon, ShivIcon, DurgaIcon } from './GodSymbolSelector';
+import KrishnaIcon from './KrishnaIcon';
 import { useDarkMode } from '@/lib/DarkModeContext';
 import { useAlert } from './AlertDialog';
 import { hasShareData, getSharedData, clearShareFromUrl } from '@/lib/shareLink';
+import { GodSymbolId } from '@/lib/types';
+
+// Edit mode god symbol display component
+function EditModeGodSymbol({
+  symbolId,
+  customSymbol,
+  primaryColor,
+}: {
+  symbolId: GodSymbolId;
+  customSymbol?: string;
+  primaryColor: string;
+}) {
+  switch (symbolId) {
+    case 'krishna':
+      return <KrishnaIcon className="w-28 h-auto" />;
+    case 'ganesh':
+      return <GaneshIcon color={primaryColor} className="w-20 h-20" />;
+    case 'om':
+      return <OmIcon color={primaryColor} className="w-20 h-16" />;
+    case 'swastik':
+      return <SwastikIcon color={primaryColor} className="w-16 h-16" />;
+    case 'shiv':
+      return <ShivIcon color={primaryColor} className="w-16 h-20" />;
+    case 'durga':
+      return <DurgaIcon color={primaryColor} className="w-20 h-16" />;
+    case 'custom':
+      if (customSymbol) {
+        return (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={customSymbol}
+            alt="Custom Symbol"
+            className="w-auto h-20 object-contain"
+            style={{ maxWidth: '100px' }}
+          />
+        );
+      }
+      return null;
+    case 'none':
+      return null;
+    default:
+      return <KrishnaIcon className="w-28 h-auto" />;
+  }
+}
 
 const STORAGE_KEY = 'biodata-builder-data';
 const MAX_HISTORY = 50;
@@ -166,7 +210,27 @@ export default function BiodataBuilder() {
         setIsEditMode(false);
       }
     }
-  }, [searchParams, setData]);
+
+    // Check if coming from home page with template flag
+    const loadTemplate = localStorage.getItem('bio-maker-load-template');
+    if (loadTemplate === 'true') {
+      // Clear the flag
+      localStorage.removeItem('bio-maker-load-template');
+
+      // Load template data with selected theme/border
+      const savedTheme = localStorage.getItem('bio-maker-theme');
+      const savedBorder = localStorage.getItem('bio-maker-border');
+      const savedLanguage = localStorage.getItem('bio-maker-language') as Language;
+
+      const templateData = loadTemplateData();
+      if (savedTheme) templateData.themeId = savedTheme;
+      if (savedBorder) templateData.borderId = savedBorder;
+
+      setData(templateData);
+      if (savedLanguage) setLanguage(savedLanguage);
+      setIsEditMode(true);
+    }
+  }, [searchParams, setData, setLanguage]);
 
   const handleThemeChange = (theme: Theme) => {
     setData((prev) => ({ ...prev, themeId: theme.id, updatedAt: new Date().toISOString() }));
@@ -194,6 +258,23 @@ export default function BiodataBuilder() {
       ...(field === 'url'
         ? { photoGalleryUrl: value as string }
         : { showPhotoGalleryQR: value as boolean }),
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const handleGodSymbolChange = (symbolId: GodSymbolId, customImage?: string) => {
+    setData((prev) => ({
+      ...prev,
+      godSymbolId: symbolId,
+      ...(customImage ? { customGodSymbol: customImage } : {}),
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const handleToggleThankYou = () => {
+    setData((prev) => ({
+      ...prev,
+      showThankYou: !prev.showThankYou,
       updatedAt: new Date().toISOString(),
     }));
   };
@@ -344,29 +425,67 @@ export default function BiodataBuilder() {
   const isMarathi = language === 'mr';
 
   return (
-    <main className="min-h-screen py-4 px-2 md:py-8 md:px-4 transition-colors duration-300" style={{ backgroundColor: 'var(--ui-bg)' }}>
+    <main
+      className="min-h-screen py-4 px-2 md:py-8 md:px-4 transition-colors duration-300 relative"
+      style={{
+        background: isDark
+          ? 'linear-gradient(180deg, #0a0a15 0%, #0f172a 30%, #1a1a2e 60%, #0f172a 100%)'
+          : 'linear-gradient(180deg, #FFFEF8 0%, #FFF9E8 50%, #FFFEF8 100%)',
+      }}
+    >
+      {/* Subtle ambient glow */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: isDark
+            ? 'radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.04) 0%, transparent 40%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 40%)'
+            : 'radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.1) 0%, transparent 50%)',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Dark mode: subtle star-like dots (static, no animation) */}
+      {isDark && (
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(1px 1px at 20px 30px, rgba(212, 175, 55, 0.15), transparent),
+                              radial-gradient(1px 1px at 40px 70px, rgba(212, 175, 55, 0.1), transparent),
+                              radial-gradient(1px 1px at 50px 160px, rgba(212, 175, 55, 0.12), transparent),
+                              radial-gradient(1px 1px at 90px 40px, rgba(212, 175, 55, 0.08), transparent),
+                              radial-gradient(1px 1px at 130px 80px, rgba(212, 175, 55, 0.14), transparent),
+                              radial-gradient(1px 1px at 160px 120px, rgba(212, 175, 55, 0.1), transparent)`,
+            backgroundSize: '200px 200px',
+            zIndex: 0,
+          }}
+        />
+      )}
       {/* Control Panel - Floating Golden Parchment Design */}
       <div className="no-print max-w-5xl mx-auto mb-6 px-2 sm:px-4 relative z-[100]">
         {/* Main Floating Toolbar */}
         <div className="relative">
-          {/* Main Container with clean border */}
+          {/* Main Container with golden gradient border */}
           <div
-            className="relative rounded-xl"
+            className="relative rounded-xl p-[1px]"
             style={{
-              background: isDark
-                ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)'
-                : 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%)',
+              background: 'linear-gradient(180deg, #D4AF37 0%, rgba(212, 175, 55, 0.4) 10%, rgba(212, 175, 55, 0.4) 90%, #D4AF37 100%)',
               boxShadow: isDark
-                ? '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.2)'
-                : '0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(212, 175, 55, 0.3)',
+                ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+                : '0 4px 20px rgba(0, 0, 0, 0.08)',
             }}
           >
-            {/* Top golden accent line */}
-            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37] rounded-t-xl" />
-
-            {/* Toolbar Content - Simple flex-wrap */}
-            <div className="relative z-10 px-2 py-2 sm:px-4 sm:py-3">
-              <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+            {/* Inner container */}
+            <div
+              className="rounded-[11px]"
+              style={{
+                background: isDark
+                  ? 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)'
+                  : 'linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%)',
+              }}
+            >
+              {/* Toolbar Content - Clean organized layout */}
+              <div className="relative px-2 py-2 sm:px-4 sm:py-3">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                 {/* Logo as Home Button */}
                 <button
                   onClick={handleBackToHome}
@@ -382,60 +501,90 @@ export default function BiodataBuilder() {
                   />
                 </button>
 
-                <DarkModeToggleCompact />
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
+
+                {/* Design Menu (Theme + Border + Symbol) */}
+                <DesignMenu
+                  language={language}
+                  currentTheme={currentTheme}
+                  currentBorder={currentBorder}
+                  currentSymbolId={data.godSymbolId || 'krishna'}
+                  customSymbol={data.customGodSymbol}
+                  onThemeChange={handleThemeChange}
+                  onBorderChange={handleBorderChange}
+                  onSymbolChange={handleGodSymbolChange}
+                />
+
+                {/* Language Toggle */}
                 <LanguageToggle language={language} onLanguageChange={setLanguage} />
-                <ThemeSelector language={language} currentTheme={currentTheme} onThemeChange={handleThemeChange} />
-                <BorderSelector language={language} currentBorder={currentBorder} primaryColor={currentTheme.colors.primary} onBorderChange={handleBorderChange} />
 
-                <DataBackupNew language={language} data={data} onRestore={handleDataRestore} />
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
 
-                {/* AI Bio Writer Button */}
+                {/* AI Bio Writer Button - Redesigned */}
                 <button
                   onClick={() => setShowAIWriter(true)}
-                  className="h-8 sm:h-9 px-2 sm:px-3 flex items-center gap-1 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:scale-[1.02] text-white"
+                  className="h-8 sm:h-9 px-3 sm:px-4 flex items-center gap-2 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg hover:scale-[1.02] text-white"
                   style={{
-                    background: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #EC4899 100%)',
                   }}
                   title={getText('AI Bio Writer', 'AI बायो लेखक', 'AI बायो लेखक')}
                 >
-                  <span className="text-sm">✨</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  <span className="hidden sm:inline">{getText('AI Writer', 'AI लेखक', 'AI लेखक')}</span>
                 </button>
 
+                {/* Download Button */}
                 <DownloadButton
                   language={language}
                   targetRef={isEditMode ? biodataRef : pagedViewRef}
                   fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
                   pageCount={pageCount}
+                  biodataData={data}
                   onCreateAnother={() => {
                     clearLocalStorage(STORAGE_KEY);
                     setData(createEmptyBiodata());
                     setIsEditMode(true);
                   }}
                 />
+
+                {/* Share Button */}
                 <ShareButton
                   language={language}
                   targetRef={isEditMode ? biodataRef : pagedViewRef}
                   fileName={data.name ? data.name.replace(/\s+/g, '_') + '_Biodata' : 'Marriage_Biodata'}
                   biodataData={data}
                 />
+
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
+
+                {/* Settings Menu (Dark mode + Backup + Reset) */}
+                <SettingsMenu
+                  language={language}
+                  data={data}
+                  onRestore={handleDataRestore}
+                  onReset={handleReset}
+                />
               </div>
             </div>
-
-            {/* Bottom golden accent line */}
-            <div className="h-0.5 bg-gradient-to-r from-[#D4AF37] via-[#F4C430] to-[#D4AF37] rounded-b-xl" />
+            </div>
           </div>
         </div>
 
         {/* Photo Gallery URL Editor - Edit mode only */}
         {isEditMode && (
-          <div className="mt-2 sm:mt-3 relative flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-700 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 border border-[#E8DFC4] dark:border-slate-600 shadow-sm">
-            <div className="flex items-center gap-2 w-full xs:w-auto">
+          <div className="mt-2 sm:mt-3 relative flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-gradient-to-r from-[#FFFEF8] to-[#FFF9E6] dark:from-slate-800 dark:to-slate-700 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 border border-[#E8DFC4] dark:border-slate-600 shadow-sm">
+            <div className="flex items-center gap-2 w-full sm:flex-1">
               <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center shadow-sm">
                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1">
                 <label className="block text-[9px] sm:text-[10px] uppercase tracking-wider text-[#998866] dark:text-slate-400 font-semibold mb-0.5">
                   {getText('Photo Gallery Link', 'फोटो गैलरी लिंक', 'फोटो गॅलरी लिंक')}
                 </label>
@@ -449,7 +598,7 @@ export default function BiodataBuilder() {
               </div>
             </div>
             {data.photoGalleryUrl && (
-              <label className="flex items-center gap-1.5 cursor-pointer ml-9 xs:ml-0">
+              <label className="flex items-center gap-1.5 cursor-pointer ml-9 sm:ml-0 flex-shrink-0">
                 <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${data.showPhotoGalleryQR ? 'bg-[#D4AF37]' : 'bg-gray-300 dark:bg-slate-600'}`}>
                   <input
                     type="checkbox"
@@ -493,23 +642,18 @@ export default function BiodataBuilder() {
             />
 
             <div className="biodata-inner-content relative z-10">
-              {/* Editable Header */}
+              {/* Editable Header with God Symbol */}
               <div className="text-center pt-2">
-                <div className="flex justify-center mb-2">
-                  <svg width="40" height="40" viewBox="0 0 100 100" className="text-[var(--theme-primary)]">
-                    <circle cx="50" cy="35" r="15" fill="currentColor" opacity="0.9" />
-                    <ellipse cx="50" cy="72" rx="20" ry="25" fill="currentColor" opacity="0.8" />
-                    <path d="M30 30 Q50 5 70 30" stroke="currentColor" strokeWidth="3" fill="none" />
-                    <circle cx="35" cy="20" r="4" fill="currentColor" />
-                    <circle cx="65" cy="20" r="4" fill="currentColor" />
-                    <path d="M25 60 Q15 50 20 40" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                    <path d="M75 60 Q85 50 80 40" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                    <ellipse cx="20" cy="38" rx="4" ry="6" fill="currentColor" opacity="0.6" />
-                    <ellipse cx="80" cy="38" rx="4" ry="6" fill="currentColor" opacity="0.6" />
-                    <path d="M70 55 Q90 55 95 35 Q90 30 85 35 Q87 45 70 50" fill="currentColor" opacity="0.7" />
-                    <circle cx="92" cy="32" r="2" fill="currentColor" />
-                  </svg>
-                </div>
+                {/* God Symbol - using Header component's logic */}
+                {(data.godSymbolId || 'krishna') !== 'none' && (
+                  <div className="flex justify-center mb-2">
+                    <EditModeGodSymbol
+                      symbolId={data.godSymbolId || 'krishna'}
+                      customSymbol={data.customGodSymbol}
+                      primaryColor={currentTheme.colors.primary}
+                    />
+                  </div>
+                )}
                 <TransliterateInput
                   type="text"
                   value={isMarathi ? data.nameMarathi : data.name}
@@ -561,7 +705,7 @@ export default function BiodataBuilder() {
                   {data.sections.length === 0 && (
                     <button
                       onClick={() => handleAddSection()}
-                      className="w-full py-8 border-2 border-dashed border-amber-300 rounded-xl hover:border-amber-400 hover:bg-amber-50/50 transition-colors flex flex-col items-center justify-center gap-2 text-amber-600"
+                      className="biodata-btn w-full py-8 border-2 border-dashed border-amber-300 rounded-xl hover:border-amber-400 hover:bg-amber-50/50 transition-colors flex flex-col items-center justify-center gap-2 text-amber-600"
                     >
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -575,7 +719,7 @@ export default function BiodataBuilder() {
                   {data.sections.length > 0 && (
                     <button
                       onClick={() => handleAddSection()}
-                      className="w-full mt-4 py-3 border-2 border-dashed border-amber-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/30 transition-colors flex items-center justify-center gap-2 text-amber-500 hover:text-amber-600"
+                      className="biodata-btn w-full mt-4 py-3 border-2 border-dashed border-amber-200 rounded-lg hover:border-amber-300 hover:bg-amber-50/30 transition-colors flex items-center justify-center gap-2 text-amber-500 hover:text-amber-600"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -588,7 +732,12 @@ export default function BiodataBuilder() {
                 </div>
               </div>
 
-              <Footer language={language} />
+              <Footer
+                  language={language}
+                  showThankYou={data.showThankYou !== false}
+                  isEditMode={true}
+                  onToggleThankYou={handleToggleThankYou}
+                />
             </div>
           </div>
         </div>

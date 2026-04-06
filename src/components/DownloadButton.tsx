@@ -2,6 +2,8 @@
 
 import React, { useState, useCallback } from 'react';
 import { Language } from '@/lib/translations';
+import { DynamicBiodataData } from '@/lib/types';
+import { validateBiodataContent, getValidationMessage } from '@/lib/biodataValidation';
 import { useAlert } from './AlertDialog';
 import PostDownloadModal, { usePostDownloadModal } from './PostDownloadModal';
 
@@ -11,6 +13,7 @@ interface DownloadButtonProps {
   fileName?: string;
   pageCount?: number;
   onCreateAnother?: () => void;
+  biodataData?: DynamicBiodataData;
 }
 
 // A4 dimensions
@@ -37,11 +40,14 @@ export default function DownloadButton({
   fileName = 'Marriage_Biodata',
   pageCount = 1,
   onCreateAnother,
+  biodataData,
 }: DownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [progress, setProgress] = useState<string>('');
-  const { showSuccess, showError } = useAlert();
+  const [showValidationWarning, setShowValidationWarning] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'pdf' | 'image' | null>(null);
+  const { showSuccess, showError, showConfirm } = useAlert();
   const { isOpen: isPostDownloadOpen, showModal: showPostDownload, closeModal: closePostDownload } = usePostDownloadModal();
 
   const isHindi = language === 'hi';
@@ -52,6 +58,42 @@ export default function DownloadButton({
     if (isMarathi) return mr;
     return en;
   };
+
+  // Check validation before proceeding with download
+  const checkValidationAndProceed = useCallback(async (action: 'pdf' | 'image') => {
+    if (biodataData) {
+      const validation = validateBiodataContent(biodataData, language);
+
+      if (!validation.isComplete) {
+        const validationMsg = getValidationMessage(validation, language);
+
+        const proceedAnyway = await showConfirm(
+          validationMsg.message + '\n\n' + getText(
+            'Do you want to download anyway?',
+            'क्या आप फिर भी डाउनलोड करना चाहते हैं?',
+            'तुम्हाला तरीही डाउनलोड करायचे आहे का?'
+          ),
+          {
+            title: validationMsg.title,
+            confirmText: getText('Download Anyway', 'फिर भी डाउनलोड करें', 'तरीही डाउनलोड करा'),
+            cancelText: getText('Go Back & Edit', 'वापस जाएं', 'परत जा'),
+          }
+        );
+
+        if (!proceedAnyway) {
+          setShowOptions(false);
+          return;
+        }
+      }
+    }
+
+    // Proceed with download
+    if (action === 'pdf') {
+      handleDownloadPDF();
+    } else {
+      handleDownloadImage();
+    }
+  }, [biodataData, language, showConfirm]);
 
   const handleDownloadPDF = useCallback(async () => {
     if (!targetRef.current) return;
@@ -338,7 +380,7 @@ export default function DownloadButton({
           <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[180px]">
             {/* PDF */}
             <button
-              onClick={handleDownloadPDF}
+              onClick={() => checkValidationAndProceed('pdf')}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
@@ -356,7 +398,7 @@ export default function DownloadButton({
 
             {/* Image */}
             <button
-              onClick={handleDownloadImage}
+              onClick={() => checkValidationAndProceed('image')}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">

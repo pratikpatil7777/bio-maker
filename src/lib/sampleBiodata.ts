@@ -13,6 +13,8 @@ export const sampleBiodataPratik: DynamicBiodataData = {
   showPhotoGalleryQR: true,
   themeId: "gold",
   borderId: "classic",
+  godSymbolId: "krishna",
+  showThankYou: true,
   sections: [
     // Personal Details
     {

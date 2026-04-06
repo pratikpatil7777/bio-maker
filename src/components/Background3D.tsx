@@ -44,7 +44,7 @@ function DarkModeStars() {
   return (
     <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
-        size={0.1}
+        size={0.04}
         color="#D4AF37"
         transparent
         opacity={0.7}
@@ -160,10 +160,10 @@ function DarkModeGoldenDust() {
   return (
     <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
-        size={0.07}
+        size={0.03}
         color="#B8860B"
         transparent
-        opacity={0.5}
+        opacity={0.4}
         sizeAttenuation
       />
     </points>

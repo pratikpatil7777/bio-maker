@@ -20,6 +20,8 @@ export const templateBiodata: DynamicBiodataData = {
   showPhotoGalleryQR: false,
   themeId: 'gold',
   borderId: 'classic',
+  godSymbolId: 'krishna',
+  showThankYou: true,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 

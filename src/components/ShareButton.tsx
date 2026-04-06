@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Language } from '@/lib/translations';
 import { DynamicBiodataData } from '@/lib/types';
 import { encodeShareLink } from '@/lib/shareLink';
 import { createRedactedBiodata } from '@/lib/privacyUtils';
+import { validateBiodataContent, getValidationMessage } from '@/lib/biodataValidation';
 import { useAlert } from './AlertDialog';
 import PrivacyConsentModal from './PrivacyConsentModal';
 import { AnalyticsEvents } from '@/lib/analytics';
@@ -25,7 +26,7 @@ export default function ShareButton({
   const [isSharing, setIsSharing] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const { showSuccess, showError } = useAlert();
+  const { showSuccess, showError, showConfirm } = useAlert();
 
   const isHindi = language === 'hi';
   const isMarathi = language === 'mr';
@@ -35,6 +36,38 @@ export default function ShareButton({
     if (isMarathi) return mr;
     return en;
   };
+
+  // Check validation before proceeding with share
+  const checkValidationAndProceed = useCallback(async (action: () => Promise<void> | void) => {
+    if (biodataData) {
+      const validation = validateBiodataContent(biodataData, language);
+
+      if (!validation.isComplete) {
+        const validationMsg = getValidationMessage(validation, language);
+
+        const proceedAnyway = await showConfirm(
+          validationMsg.message + '\n\n' + getText(
+            'Do you want to share anyway?',
+            'क्या आप फिर भी शेयर करना चाहते हैं?',
+            'तुम्हाला तरीही शेअर करायचे आहे का?'
+          ),
+          {
+            title: validationMsg.title,
+            confirmText: getText('Share Anyway', 'फिर भी शेयर करें', 'तरीही शेअर करा'),
+            cancelText: getText('Go Back & Edit', 'वापस जाएं', 'परत जा'),
+          }
+        );
+
+        if (!proceedAnyway) {
+          setShowOptions(false);
+          return;
+        }
+      }
+    }
+
+    // Proceed with action
+    action();
+  }, [biodataData, language, showConfirm]);
 
   const generateImageBlob = async (): Promise<Blob | null> => {
     if (!targetRef.current) return null;
@@ -246,7 +279,7 @@ export default function ShareButton({
           <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[200px]">
             {/* Share via Web Share API */}
             <button
-              onClick={handleWebShare}
+              onClick={() => checkValidationAndProceed(handleWebShare)}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
@@ -259,7 +292,7 @@ export default function ShareButton({
 
             {/* WhatsApp */}
             <button
-              onClick={handleWhatsAppShare}
+              onClick={() => checkValidationAndProceed(handleWhatsAppShare)}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
             >
               <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center">
@@ -286,7 +319,7 @@ export default function ShareButton({
             {/* Shareable Link with Privacy Options */}
             {biodataData && (
               <button
-                onClick={handleShareableLink}
+                onClick={() => checkValidationAndProceed(handleShareableLink)}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
               >
                 <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">

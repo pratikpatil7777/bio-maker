@@ -25,8 +25,7 @@ interface EmptyStateProps {
   onThemeChange: (theme: Theme) => void;
   currentBorder: BorderDesign;
   onBorderChange: (border: BorderDesign) => void;
-  onStartBuilding: () => void;
-  onUseTemplate: () => void;
+  onCreateBiodata: () => void;
 }
 
 // Premium SVG Icons
@@ -196,8 +195,7 @@ export default function EmptyState({
   onThemeChange,
   currentBorder,
   onBorderChange,
-  onStartBuilding,
-  onUseTemplate,
+  onCreateBiodata,
 }: EmptyStateProps) {
   const isMarathi = language === 'mr';
   const isHindi = language === 'hi';
@@ -210,12 +208,10 @@ export default function EmptyState({
 
   // Scroll-based animations
   const heroRef = useRef<HTMLElement>(null);
-  const featuresRef = useRef<HTMLElement>(null);
   const stepsRef = useRef<HTMLElement>(null);
   const journeyRef = useRef<HTMLElement>(null);
 
   const heroInView = useInView(heroRef, { once: true });
-  const featuresInView = useInView(featuresRef, { once: true, margin: '-100px' });
   const stepsInView = useInView(stepsRef, { once: true, margin: '-100px' });
   const journeyInView = useInView(journeyRef, { once: true, margin: '-100px' });
 
@@ -276,7 +272,7 @@ export default function EmptyState({
   const floatVariants = {
     initial: { y: 0 },
     animate: {
-      y: [-8, 8, -8],
+      y: [-3, 3, -3],
       transition: { duration: 6, repeat: Infinity, ease: 'easeInOut' as const }
     }
   };
@@ -295,7 +291,7 @@ export default function EmptyState({
 
 
   return (
-    <main className="min-h-screen transition-colors duration-500 relative overflow-hidden">
+    <main className="min-h-screen transition-colors duration-500 relative overflow-x-hidden">
       {/* Film Grain Overlay - Premium texture */}
       <FilmGrain isDark={isDark} />
 
@@ -394,7 +390,7 @@ export default function EmptyState({
         {/* Hero Section - Cinematic Typography */}
         <motion.section
           ref={heroRef}
-          className="min-h-[80vh] flex items-center py-6 md:py-12 px-6 relative"
+          className="min-h-screen flex items-center py-6 md:py-12 px-6 relative"
           style={{ opacity: heroOpacity, scale: heroScale }}
         >
           <div className="max-w-6xl mx-auto w-full">
@@ -412,13 +408,13 @@ export default function EmptyState({
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   {/* First Line */}
-                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.15] mb-1">
+                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.3] mb-1">
                     {heroLine1.split(' ').map((word, i) => (
                       <AnimatedWord key={i} word={word} index={i} isDark={isDark} isHero />
                     ))}
                   </div>
                   {/* Second Line - Slightly Larger for Impact */}
-                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-bold leading-[1.15]">
+                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-bold leading-[1.3] pb-1">
                     {heroLine2.split(' ').map((word, i) => (
                       <AnimatedWord key={i} word={word} index={i + heroLine1.split(' ').length} isDark={isDark} isHero />
                     ))}
@@ -507,50 +503,49 @@ export default function EmptyState({
 
                 {/* CTA Buttons */}
                 <motion.div
-                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
+                  className="flex items-center justify-center lg:justify-start"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.8 }}
                 >
-                  <motion.button
-                    onClick={onStartBuilding}
-                    className="w-full sm:w-auto group relative px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-lg rounded-2xl shadow-xl transition-all cursor-pointer overflow-hidden"
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    {...glowAnimation}
-                  >
-                    {/* Shimmer effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                      initial={{ x: '-100%' }}
-                      animate={{ x: '200%' }}
-                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                    />
-                    <span className="relative flex items-center justify-center gap-3">
-                      <motion.span
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                      >
-                        ✨
-                      </motion.span>
-                      {getText('Begin Your Journey', 'अपनी यात्रा शुरू करें', 'तुमचा प्रवास सुरू करा')}
-                    </span>
-                  </motion.button>
+                  {/* Single Primary CTA - Clean & Premium */}
                   <motion.button
                     onClick={() => {
                       onThemeChange(currentPreviewTheme);
                       onBorderChange(currentPreviewBorder);
-                      onUseTemplate();
+                      onCreateBiodata();
                     }}
-                    className={`w-full sm:w-auto px-8 py-4 font-semibold rounded-2xl border-2 transition-all cursor-pointer backdrop-blur-sm ${
-                      isDark
-                        ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10 bg-slate-900/50'
-                        : 'border-[#800020]/50 text-[#800020] hover:bg-[#800020]/5 bg-white/50'
-                    }`}
-                    whileHover={{ scale: 1.02 }}
+                    className="group relative px-12 py-5 text-white font-bold text-lg rounded-2xl cursor-pointer overflow-hidden"
+                    style={{
+                      background: isDark
+                        ? 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)'
+                        : 'linear-gradient(135deg, #b45309 0%, #9a3412 100%)',
+                      boxShadow: isDark
+                        ? '0 4px 24px rgba(245, 158, 11, 0.35), 0 8px 32px rgba(0, 0, 0, 0.3)'
+                        : '0 4px 24px rgba(180, 83, 9, 0.25), 0 8px 32px rgba(0, 0, 0, 0.1)',
+                    }}
+                    whileHover={{
+                      scale: 1.03,
+                      boxShadow: isDark
+                        ? '0 6px 32px rgba(245, 158, 11, 0.5), 0 12px 40px rgba(0, 0, 0, 0.4)'
+                        : '0 6px 32px rgba(180, 83, 9, 0.4), 0 12px 40px rgba(0, 0, 0, 0.15)'
+                    }}
                     whileTap={{ scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   >
-                    {getText('Use This Template', 'यह टेम्पलेट उपयोग करें', 'हा टेम्पलेट वापरा')}
+                    {/* Subtle shine effect */}
+                    <motion.div
+                      className="absolute inset-0"
+                      style={{
+                        background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
+                      }}
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '200%' }}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
+                    />
+                    <span className="relative">
+                      {getText('Create My Biodata', 'मेरा बायोडाटा बनाएं', 'माझा बायोडाटा बनवा')}
+                    </span>
                   </motion.button>
                 </motion.div>
 
@@ -573,14 +568,14 @@ export default function EmptyState({
 
               {/* Right: Dynamic Live Preview */}
               <motion.div
-                className="order-1 lg:order-2 flex justify-center"
+                className="order-1 lg:order-2 flex justify-center pb-16 lg:pb-0"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 <ParallaxElement speed={-0.2}>
                   <motion.div
-                    className="relative"
+                    className="relative mb-6"
                     variants={floatVariants}
                     initial="initial"
                     animate="animate"
@@ -719,15 +714,38 @@ export default function EmptyState({
               </motion.div>
             </div>
 
+            {/* Scroll Indicator */}
+            <motion.div
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2, duration: 0.6 }}
+            >
+              <span className={`text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                {getText('Scroll to explore', 'स्क्रॉल करें', 'स्क्रोल करा')}
+              </span>
+              <motion.div
+                className={`w-6 h-10 rounded-full border-2 ${isDark ? 'border-amber-500/50' : 'border-[#800020]/30'} flex justify-center pt-2`}
+                animate={{ y: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <motion.div
+                  className={`w-1.5 h-3 rounded-full ${isDark ? 'bg-amber-500' : 'bg-[#800020]'}`}
+                  animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+              </motion.div>
+            </motion.div>
+
           </div>
         </motion.section>
 
-        {/* Why Choose Us Section - Ethical Social Proof */}
+        {/* Why Choose Us Section - Merged Features & Trust */}
         <motion.section
           ref={journeyRef}
-          className="py-16 px-6 relative overflow-hidden"
+          className="min-h-screen flex items-center py-16 px-6 relative overflow-hidden"
         >
-          <div className="max-w-5xl mx-auto relative z-10">
+          <div className="max-w-6xl mx-auto relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={journeyInView ? { opacity: 1, y: 0 } : {}}
@@ -739,205 +757,26 @@ export default function EmptyState({
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {getText(
-                  'Why Families Choose Us',
-                  'परिवार हमें क्यों चुनते हैं',
-                  'कुटुंबे आम्हाला का निवडतात'
+                  'Everything You Need',
+                  'वह सब कुछ जो आपको चाहिए',
+                  'तुम्हाला हवे असलेले सर्वकाही'
                 )}
               </h2>
               <p className={`text-base max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 {getText(
-                  'Built with love for Indian families. Designed to honor traditions while embracing modern convenience.',
-                  'भारतीय परिवारों के लिए प्यार से बनाया गया। परंपराओं का सम्मान करते हुए आधुनिक सुविधा।',
-                  'भारतीय कुटुंबांसाठी प्रेमाने बनवले. परंपरांचा सन्मान करताना आधुनिक सोय.'
+                  'Create professional biodatas with beautiful themes, traditional borders, and multi-language support.',
+                  'सुंदर थीम, पारंपरिक बॉर्डर और बहुभाषी सपोर्ट के साथ प्रोफेशनल बायोडाटा बनाएं।',
+                  'सुंदर थीम, पारंपारिक बॉर्डर आणि बहुभाषिक सपोर्टसह प्रोफेशनल बायोडाटा बनवा.'
                 )}
               </p>
             </motion.div>
 
-            {/* Trust Indicators Grid - Real Features, Not Fake Metrics */}
+            {/* Feature Cards Grid */}
             <motion.div
-              className="grid grid-cols-2 md:grid-cols-4 gap-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={journeyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              {[
-                {
-                  icon: (
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                  ),
-                  value: '100%',
-                  label: getText('Private & Secure', 'निजी और सुरक्षित', 'खाजगी आणि सुरक्षित'),
-                  sublabel: getText('Data stays on your device', 'डेटा आपके डिवाइस पर रहता है', 'डेटा तुमच्या डिव्हाइसवर राहतो')
-                },
-                {
-                  icon: (
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
-                    </svg>
-                  ),
-                  value: `${themes.length}+`,
-                  label: getText('Premium Themes', 'प्रीमियम थीम', 'प्रीमियम थीम'),
-                  sublabel: getText('Traditional & modern styles', 'पारंपरिक और आधुनिक', 'पारंपारिक आणि आधुनिक')
-                },
-                {
-                  icon: (
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-                    </svg>
-                  ),
-                  value: '₹0',
-                  label: getText('Forever Free', 'हमेशा मुफ्त', 'कायम मोफत'),
-                  sublabel: getText('No hidden charges', 'कोई छुपे शुल्क नहीं', 'कोणतेही छुपे शुल्क नाही')
-                },
-                {
-                  icon: (
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
-                    </svg>
-                  ),
-                  value: '3',
-                  label: getText('Languages', 'भाषाएं', 'भाषा'),
-                  sublabel: getText('English, Hindi, Marathi', 'अंग्रेजी, हिंदी, मराठी', 'इंग्रजी, हिंदी, मराठी')
-                },
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  className={`relative p-6 rounded-2xl text-center ${
-                    isDark
-                      ? 'bg-slate-800/40 border border-slate-700/50'
-                      : 'bg-white/60 border border-amber-100/50 shadow-sm'
-                  }`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={journeyInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.4 + i * 0.1 }}
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                >
-                  <div className={`flex justify-center mb-3 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}>
-                    {stat.icon}
-                  </div>
-                  <div
-                    className={`text-2xl md:text-3xl font-bold mb-1 ${isDark ? 'text-amber-400' : 'text-[#800020]'}`}
-                    style={{ fontFamily: "'Playfair Display', serif" }}
-                  >
-                    {stat.value}
-                  </div>
-                  <div className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {stat.label}
-                  </div>
-                  <div className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                    {stat.sublabel}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Trust Badges Row */}
-            <motion.div
-              className="mt-10 flex flex-wrap justify-center gap-4"
-              initial={{ opacity: 0 }}
-              animate={journeyInView ? { opacity: 1 } : {}}
-              transition={{ delay: 0.8 }}
-            >
-              {[
-                {
-                  icon: (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                    </svg>
-                  ),
-                  text: getText('Made for India', 'भारत के लिए बना', 'भारतासाठी बनवले')
-                },
-                {
-                  icon: (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                  ),
-                  text: getText('Works Offline', 'ऑफलाइन काम करता है', 'ऑफलाइन काम करते')
-                },
-                {
-                  icon: (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
-                    </svg>
-                  ),
-                  text: getText('Print Ready', 'प्रिंट रेडी', 'प्रिंट रेडी')
-                },
-                {
-                  icon: (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                    </svg>
-                  ),
-                  text: getText('Instant Download', 'तुरंत डाउनलोड', 'तात्काळ डाउनलोड')
-                },
-              ].map((badge, i) => (
-                <motion.div
-                  key={i}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${
-                    isDark
-                      ? 'bg-slate-800/60 text-gray-300 border border-slate-700/50'
-                      : 'bg-white/80 text-gray-700 border border-amber-200/50 shadow-sm'
-                  }`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={journeyInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: 0.9 + i * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <span className={isDark ? 'text-amber-400' : 'text-[#800020]'}>{badge.icon}</span>
-                  <span className="font-medium">{badge.text}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* Features Section */}
-        <motion.section
-          ref={featuresRef}
-          className="py-12 px-6 relative"
-        >
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              animate={featuresInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-            >
-              <motion.div
-                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${
-                  isDark ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-100 text-amber-700'
-                }`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={featuresInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 0.2 }}
-              >
-                {icons.sparkles}
-                <span>{getText('Features', 'विशेषताएं', 'वैशिष्ट्ये')}</span>
-              </motion.div>
-              <h2
-                className={`text-3xl sm:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                {getText('Everything You Need', 'वह सब कुछ जो आपको चाहिए', 'तुम्हाला हवे असलेले सर्वकाही')}
-              </h2>
-              <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                {getText(
-                  'Create professional marriage biodatas with our easy-to-use builder',
-                  'हमारे आसान बिल्डर से प्रोफेशनल बायोडाटा बनाएं',
-                  'आमच्या सोप्या बिल्डरने प्रोफेशनल बायोडाटा बनवा'
-                )}
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
               variants={containerVariants}
               initial="hidden"
-              animate={featuresInView ? 'visible' : 'hidden'}
+              animate={journeyInView ? 'visible' : 'hidden'}
             >
               {[
                 {
@@ -987,59 +826,27 @@ export default function EmptyState({
               ].map((feature, i) => (
                 <motion.div
                   key={i}
-                  className={`group relative p-8 rounded-3xl transition-all duration-300 overflow-hidden ${
+                  className={`group relative p-6 rounded-2xl transition-all duration-300 overflow-hidden ${
                     isDark
                       ? 'bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50'
-                      : 'bg-white/80 backdrop-blur-sm hover:shadow-2xl border border-white/50'
+                      : 'bg-white/80 backdrop-blur-sm hover:shadow-xl border border-white/50'
                   }`}
                   variants={itemVariants}
                   whileHover={{
-                    y: -8,
-                    boxShadow: `0 25px 50px -12px ${feature.glow}`,
+                    y: -4,
+                    boxShadow: `0 20px 40px -12px ${feature.glow}`,
                     transition: { duration: 0.3 }
                   }}
                 >
-                  {/* Animated gradient border */}
-                  <motion.div
-                    className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                    style={{ padding: '2px', borderRadius: '1.5rem' }}
-                    animate={{
-                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  >
-                    <div className={`w-full h-full rounded-3xl ${isDark ? 'bg-slate-800' : 'bg-white'}`} />
-                  </motion.div>
-
-                  {/* Floating particles on hover */}
-                  <div className="absolute inset-0 overflow-hidden rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity">
-                    {[...Array(5)].map((_, j) => (
-                      <motion.div
-                        key={j}
-                        className={`absolute w-1 h-1 rounded-full bg-gradient-to-r ${feature.gradient}`}
-                        initial={{ y: '100%', x: `${20 + j * 15}%`, opacity: 0 }}
-                        animate={{
-                          y: ['100%', '-10%'],
-                          opacity: [0, 1, 0],
-                        }}
-                        transition={{
-                          duration: 2,
-                          delay: j * 0.3,
-                          repeat: Infinity,
-                        }}
-                      />
-                    ))}
-                  </div>
-
                   <div className="relative z-10">
                     <motion.div
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-gradient-to-r ${feature.gradient} text-white shadow-lg`}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-gradient-to-r ${feature.gradient} text-white shadow-lg`}
                       whileHover={{ rotate: 5, scale: 1.1 }}
                       transition={{ type: 'spring' as const, stiffness: 300 }}
                     >
                       {feature.icon}
                     </motion.div>
-                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`text-base font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       {feature.title}
                     </h3>
                     <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -1049,31 +856,81 @@ export default function EmptyState({
                 </motion.div>
               ))}
             </motion.div>
+
+            {/* Trust Badges Row */}
+            <motion.div
+              className="flex flex-wrap justify-center gap-3"
+              initial={{ opacity: 0 }}
+              animate={journeyInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.6 }}
+            >
+              {[
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                  ),
+                  text: getText('100% Private', '100% निजी', '100% खाजगी')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                    </svg>
+                  ),
+                  text: getText('Forever Free', 'हमेशा मुफ्त', 'कायम मोफत')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                  ),
+                  text: getText('Instant Download', 'तुरंत डाउनलोड', 'तात्काळ डाउनलोड')
+                },
+                {
+                  icon: (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                  ),
+                  text: getText('Made for India', 'भारत के लिए', 'भारतासाठी')
+                },
+              ].map((badge, i) => (
+                <motion.div
+                  key={i}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
+                    isDark
+                      ? 'bg-slate-800/60 text-gray-300 border border-slate-700/50'
+                      : 'bg-white/80 text-gray-700 border border-amber-200/50 shadow-sm'
+                  }`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={journeyInView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ delay: 0.7 + i * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <span className={isDark ? 'text-amber-400' : 'text-[#800020]'}>{badge.icon}</span>
+                  <span className="font-medium">{badge.text}</span>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </motion.section>
 
         {/* How It Works Section - Modern Timeline */}
         <motion.section
           ref={stepsRef}
-          className="py-16 px-6 relative"
+          className="min-h-screen flex items-center py-16 px-6 relative"
         >
-          <div className="max-w-6xl mx-auto relative z-10">
+          <div className="max-w-6xl mx-auto relative z-10 w-full">
             <motion.div
               className="text-center mb-12"
               initial={{ opacity: 0, y: 30 }}
               animate={stepsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
             >
-              <motion.span
-                className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-6 ${
-                  isDark ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                }`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={stepsInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 0.2 }}
-              >
-                {getText('Simple Process', 'सरल प्रक्रिया', 'सोपी प्रक्रिया')}
-              </motion.span>
               <h2
                 className={`text-3xl sm:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}
                 style={{ fontFamily: "'Playfair Display', serif" }}
@@ -1196,15 +1053,38 @@ export default function EmptyState({
               transition={{ delay: 0.8 }}
             >
               <motion.button
-                onClick={onStartBuilding}
-                className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all cursor-pointer"
-                whileHover={{ scale: 1.05, y: -2 }}
+                onClick={onCreateBiodata}
+                className="relative px-12 py-5 text-white font-bold text-lg rounded-2xl cursor-pointer overflow-hidden"
+                style={{
+                  background: isDark
+                    ? 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)'
+                    : 'linear-gradient(135deg, #b45309 0%, #9a3412 100%)',
+                  boxShadow: isDark
+                    ? '0 4px 24px rgba(245, 158, 11, 0.35), 0 8px 32px rgba(0, 0, 0, 0.3)'
+                    : '0 4px 24px rgba(180, 83, 9, 0.25), 0 8px 32px rgba(0, 0, 0, 0.1)',
+                }}
+                whileHover={{
+                  scale: 1.03,
+                  boxShadow: isDark
+                    ? '0 6px 32px rgba(245, 158, 11, 0.5), 0 12px 40px rgba(0, 0, 0, 0.4)'
+                    : '0 6px 32px rgba(180, 83, 9, 0.4), 0 12px 40px rgba(0, 0, 0, 0.15)'
+                }}
                 whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
-                {getText('Start Creating Now', 'अभी शुरू करें', 'आता सुरू करा')}
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                {/* Subtle shine effect */}
+                <motion.div
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
+                  }}
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '200%' }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 3, ease: 'easeInOut' }}
+                />
+                <span className="relative">
+                  {getText('Create My Biodata', 'मेरा बायोडाटा बनाएं', 'माझा बायोडाटा बनवा')}
+                </span>
               </motion.button>
             </motion.div>
           </div>
@@ -1212,12 +1092,12 @@ export default function EmptyState({
 
         {/* Why Free Section - Transparency & Trust */}
         <motion.section
-          className="py-16 px-6 relative"
+          className="min-h-screen flex items-center py-16 px-6 relative"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl mx-auto w-full">
             <motion.div
               className={`relative rounded-3xl p-8 md:p-12 overflow-hidden ${
                 isDark

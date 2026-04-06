@@ -110,7 +110,7 @@ export default function PhotoSection({
         {isEditMode && onTogglePhoto && (
           <button
             onClick={onTogglePhoto}
-            className={`absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center shadow-md transition-all duration-200 ${
+            className={`biodata-btn absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center shadow-md transition-all duration-200 ${
               showPhoto
                 ? 'bg-white border-2 border-amber-400 text-amber-500 hover:bg-amber-50'
                 : 'bg-gray-200 border-2 border-gray-400 text-gray-500 hover:bg-gray-300'

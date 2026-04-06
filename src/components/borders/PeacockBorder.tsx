@@ -8,11 +8,11 @@ interface PeacockBorderProps {
 }
 
 export default function PeacockBorder({ primaryColor, secondaryColor }: PeacockBorderProps) {
-  // Peacock feather component
+  // Peacock feather component - smaller to avoid overlapping content
   const PeacockFeather = ({ flip = false }: { flip?: boolean }) => (
     <svg
       viewBox="0 0 60 100"
-      className="w-14 h-24"
+      className="w-10 h-16"
       style={{ transform: flip ? 'scaleX(-1)' : 'none' }}
     >
       {/* Feather shaft */}
@@ -159,24 +159,24 @@ export default function PeacockBorder({ primaryColor, secondaryColor }: PeacockB
         <ellipse cx="12" cy="24" rx="3" ry="10" fill="none" stroke={primaryColor} strokeWidth="0.5" opacity="0.2" />
       </svg>
 
-      {/* Corner Peacock Feathers */}
+      {/* Corner Peacock Feathers - positioned to stay in corners */}
       {/* Top Left */}
-      <div className="absolute top-0 left-0 -rotate-45 origin-bottom-right translate-x-2 -translate-y-2">
+      <div className="absolute -top-1 -left-1 -rotate-45 origin-center">
         <PeacockFeather />
       </div>
 
       {/* Top Right */}
-      <div className="absolute top-0 right-0 rotate-45 origin-bottom-left -translate-x-2 -translate-y-2">
+      <div className="absolute -top-1 -right-1 rotate-45 origin-center">
         <PeacockFeather flip />
       </div>
 
       {/* Bottom Left */}
-      <div className="absolute bottom-0 left-0 rotate-[225deg] origin-top-right translate-x-2 translate-y-2">
+      <div className="absolute -bottom-1 -left-1 rotate-[225deg] origin-center">
         <PeacockFeather />
       </div>
 
       {/* Bottom Right */}
-      <div className="absolute bottom-0 right-0 rotate-[135deg] origin-top-left -translate-x-2 translate-y-2">
+      <div className="absolute -bottom-1 -right-1 rotate-[135deg] origin-center">
         <PeacockFeather flip />
       </div>
 

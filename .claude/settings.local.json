@@ -25,7 +25,16 @@
       "WebFetch(domain:dribbble.com)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "WebFetch(domain:www.vantajs.com)"
+      "WebFetch(domain:www.vantajs.com)",
+      "WebFetch(domain:tld-list.com)",
+      "WebFetch(domain:cfdomainpricing.com)",
+      "WebFetch(domain:www.namecheap.com)",
+      "WebFetch(domain:lovable.dev)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:prismic.io)",
+      "Bash(more:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command \"Get-Content src/components/SettingsMenu.tsx -TotalCount 30\")"
     ],
     "deny": [],
     "ask": []
