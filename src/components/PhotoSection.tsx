@@ -29,7 +29,7 @@ export default function PhotoSection({
   onTogglePhoto,
 }: PhotoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showWarning, showSuccess } = useAlert();
+  const { showWarning, toast } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>('');
@@ -75,14 +75,11 @@ export default function PhotoSection({
     }
   };
 
-  const handleCropComplete = async (croppedImage: string) => {
+  const handleCropComplete = (croppedImage: string) => {
     setIsLoading(true);
     onPhotoChange(croppedImage);
     setIsLoading(false);
-    await showSuccess(
-      getText('Photo uploaded successfully!', 'फोटो सफलतापूर्वक अपलोड हो गई!', 'फोटो यशस्वीरित्या अपलोड झाला!'),
-      getText('Success', 'सफल', 'यशस्वी')
-    );
+    toast.success(getText('Photo uploaded!', 'फोटो अपलोड हो गई!', 'फोटो अपलोड झाला!'));
   };
 
   // 4:5 aspect ratio dimensions (increased size)

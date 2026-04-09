@@ -36,7 +36,8 @@ export default function EditActionsSidebar({
   return (
     <>
       {/* Desktop Sidebar - Right side of template */}
-      <div className="no-print hidden lg:flex fixed right-4 top-1/2 -translate-y-1/2 z-50 flex-col gap-2">
+      {/* Using z-[9999] to ensure it stays above scaled content */}
+      <div className="no-print hidden lg:flex fixed right-4 top-1/2 -translate-y-1/2 z-[9999] flex-col gap-2">
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-1.5 flex flex-col gap-1">
           {/* Undo Button */}
           <button
@@ -134,80 +135,81 @@ export default function EditActionsSidebar({
         </div>
       </div>
 
-      {/* Mobile/Tablet Bottom Bar */}
-      <div className="no-print lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg border border-gray-200 dark:border-slate-700 px-2 py-1.5 flex items-center gap-1">
-          {/* Undo Button */}
+      {/* Mobile/Tablet Bottom Bar - Touch-friendly with responsive sizing */}
+      {/* Using z-[9999] to ensure it stays above scaled content */}
+      <div className="no-print lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999]">
+        <div className="bg-white dark:bg-slate-800 rounded-full shadow-lg border border-gray-200 dark:border-slate-700 px-2 xs:px-3 py-1.5 xs:py-2 flex items-center gap-1 xs:gap-2">
+          {/* Undo Button - Responsive touch target */}
           <button
             onClick={onUndo}
             disabled={!canUndo}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+            className={`w-9 h-9 xs:w-11 xs:h-11 flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
               canUndo
-                ? 'text-gray-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600'
+                ? 'text-gray-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 active:bg-amber-100'
                 : 'text-gray-300 dark:text-slate-600'
             }`}
             title={getText('Undo', 'पूर्ववत', 'पूर्ववत')}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
             </svg>
           </button>
 
-          {/* Redo Button */}
+          {/* Redo Button - Responsive touch target */}
           <button
             onClick={onRedo}
             disabled={!canRedo}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+            className={`w-9 h-9 xs:w-11 xs:h-11 flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
               canRedo
-                ? 'text-gray-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600'
+                ? 'text-gray-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 active:bg-amber-100'
                 : 'text-gray-300 dark:text-slate-600'
             }`}
             title={getText('Redo', 'पुनः करें', 'पुन्हा करा')}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
             </svg>
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-gray-200 dark:bg-slate-600" />
+          <div className="w-px h-5 xs:h-7 bg-gray-200 dark:bg-slate-600" />
 
-          {/* Edit/Save Toggle Button */}
+          {/* Edit/Save Toggle Button - Responsive touch target */}
           <button
             onClick={onToggleEditMode}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+            className={`w-9 h-9 xs:w-11 xs:h-11 flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
               isEditMode
-                ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 active:bg-green-200'
+                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 active:bg-amber-200'
             }`}
             title={isEditMode ? getText('Save', 'सहेजें', 'जतन करा') : getText('Edit', 'संपादित करें', 'संपादित करा')}
           >
             {isEditMode ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             )}
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-gray-200 dark:bg-slate-600" />
+          <div className="w-px h-5 xs:h-7 bg-gray-200 dark:bg-slate-600" />
 
-          {/* Reset Button */}
+          {/* Reset Button - Responsive touch target */}
           <button
             onClick={onReset}
             disabled={!hasChanges}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+            className={`w-9 h-9 xs:w-11 xs:h-11 flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
               hasChanges
-                ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100'
                 : 'text-gray-300 dark:text-slate-600'
             }`}
             title={getText('Reset', 'रीसेट', 'रीसेट')}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>

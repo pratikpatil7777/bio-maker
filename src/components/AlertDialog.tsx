@@ -5,6 +5,7 @@ import { Language } from '@/lib/types';
 
 // Types for different alert configurations
 type AlertType = 'info' | 'success' | 'warning' | 'error' | 'confirm';
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface AlertConfig {
   type: AlertType;
@@ -16,6 +17,13 @@ interface AlertConfig {
   onCancel?: () => void;
 }
 
+interface ToastConfig {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
 interface AlertContextType {
   showAlert: (config: AlertConfig) => Promise<boolean>;
   showConfirm: (message: string, options?: { title?: string; confirmText?: string; cancelText?: string }) => Promise<boolean>;
@@ -23,6 +31,13 @@ interface AlertContextType {
   showSuccess: (message: string, title?: string) => Promise<boolean>;
   showWarning: (message: string, title?: string) => Promise<boolean>;
   showError: (message: string, title?: string) => Promise<boolean>;
+  // Toast - auto-dismissing, no clicks needed
+  toast: {
+    success: (message: string, duration?: number) => void;
+    error: (message: string, duration?: number) => void;
+    info: (message: string, duration?: number) => void;
+    warning: (message: string, duration?: number) => void;
+  };
   setLanguage: (lang: Language) => void;
 }
 
@@ -62,8 +77,10 @@ const getDefaultTexts = (lang: Language) => ({
 
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [dialog, setDialog] = useState<DialogState | null>(null);
+  const [toasts, setToasts] = useState<ToastConfig[]>([]);
   const [language, setLanguageState] = useState<Language>('en');
   const dialogRef = useRef<HTMLDivElement>(null);
+  const toastIdRef = useRef(0);
 
   // Memoized localized texts
   const texts = getDefaultTexts(language);
@@ -131,6 +148,28 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang);
   }, []);
 
+  // Toast functions - auto-dismissing notifications
+  const addToast = useCallback((type: ToastType, message: string, duration = 3000) => {
+    const id = `toast-${++toastIdRef.current}`;
+    setToasts(prev => [...prev, { id, type, message, duration }]);
+
+    // Auto-remove after duration
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, duration);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const toast = {
+    success: (message: string, duration?: number) => addToast('success', message, duration),
+    error: (message: string, duration?: number) => addToast('error', message, duration),
+    info: (message: string, duration?: number) => addToast('info', message, duration),
+    warning: (message: string, duration?: number) => addToast('warning', message, duration),
+  };
+
   const handleClose = (result: boolean) => {
     if (dialog) {
       dialog.resolve(result);
@@ -141,8 +180,87 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AlertContext.Provider value={{ showAlert, showConfirm, showInfo, showSuccess, showWarning, showError, setLanguage }}>
+    <AlertContext.Provider value={{ showAlert, showConfirm, showInfo, showSuccess, showWarning, showError, toast, setLanguage }}>
       {children}
+
+      {/* Toast Container - Top center, auto-dismiss */}
+      {/* Uses softer, more sophisticated colors matching the app's premium aesthetic */}
+      {toasts.length > 0 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] flex flex-col gap-2 pointer-events-none">
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className="pointer-events-auto animate-slide-down rounded-xl shadow-xl backdrop-blur-md flex items-center gap-3 min-w-[200px] max-w-[90vw] border"
+              style={{
+                // Premium toast styling with softer colors
+                ...(t.type === 'success' && {
+                  background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.95) 0%, rgba(184, 134, 11, 0.95) 100%)',
+                  borderColor: 'rgba(212, 175, 55, 0.3)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 10px 40px rgba(212, 175, 55, 0.3), 0 4px 12px rgba(0,0,0,0.1)',
+                }),
+                ...(t.type === 'error' && {
+                  background: 'linear-gradient(135deg, rgba(185, 28, 28, 0.95) 0%, rgba(153, 27, 27, 0.95) 100%)',
+                  borderColor: 'rgba(185, 28, 28, 0.3)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 10px 40px rgba(185, 28, 28, 0.2), 0 4px 12px rgba(0,0,0,0.1)',
+                }),
+                ...(t.type === 'info' && {
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)',
+                  borderColor: 'rgba(59, 130, 246, 0.3)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 10px 40px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(0,0,0,0.1)',
+                }),
+                ...(t.type === 'warning' && {
+                  background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.95) 0%, rgba(180, 83, 9, 0.95) 100%)',
+                  borderColor: 'rgba(217, 119, 6, 0.3)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 10px 40px rgba(217, 119, 6, 0.2), 0 4px 12px rgba(0,0,0,0.1)',
+                }),
+                padding: '12px 16px',
+              }}
+            >
+              {/* Icon with subtle background */}
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(255,255,255,0.2)' }}
+              >
+                {t.type === 'success' && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {t.type === 'error' && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                {t.type === 'info' && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                {t.type === 'warning' && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+              </div>
+              {/* Message */}
+              <span className="text-sm font-medium">{t.message}</span>
+              {/* Close button */}
+              <button
+                onClick={() => removeToast(t.id)}
+                className="ml-auto p-1.5 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Dialog Overlay */}
       {dialog && (

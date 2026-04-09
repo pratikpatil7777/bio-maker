@@ -228,6 +228,12 @@
 
 @theme inline {
   /* ===========================================
+     CUSTOM BREAKPOINTS
+     xs: 400px - for very small screens like iPhone SE
+     =========================================== */
+  --breakpoint-xs: 400px;
+
+  /* ===========================================
      DESIGN SYSTEM COLORS
      Use: bg-ds-bg, text-ds-text-primary, etc.
      =========================================== */
@@ -624,7 +630,8 @@ h1, h2, h3, h4, h5, h6 {
   animation: subtleGlow 3s ease-in-out infinite;
 }
 
-/* Biodata container - Fixed A4 dimensions (scrollable on mobile) */
+/* Biodata container - Fixed A4 dimensions for export quality */
+/* On mobile, we use CSS transform to scale it to fit the screen */
 .biodata-container {
   width: 210mm;
   min-height: 297mm;
@@ -632,6 +639,89 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   box-sizing: border-box;
   /* Content can flow beyond min-height, border wrapper handles visual containment */
+}
+
+/* Biodata scale wrapper - Scales the A4 container to fit mobile screens */
+/* IMPORTANT: We use a wrapper approach that doesn't break position:fixed */
+.biodata-scale-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+  /* Padding ensures content doesn't touch screen edges */
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+/* The actual scaled content container */
+.biodata-scale-content {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Mobile scaling - scale down A4 to fit screen */
+@media (max-width: 850px) {
+  .biodata-scale-content {
+    /* Calculate scale to fit screen width with padding */
+    /* 793px = 210mm (A4 width), leave 8px padding on each side */
+    --biodata-scale: calc((100vw - 16px) / 793px);
+    transform: scale(var(--biodata-scale));
+    transform-origin: top center;
+    /* Compensate for the layout box being larger than visual size */
+    /* This adjusts the height so the wrapper doesn't have excess space */
+    margin-bottom: calc((var(--biodata-scale) - 1) * 100%);
+  }
+
+  .biodata-scale-wrapper {
+    padding: 0 8px;
+  }
+}
+
+/* Very small screens - iPhone SE, Galaxy S8, Z Fold folded (< 380px) */
+@media (max-width: 380px) {
+  .biodata-scale-content {
+    --biodata-scale: calc((100vw - 8px) / 793px);
+  }
+
+  .biodata-scale-wrapper {
+    padding: 0 4px;
+  }
+}
+
+/* Small phones (380px - 420px) - iPhone 12 Pro, most Android phones */
+@media (min-width: 381px) and (max-width: 420px) {
+  .biodata-scale-content {
+    --biodata-scale: calc((100vw - 12px) / 793px);
+  }
+
+  .biodata-scale-wrapper {
+    padding: 0 6px;
+  }
+}
+
+/* Medium phones and small tablets (421px - 850px) */
+@media (min-width: 421px) and (max-width: 850px) {
+  .biodata-scale-content {
+    --biodata-scale: calc((100vw - 24px) / 793px);
+  }
+
+  .biodata-scale-wrapper {
+    padding: 0 12px;
+  }
+}
+
+/* Desktop - no scaling needed */
+@media (min-width: 851px) {
+  .biodata-scale-content {
+    transform: none;
+    margin-bottom: 0;
+  }
+
+  .biodata-scale-wrapper {
+    padding: 0;
+  }
 }
 
 /* Mobile toolbar xs breakpoint helper (400px+) */
@@ -669,6 +759,109 @@ h1, h2, h3, h4, h5, h6 {
   min-height: calc(297mm - 20px);
   box-sizing: border-box;
   margin: 0;
+}
+
+/* ============================================
+   FIXED POSITION ELEMENTS
+   Ensure these stay fixed on mobile regardless of transforms
+   ============================================ */
+
+/* Critical: Fixed elements must stay fixed */
+.fixed-bottom-bar,
+.fixed-fab {
+  position: fixed !important;
+  /* Ensure proper stacking */
+  z-index: 9999 !important;
+}
+
+/* The mobile bottom action bar */
+.no-print.lg\:hidden.fixed {
+  /* Ensure it stays above everything */
+  z-index: 9999;
+}
+
+/* ============================================
+   RESPONSIVE TOUCH TARGETS & MOBILE UI
+   Ensures 44px minimum touch targets on mobile
+   ============================================ */
+
+/* Mobile-friendly button sizes */
+@media (max-width: 640px) {
+  /* Toolbar buttons - minimum 44px touch target */
+  .toolbar-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* Larger touch targets for action buttons - responsive */
+  .touch-target {
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  @media (min-width: 400px) {
+    .touch-target {
+      min-width: 36px;
+      min-height: 36px;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .touch-target {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+}
+
+/* ============================================
+   RESPONSIVE DROPDOWN POSITIONING
+   Prevents dropdowns from going off-screen
+   ============================================ */
+
+/* Mobile dropdown positioning */
+@media (max-width: 640px) {
+  .dropdown-menu {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 16px);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .dropdown-menu-right {
+    left: auto !important;
+    right: 8px !important;
+    transform: none;
+  }
+
+  .dropdown-menu-left {
+    left: 8px !important;
+    right: auto !important;
+    transform: none;
+  }
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   Better readability on mobile devices
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Slightly larger body text on mobile for readability */
+  body {
+    font-size: 14px;
+  }
+
+  /* Ensure Devanagari text is readable */
+  .marathi-text,
+  .marathi-header {
+    font-size: 1em;
+    line-height: 1.7;
+  }
 }
 
 /* Page break indicator - visual guide showing where page ends */
@@ -1023,6 +1216,22 @@ select,
 
 .animate-fade-in {
   animation: dialog-fade-in 0.2s ease-out;
+}
+
+/* Toast slide-down animation */
+@keyframes toast-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: toast-slide-down 0.3s ease-out;
 }
 
 .animate-scale-in {

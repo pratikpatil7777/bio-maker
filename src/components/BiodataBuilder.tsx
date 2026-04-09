@@ -89,7 +89,7 @@ export default function BiodataBuilder() {
   const biodataRef = useRef<HTMLDivElement>(null);
   const pagedViewRef = useRef<HTMLDivElement>(null);
   const { isDark } = useDarkMode();
-  const { showConfirm, setLanguage: setAlertLanguage } = useAlert();
+  const { showConfirm, toast, setLanguage: setAlertLanguage } = useAlert();
 
   const [language, setLanguageState] = useState<Language>('en');
 
@@ -337,6 +337,7 @@ export default function BiodataBuilder() {
     if (confirmed) {
       clearLocalStorage(STORAGE_KEY);
       setData(createEmptyBiodata());
+      toast.success(getText('Reset complete!', 'रीसेट पूर्ण!', 'रीसेट पूर्ण!'));
     }
   };
 
@@ -355,6 +356,18 @@ export default function BiodataBuilder() {
 
   const handlePageCountChange = (count: number) => {
     setPageCount(count);
+  };
+
+  // Handle Edit/Save toggle with feedback
+  const handleToggleEditMode = () => {
+    if (isEditMode) {
+      // Saving - show toast (no clicks needed)
+      setIsEditMode(false);
+      toast.success(getText('Saved!', 'सहेजा गया!', 'जतन झाले!'));
+    } else {
+      // Entering edit mode
+      setIsEditMode(true);
+    }
   };
 
   // Handle AI-generated bio sections
@@ -426,7 +439,7 @@ export default function BiodataBuilder() {
 
   return (
     <main
-      className="min-h-screen py-4 px-2 md:py-8 md:px-4 transition-colors duration-300 relative"
+      className="min-h-screen py-4 px-0 md:py-8 md:px-4 transition-colors duration-300 relative"
       style={{
         background: isDark
           ? 'linear-gradient(180deg, #0a0a15 0%, #0f172a 30%, #1a1a2e 60%, #0f172a 100%)'
@@ -484,25 +497,36 @@ export default function BiodataBuilder() {
               }}
             >
               {/* Toolbar Content - Clean organized layout */}
-              <div className="relative px-2 py-2 sm:px-4 sm:py-3">
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                {/* Logo as Home Button */}
+              {/* Responsive: gap-1 on tiny, gap-1.5 on small, gap-3 on medium+ */}
+              <div className="relative px-1.5 py-1.5 xs:px-2 xs:py-2 sm:px-4 sm:py-3">
+              <div className="flex flex-wrap items-center justify-center gap-1 xs:gap-1.5 sm:gap-3">
+                {/* Back/Home Button - Arrow morphs to Logo on hover */}
                 <button
                   onClick={handleBackToHome}
-                  className="group h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37]/50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 cursor-pointer overflow-hidden"
-                  title={getText('Home', 'होम', 'मुख्यपृष्ठ')}
+                  className="group relative h-8 w-8 xs:h-9 xs:w-9 sm:h-9 sm:w-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:border-[#D4AF37] hover:bg-gradient-to-br hover:from-amber-50 hover:to-orange-50 dark:hover:from-amber-900/20 dark:hover:to-orange-900/20 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-amber-200/50 dark:hover:shadow-amber-900/30 cursor-pointer overflow-hidden"
+                  title={getText('Back to Home', 'होम पर वापस', 'मुख्यपृष्ठावर परत')}
                 >
+                  {/* Back Arrow - visible by default, fades on hover */}
+                  <svg
+                    className="w-4 h-4 xs:w-5 xs:h-5 text-gray-600 dark:text-gray-300 transition-all duration-300 group-hover:opacity-0 group-hover:scale-75 group-hover:-translate-x-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  {/* Logo - hidden by default, appears on hover, covers full button */}
                   <Image
                     src="/logo.png"
                     alt="Shubh Vivah"
-                    width={24}
-                    height={24}
-                    className="rounded transition-transform duration-300 group-hover:scale-110 sm:w-7 sm:h-7"
+                    width={36}
+                    height={36}
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg transition-all duration-300 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100"
                   />
                 </button>
 
-                {/* Divider */}
-                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
+                {/* Divider - hidden on very small screens */}
+                <div className="hidden xs:block w-px h-5 xs:h-6 bg-gray-300 dark:bg-slate-600" />
 
                 {/* Design Menu (Theme + Border + Symbol) */}
                 <DesignMenu
@@ -519,22 +543,23 @@ export default function BiodataBuilder() {
                 {/* Language Toggle */}
                 <LanguageToggle language={language} onLanguageChange={setLanguage} />
 
-                {/* Divider */}
-                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
+                {/* Divider - hidden on very small screens */}
+                <div className="hidden xs:block w-px h-5 xs:h-6 bg-gray-300 dark:bg-slate-600" />
 
                 {/* AI Bio Writer Button - Redesigned */}
+                {/* On very small screens: icon only, centered. On xs+: icon + text */}
                 <button
                   onClick={() => setShowAIWriter(true)}
-                  className="h-8 sm:h-9 px-3 sm:px-4 flex items-center gap-2 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg hover:scale-[1.02] text-white"
+                  className="h-8 w-8 xs:h-9 xs:w-auto xs:px-3 sm:h-9 sm:px-4 flex items-center justify-center xs:justify-start xs:gap-2 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg hover:scale-[1.02] text-white"
                   style={{
                     background: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #EC4899 100%)',
                   }}
                   title={getText('AI Bio Writer', 'AI बायो लेखक', 'AI बायो लेखक')}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  <span className="hidden sm:inline">{getText('AI Writer', 'AI लेखक', 'AI लेखक')}</span>
+                  <span className="hidden xs:inline">{getText('AI Writer', 'AI लेखक', 'AI लेखक')}</span>
                 </button>
 
                 {/* Download Button */}
@@ -559,8 +584,8 @@ export default function BiodataBuilder() {
                   biodataData={data}
                 />
 
-                {/* Divider */}
-                <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-slate-600" />
+                {/* Divider - hidden on very small screens */}
+                <div className="hidden xs:block w-px h-5 xs:h-6 bg-gray-300 dark:bg-slate-600" />
 
                 {/* Settings Menu (Dark mode + Backup + Reset) */}
                 <SettingsMenu
@@ -617,7 +642,8 @@ export default function BiodataBuilder() {
 
       {/* EDIT MODE: Continuous scrollable container */}
       {isEditMode && (
-        <div className="overflow-x-auto pb-4">
+        <div className="biodata-scale-wrapper pb-4">
+        <div className="biodata-scale-content">
         <div
           ref={biodataRef}
           className="biodata-container shadow-xl golden-glow mx-auto relative z-[10]"
@@ -671,6 +697,7 @@ export default function BiodataBuilder() {
               {/* Photo and Sections */}
               <div className="relative mt-2">
                 {/* Photo floated right - biodata is at fixed A4 width */}
+                {/* Always show photo frame in edit mode - user can hide/show for export */}
                 <div className="absolute right-0 top-0 z-10">
                   <PhotoSection
                     mainPhoto={data.photo}
@@ -685,7 +712,8 @@ export default function BiodataBuilder() {
                   />
                 </div>
 
-                <div className={showPhoto ? 'pr-48' : ''}>
+                {/* Always reserve space for photo frame in edit mode to prevent layout shift */}
+                <div className="pr-48">
                   {data.sections.map((section, index) => (
                     <SectionBuilder
                       key={section.id}
@@ -742,12 +770,13 @@ export default function BiodataBuilder() {
           </div>
         </div>
         </div>
+        </div>
       )}
 
       {/* VIEW MODE: Discrete A4 pages - WYSIWYG */}
       {!isEditMode && (
-        <div className="overflow-x-auto pb-4">
-          <div className="w-fit mx-auto">
+        <div className="biodata-scale-wrapper pb-4">
+          <div className="biodata-scale-content">
             <BiodataPagedView
               data={data}
               language={language}
@@ -780,7 +809,7 @@ export default function BiodataBuilder() {
       <EditActionsSidebar
         language={language}
         isEditMode={isEditMode}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+        onToggleEditMode={handleToggleEditMode}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={handleUndo}

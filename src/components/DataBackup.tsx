@@ -32,7 +32,7 @@ export default function DataBackup({
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMarathi = language === 'mr';
-  const { showConfirm, showSuccess, showError } = useAlert();
+  const { showConfirm, toast, showError } = useAlert();
 
   const handleExport = () => {
     const backup: BackupData = {
@@ -88,10 +88,7 @@ export default function DataBackup({
 
       if (confirmed) {
         onRestore(backup.data, backup.themeId, backup.borderId);
-        await showSuccess(
-          isMarathi ? 'डेटा यशस्वीरित्या पुनर्संचयित केला!' : 'Data restored successfully!',
-          isMarathi ? 'यशस्वी' : 'Success'
-        );
+        toast.success(isMarathi ? 'डेटा पुनर्संचयित!' : 'Data restored!');
       }
     } catch (error) {
       console.error('Import error:', error);

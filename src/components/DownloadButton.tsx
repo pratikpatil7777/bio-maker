@@ -47,7 +47,7 @@ export default function DownloadButton({
   const [progress, setProgress] = useState<string>('');
   const [showValidationWarning, setShowValidationWarning] = useState(false);
   const [pendingAction, setPendingAction] = useState<'pdf' | 'image' | null>(null);
-  const { showSuccess, showError, showConfirm } = useAlert();
+  const { toast, showError, showConfirm } = useAlert();
   const { isOpen: isPostDownloadOpen, showModal: showPostDownload, closeModal: closePostDownload } = usePostDownloadModal();
 
   const isHindi = language === 'hi';
@@ -178,13 +178,10 @@ export default function DownloadButton({
       setProgress(getText('Saving...', 'सेव हो रहा है...', 'सेव्ह करत आहे...'));
       pdf.save(`${fileName}.pdf`);
 
-      await showSuccess(
-        getText('PDF downloaded successfully!', 'PDF डाउनलोड हो गई!', 'PDF डाउनलोड झाली!'),
-        getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
-      );
+      toast.success(getText('PDF downloaded!', 'PDF डाउनलोड हो गई!', 'PDF डाउनलोड झाली!'));
 
       // Show post-download modal after successful download
-      setTimeout(() => showPostDownload(), 1000);
+      setTimeout(() => showPostDownload(), 500);
     } catch (error) {
       console.error('Error generating PDF:', error);
       await showError(
@@ -195,7 +192,7 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError, showPostDownload]);
+  }, [targetRef, fileName, language, toast, showError, showPostDownload]);
 
   const handleDownloadImage = useCallback(async () => {
     if (!targetRef.current) return;
@@ -259,10 +256,7 @@ export default function DownloadButton({
 
         window.scrollTo(0, 0);
 
-        await showSuccess(
-          getText(`${pages.length} images downloaded!`, `${pages.length} इमेज डाउनलोड हो गईं!`, `${pages.length} इमेज डाउनलोड झाल्या!`),
-          getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
-        );
+        toast.success(getText(`${pages.length} images downloaded!`, `${pages.length} इमेज डाउनलोड हो गईं!`, `${pages.length} इमेज डाउनलोड झाल्या!`));
       } else {
         // Single page
         const page = (pages[0] as HTMLElement) || container;
@@ -293,13 +287,10 @@ export default function DownloadButton({
         a.click();
         URL.revokeObjectURL(url);
 
-        await showSuccess(
-          getText('Image downloaded successfully!', 'इमेज डाउनलोड हो गई!', 'इमेज डाउनलोड झाली!'),
-          getText('Download Complete', 'डाउनलोड पूर्ण', 'डाउनलोड पूर्ण')
-        );
+        toast.success(getText('Image downloaded!', 'इमेज डाउनलोड हो गई!', 'इमेज डाउनलोड झाली!'));
 
         // Show post-download modal after successful download
-        setTimeout(() => showPostDownload(), 1000);
+        setTimeout(() => showPostDownload(), 500);
       }
     } catch (error) {
       console.error('Error downloading image:', error);
@@ -311,7 +302,7 @@ export default function DownloadButton({
       setIsGenerating(false);
       setProgress('');
     }
-  }, [targetRef, fileName, language, showSuccess, showError, showPostDownload]);
+  }, [targetRef, fileName, language, toast, showError, showPostDownload]);
 
   const handleCreateAnother = () => {
     if (onCreateAnother) {
@@ -331,7 +322,7 @@ export default function DownloadButton({
         <button
         onClick={() => setShowOptions(!showOptions)}
         disabled={isGenerating}
-        className={`h-9 flex items-center gap-1.5 px-4 rounded-lg font-semibold text-xs transition-all duration-300 ${
+        className={`h-8 xs:h-9 sm:h-9 flex items-center gap-1 xs:gap-1.5 px-2 xs:px-3 sm:px-4 rounded-lg font-semibold text-[10px] xs:text-xs transition-all duration-300 ${
           isGenerating
             ? 'bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-slate-400 cursor-not-allowed'
             : 'golden-btn text-white hover:scale-[1.02] cursor-pointer'
@@ -347,7 +338,7 @@ export default function DownloadButton({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <span className="max-w-[120px] truncate">{progress || getText('Generating...', 'तयार हो रहा है...', 'तयार करत आहे...')}</span>
+            <span className="max-w-[80px] sm:max-w-[120px] truncate text-[10px] sm:text-xs">{progress || getText('Generating...', 'तयार हो रहा है...', 'तयार करत आहे...')}</span>
           </>
         ) : (
           <>
@@ -376,39 +367,39 @@ export default function DownloadButton({
             onClick={() => setShowOptions(false)}
           />
 
-          {/* Menu */}
-          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[180px]">
-            {/* PDF */}
+          {/* Menu - Responsive positioning */}
+          <div className="absolute right-0 sm:right-0 left-auto top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[1001] min-w-[180px] max-w-[calc(100vw-16px)] sm:max-w-none">
+            {/* PDF - Touch-friendly sizing */}
             <button
               onClick={() => checkValidationAndProceed('pdf')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-4 sm:py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer active:bg-gray-100 dark:active:bg-slate-600"
             >
-              <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zm-3 9v6h2v-2h1a2 2 0 000-4h-3zm2 2h1v-0h-1v0zm-5 4v-6h3a2 2 0 010 4h-1v2H7zm2-4h1v0H9v0z" />
                 </svg>
               </div>
               <div className="flex flex-col items-start">
-                <span>{getText('PDF', 'PDF', 'PDF')}</span>
-                <span className="text-[10px] text-gray-400">
+                <span className="font-medium">{getText('PDF', 'PDF', 'PDF')}</span>
+                <span className="text-[10px] sm:text-[10px] text-gray-400">
                   {getText('Best for printing', 'प्रिंट के लिए', 'प्रिंटसाठी उत्तम')}
                 </span>
               </div>
             </button>
 
-            {/* Image */}
+            {/* Image - Touch-friendly sizing */}
             <button
               onClick={() => checkValidationAndProceed('image')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700"
+              className="w-full flex items-center gap-3 px-4 py-4 sm:py-3 text-sm text-[#333] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer border-t border-gray-100 dark:border-slate-700 active:bg-gray-100 dark:active:bg-slate-600"
             >
-              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="flex flex-col items-start">
-                <span>{getText('Image', 'इमेज', 'इमेज')}</span>
-                <span className="text-[10px] text-gray-400">
+                <span className="font-medium">{getText('Image', 'इमेज', 'इमेज')}</span>
+                <span className="text-[10px] sm:text-[10px] text-gray-400">
                   {getText('PNG format', 'PNG फॉर्मेट', 'PNG फॉरमॅट')}
                 </span>
               </div>

@@ -27,10 +27,10 @@ export default function LanguageToggle({ language, onLanguageChange }: LanguageT
 
   return (
     <div className="relative">
-      {/* Trigger Button - Globe icon with current language */}
+      {/* Trigger Button - Globe icon with current language - Touch-friendly */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-9 px-2.5 flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-300 cursor-pointer bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 hover:border-[#D4AF37]/50 hover:shadow-md group"
+        className="h-8 xs:h-9 sm:h-9 px-1.5 xs:px-2.5 flex items-center gap-1 xs:gap-1.5 rounded-lg text-[10px] xs:text-xs font-semibold transition-all duration-300 cursor-pointer bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 hover:border-[#D4AF37]/50 hover:shadow-md group touch-target"
         title="Change Language"
       >
         {/* Globe Icon */}
@@ -73,24 +73,24 @@ export default function LanguageToggle({ language, onLanguageChange }: LanguageT
           {/* Backdrop for clicking outside */}
           <div className="fixed inset-0 z-[1000]" onClick={() => setIsOpen(false)} />
 
-          <div className="absolute top-full right-0 mt-1 min-w-[140px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 shadow-xl overflow-hidden z-[1001] animate-fadeIn">
+          <div className="absolute top-full right-0 sm:right-0 left-auto mt-1 min-w-[140px] max-w-[calc(100vw-16px)] sm:max-w-none bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 shadow-xl overflow-hidden z-[1001] animate-fadeIn">
           {/* Header */}
-          <div className="px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-700 dark:to-slate-700 border-b border-amber-100 dark:border-slate-600">
+          <div className="px-3 py-2.5 sm:py-2 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-700 dark:to-slate-700 border-b border-amber-100 dark:border-slate-600">
             <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
               Language / भाषा
             </span>
           </div>
 
-          {/* Language Options */}
+          {/* Language Options - Touch-friendly */}
           <div className="py-1">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleSelect(lang.code)}
-                className={`w-full px-3 py-2.5 flex items-center gap-3 transition-all cursor-pointer ${
+                className={`w-full px-3 py-3.5 sm:py-2.5 flex items-center gap-3 transition-all cursor-pointer active:scale-95 ${
                   language === lang.code
                     ? 'bg-amber-50 dark:bg-slate-700 text-amber-900 dark:text-amber-300'
-                    : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+                    : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 active:bg-gray-100'
                 }`}
               >
                 {/* Language Code Badge */}
